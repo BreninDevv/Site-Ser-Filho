@@ -14,7 +14,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* HERO */}
-      <section className="relative overflow-hidden px-4 py-28 text-center">
+      <section className="relative overflow-hidden px-4 py-16 text-center sm:py-28">
         <div
           aria-hidden
           className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-[46%] rounded-full border border-border"
@@ -101,7 +101,7 @@ export default async function HomePage() {
             </p>
           ) : (
             <div className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
-              {celulas.map((c) => (
+              {celulas.map((c) => ( 
                 <div key={c.id} className="flex flex-col bg-background">
                   <div className="aspect-video w-full bg-muted flex items-center justify-center">
                     {c.foto_url ? (
