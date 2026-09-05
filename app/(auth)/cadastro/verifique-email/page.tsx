@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function VerifiqueEmailPage() {
+function VerifiqueEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") ?? "";
@@ -54,5 +54,13 @@ export default function VerifiqueEmailPage() {
         </p>
       )}
     </div>
+  );
+}
+
+export default function VerifiqueEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifiqueEmailContent />
+    </Suspense>
   );
 }
