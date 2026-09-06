@@ -4,12 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { obterPerfilAtual, podeGerenciar } from "@/lib/auth/permissoes";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
 import {
-  alternarPresenca,
-  definirStatus,
-  excluirInscricao,
   STATUS_INSCRICAO,
   type StatusInscricao,
-} from "./actions";
+} from "@/lib/validations/inscricao-encontro";
+import { alternarPresenca, definirStatus, excluirInscricao } from "./actions";
 
 type Inscricao = {
   id: string;

@@ -43,6 +43,9 @@ export const ESTADO_INICIAL: EstadoInscricao = { status: "inicial" };
 
 export const OPCOES_SEXO = ["feminino", "masculino", "outro"] as const;
 
+export const STATUS_INSCRICAO = ["pendente", "confirmada", "cancelada"] as const;
+export type StatusInscricao = (typeof STATUS_INSCRICAO)[number];
+
 export const OPCOES_COMO_SOUBE = [
   "Amigo ou familiar",
   "Célula",

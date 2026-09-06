@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { ehLiderOuDev } from "@/lib/auth/permissoes";
-
-export const STATUS_INSCRICAO = ["pendente", "confirmada", "cancelada"] as const;
-export type StatusInscricao = (typeof STATUS_INSCRICAO)[number];
+import {
+  STATUS_INSCRICAO,
+  type StatusInscricao,
+} from "@/lib/validations/inscricao-encontro";
 
 export async function definirStatus(id: string, status: StatusInscricao) {
   if (!STATUS_INSCRICAO.includes(status)) return;
