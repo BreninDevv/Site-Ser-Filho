@@ -157,6 +157,24 @@ export default async function InicioPage() {
         </div>
       </section>
 
+      {/* LEGADO DE CRISTO */}
+      <section className="border-y border-border px-4 py-32 text-center">
+        <p className="mb-5 text-sm font-semibold tracking-wide text-muted-foreground">
+          Continuidade
+        </p>
+        <h2 className="font-heading text-6xl uppercase leading-[0.9] sm:text-7xl">
+          Legado
+          <br />
+          de Cristo
+        </h2>
+        <p className="mx-auto mt-7 max-w-sm text-muted-foreground">
+          Um tempo para firmar o que Deus já começou e deixar um rastro de fé.
+        </p>
+        <Button size="lg" className="mt-9 bg-foreground text-background hover:bg-foreground/90" asChild>
+          <Link href="/legado-de-cristo">Inscrever no Legado</Link>
+        </Button>
+      </section>
+
       {/* CONTATO */}
       <section className="px-4 py-24">
         <div className="mx-auto max-w-3xl">

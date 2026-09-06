@@ -99,7 +99,9 @@ export function podeAcessarRotaPainel(
   if (role === ROLE_LIDER) {
     return (
       pathname === "/painel/encontro" ||
-      pathname.startsWith("/painel/encontro/")
+      pathname.startsWith("/painel/encontro/") ||
+      pathname === "/painel/legado" ||
+      pathname.startsWith("/painel/legado/")
     );
   }
   return false;

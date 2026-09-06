@@ -18,6 +18,7 @@ const publicLinks = [
   { href: "/celulas", label: "Células" },
   { href: "/testemunhos", label: "Testemunhos" },
   { href: "/encontro-com-deus", label: "Encontro com Deus" },
+  { href: "/legado-de-cristo", label: "Legado de Cristo" },
 ];
 
 export async function PublicHeader() {

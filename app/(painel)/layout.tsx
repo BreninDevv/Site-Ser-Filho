@@ -17,7 +17,7 @@ export default async function PainelLayout({
   return (
     <div className="flex min-h-full flex-col md:flex-row">
       <PainelNav
-        titulo={master ? "Painel" : "Encontro"}
+        titulo={master ? "Painel" : "Inscrições"}
         mostrarDashboard={master}
         mostrarEncontro={podeVerInscricoes(perfil)}
         mostrarAdmin={podeAdminUsuarios(perfil)}

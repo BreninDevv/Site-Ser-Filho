@@ -15,6 +15,7 @@ export function PainelNav({
   const links = [
     mostrarDashboard && { href: "/painel", label: "Dashboard" },
     mostrarEncontro && { href: "/painel/encontro", label: "Inscrições do Encontro" },
+    mostrarEncontro && { href: "/painel/legado", label: "Inscrições do Legado" },
     mostrarAdmin && { href: "/painel/admin/usuarios", label: "Admin · Usuários" },
   ].filter((link): link is { href: string; label: string } => Boolean(link));
 
