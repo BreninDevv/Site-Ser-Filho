@@ -53,4 +53,8 @@ app/
 
 ## Fora de escopo agora
 
-Não implementar: login real, RLS, cadastro de células, player de testemunhos, formulário de inscrição, checagem de role nas rotas do painel.
+Não implementar: player de testemunhos, checagem de role nas rotas do painel.
+
+## Inscrições do Encontro
+
+A inscrição pública já existe em `/encontro-com-deus`, gravando na tabela `inscricoes_encontro`. O SQL da tabela e das policies está em `supabase/migrations/001_inscricoes_encontro.sql` e precisa ser rodado no SQL Editor do Supabase. Os campos `status` e `presente` são controlados só pelo painel: o RLS impede que a inscrição pública já entre confirmada ou com presença marcada. A gestão dos inscritos em `/painel/encontro` continua pendente.
