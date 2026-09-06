@@ -12,7 +12,8 @@ export default function EncontroComDeusPage() {
       <div className="mt-10 border-t border-border pt-10">
         <h2 className="font-heading text-3xl uppercase">Faça sua inscrição</h2>
         <p className="mt-2 mb-8 text-sm text-muted-foreground">
-          Preencha os dados abaixo. Não é preciso ter conta no site.
+          Primeiro seus dados, depois o pagamento. A inscrição só é confirmada
+          depois que a equipe conferir. Não é preciso ter conta no site.
         </p>
 
         <div className="max-w-xl">

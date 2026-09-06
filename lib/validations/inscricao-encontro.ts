@@ -1,3 +1,5 @@
+import type { CampoPagamento } from "./pagamento-encontro";
+
 export const CAMPOS_INSCRICAO = [
   "nome_completo",
   "email",
@@ -29,13 +31,20 @@ export type DadosInscricao = {
   como_soube: string | null;
 };
 
+/** O formulário tem duas etapas, então o estado carrega os campos das duas. */
+export type CampoFormulario = CampoInscricao | CampoPagamento;
+export type ErrosFormulario = Partial<Record<CampoFormulario, string>>;
+export type ValoresFormulario = Partial<Record<CampoFormulario, string>>;
+
 export type EstadoInscricao =
   | { status: "inicial" }
   | {
       status: "erro";
-      erros: ErrosInscricao;
-      valores: ValoresInscricao;
+      erros: ErrosFormulario;
+      valores: ValoresFormulario;
       mensagem?: string;
+      /** Em qual etapa estão os erros, para o formulário voltar até eles. */
+      etapa: 1 | 2;
     }
   | { status: "sucesso"; nome: string };
 

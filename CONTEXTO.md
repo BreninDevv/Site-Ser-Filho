@@ -57,4 +57,8 @@ Não implementar: player de testemunhos, checagem de role nas rotas do painel.
 
 ## Inscrições do Encontro
 
-A inscrição pública já existe em `/encontro-com-deus`, gravando na tabela `inscricoes_encontro`. O SQL da tabela e das policies está em `supabase/migrations/001_inscricoes_encontro.sql` e precisa ser rodado no SQL Editor do Supabase. Os campos `status` e `presente` são controlados só pelo painel: o RLS impede que a inscrição pública já entre confirmada ou com presença marcada. A gestão dos inscritos em `/painel/encontro` continua pendente.
+A inscrição pública em `/encontro-com-deus` tem duas etapas: dados pessoais e pagamento. Enviar **não** confirma a vaga — o status entra como `pendente` e só uma conta `dev` aprova (função `pode_aprovar_pagamento`; no futuro basta acrescentar a role nova ali e em `lib/auth/permissoes.ts`).
+
+Preços (centavos, em `lib/validations/pagamento-encontro.ts`): encontro R$ 200, entrada mínima R$ 100, criança R$ 50. Crédito parcelado (2x ou 3x) aplica 9,875% de taxa; à vista não tem taxa. Comprovante obrigatório no Pix e no crédito; dinheiro e débito são presenciais e o anexo é opcional. Arquivos vão para o bucket privado `comprovantes-encontro` e o painel lê por URL assinada.
+
+SQL: `supabase/migrations/001_inscricoes_encontro.sql` (tabela) e `002_pagamento_encontro.sql` (colunas de pagamento, policies e bucket). Líder vê a lista; só quem aprova pagamento confirma, edita valores e vê comprovantes.
