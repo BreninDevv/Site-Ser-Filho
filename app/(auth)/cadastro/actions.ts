@@ -22,7 +22,7 @@ export async function cadastrar(formData: FormData) {
     password: senha,
     options: {
       data: { nome: formData.get("nome") as string },
-      emailRedirectTo: `${origin}/email-confirmado`,
+      emailRedirectTo: `${origin}/auth/confirmar-email`,
     },
   });
 
