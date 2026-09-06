@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { eAcessoMaster } from "@/lib/auth/roles";
 import { EditarCelulaForm } from "./editar-celula-form";
 
 export default async function EditarCelulaPage({
@@ -33,7 +34,7 @@ export default async function EditarCelulaPage({
       .eq("id", user.id)
       .single();
     podeEditar =
-      perfil?.role === "dev" ||
+      eAcessoMaster(perfil?.role) ||
       (perfil?.role === "lider" && celula.lider_id === user.id);
   }
 

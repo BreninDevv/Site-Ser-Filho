@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import {
+  podeEditarQualquerCelula,
+  podeGerenciarCelulas,
+} from "@/lib/auth/roles";
 import { excluirCelula } from "./actions";
 import { ExcluirCelulaButton } from "@/components/excluir-celula-button";
 import { BuscaDistanciaForm } from "./busca-distancia-form";
@@ -22,7 +26,7 @@ export default async function CelulasPage() {
     role = perfil?.role ?? null;
   }
 
-  const podeGerenciar = role === "dev" || role === "lider";
+  const podeGerenciar = podeGerenciarCelulas(role);
 
   const { data: celulas } = await supabase
     .from("celulas")
@@ -30,7 +34,7 @@ export default async function CelulasPage() {
     .order("created_at", { ascending: false });
 
   function podeEditarOuExcluir(liderId: string) {
-    if (role === "dev") return true;
+    if (podeEditarQualquerCelula(role)) return true;
     if (role === "lider" && user && liderId === user.id) return true;
     return false;
   }

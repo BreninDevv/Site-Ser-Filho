@@ -12,8 +12,7 @@ import {
   FORMAS_PAGAMENTO,
   MAX_CRIANCAS,
   MAX_PARCELAS,
-  VALOR_CRIANCA_CENTAVOS,
-  VALOR_ENCONTRO_CENTAVOS,
+  calcularValores,
   type FormaPagamento,
 } from "@/lib/validations/pagamento-encontro";
 
@@ -116,6 +115,23 @@ export async function atualizarPagamento(id: string, formData: FormData) {
   const observacao = String(formData.get("pagamento_observacao") ?? "").trim();
 
   const supabase = await createClient();
+  const { data: atual } = await supabase
+    .from("inscricoes_encontro")
+    .select("valor_devido_centavos, valor_escolhido_centavos")
+    .eq("id", id)
+    .single();
+
+  const devidoAnterior = atual?.valor_devido_centavos ?? 0;
+  const escolhidoAnterior = atual?.valor_escolhido_centavos ?? 0;
+  const eraTotal = devidoAnterior > 0 && escolhidoAnterior >= devidoAnterior;
+
+  const calculo = calcularValores({
+    opcao: eraTotal ? "total" : "entrada",
+    qtdCriancas: qtd,
+    forma,
+    parcelas,
+  });
+
   await supabase
     .from("inscricoes_encontro")
     .update({
@@ -123,7 +139,9 @@ export async function atualizarPagamento(id: string, formData: FormData) {
       parcelas,
       qtd_criancas: qtd,
       leva_crianca: qtd > 0,
-      valor_devido_centavos: VALOR_ENCONTRO_CENTAVOS + VALOR_CRIANCA_CENTAVOS * qtd,
+      valor_devido_centavos: calculo.devido,
+      valor_escolhido_centavos: calculo.escolhido,
+      valor_cobrado_centavos: calculo.cobrado,
       valor_pago_centavos: valorPago,
       pagamento_observacao: observacao || null,
     })

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { destinoAposLogin } from "@/lib/auth/roles";
 import { redirect } from "next/navigation";
 
 export async function login(formData: FormData) {
@@ -28,11 +29,7 @@ export async function login(formData: FormData) {
     .eq("id", user!.id)
     .single();
 
-  if (perfil?.role === "dev") {
-    redirect("/painel");
-  }
-
-  redirect("/inicio");
+  redirect(destinoAposLogin(perfil?.role));
 }
 
 export async function logout() {

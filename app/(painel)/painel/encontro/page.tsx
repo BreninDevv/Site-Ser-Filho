@@ -16,7 +16,7 @@ export default async function PainelEncontroPage() {
       <div>
         <h1 className="text-xl font-semibold mb-1">Inscrições do Encontro</h1>
         <p className="text-sm text-muted-foreground">
-          Apenas líderes, pastores e dev podem ver as inscrições.
+          Apenas líderes e quem tem acesso master podem ver as inscrições.
         </p>
       </div>
     );
@@ -95,7 +95,7 @@ export default async function PainelEncontroPage() {
         <p className="text-sm text-muted-foreground">
           {podeAprovar
             ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."
-            : "Você pode ver a lista. Quem confirma pagamento é o dev."}
+            : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
         </p>
       </div>
 

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { destinoDoPainel, podeAcessarRotaPainel } from "@/lib/auth/roles";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,8 +43,10 @@ export async function proxy(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (perfil?.role !== "dev") {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (!podeAcessarRotaPainel(perfil?.role, request.nextUrl.pathname)) {
+      return NextResponse.redirect(
+        new URL(destinoDoPainel(perfil?.role) ?? "/", request.url)
+      );
     }
   }
 

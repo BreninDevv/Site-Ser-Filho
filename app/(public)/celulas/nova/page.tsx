@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { podeGerenciarCelulas } from "@/lib/auth/roles";
 import { NovaCelulaForm } from "./nova-celula-form";
 
 export default async function NovaCelulaPage({
@@ -20,7 +21,7 @@ export default async function NovaCelulaPage({
       .select("role")
       .eq("id", user.id)
       .single();
-    podeGerenciar = perfil?.role === "dev" || perfil?.role === "lider";
+    podeGerenciar = podeGerenciarCelulas(perfil?.role);
   }
 
   if (!podeGerenciar) {

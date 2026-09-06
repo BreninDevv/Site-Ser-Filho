@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { createClient } from "@/lib/supabase/server";
+import { destinoDoPainel, ROTULOS_ROLE } from "@/lib/auth/roles";
 import { logout } from "@/app/(auth)/login/actions";
 
 const publicLinks = [
@@ -18,12 +19,6 @@ const publicLinks = [
   { href: "/testemunhos", label: "Testemunhos" },
   { href: "/encontro-com-deus", label: "Encontro com Deus" },
 ];
-
-const rotulosRole: Record<string, string> = {
-  dev: "Dev",
-  lider: "Líder/Pastor",
-  pendente: "Aguardando aprovação",
-};
 
 export async function PublicHeader() {
   const supabase = await createClient();
@@ -41,6 +36,8 @@ export async function PublicHeader() {
     perfil = data;
   }
 
+  const hrefPainel = destinoDoPainel(perfil?.role);
+
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4">
@@ -57,9 +54,9 @@ export async function PublicHeader() {
             </Button>
           ))}
 
-          {perfil?.role === "dev" && (
+          {hrefPainel && (
             <Button size="sm" variant="ghost" className="text-sm font-semibold" asChild>
-              <Link href="/painel">Painel</Link>
+              <Link href={hrefPainel}>Painel</Link>
             </Button>
           )}
 
@@ -67,7 +64,7 @@ export async function PublicHeader() {
             <div className="flex items-center gap-3 pl-2 text-sm">
               <span className="text-muted-foreground">
                 Olá, <strong className="text-foreground">{perfil?.nome ?? user.email}</strong>
-                {perfil?.role && perfil.role !== "pendente" && ` (${rotulosRole[perfil.role] ?? perfil.role})`}
+                {perfil?.role && perfil.role !== "pendente" && ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
               </span>
               <form action={logout}>
                 <Button size="sm" variant="outline" type="submit">Sair</Button>
@@ -109,9 +106,9 @@ export async function PublicHeader() {
                 </SheetClose>
               ))}
 
-              {perfil?.role === "dev" && (
+              {hrefPainel && (
                 <SheetClose asChild>
-                  <Link href="/painel" className="border-b border-border py-3 text-sm font-semibold">
+                  <Link href={hrefPainel} className="border-b border-border py-3 text-sm font-semibold">
                     Painel
                   </Link>
                 </SheetClose>
@@ -122,7 +119,7 @@ export async function PublicHeader() {
                   <>
                     <p className="text-sm text-muted-foreground">
                       Olá, <strong className="text-foreground">{perfil?.nome ?? user.email}</strong>
-                      {perfil?.role && perfil.role !== "pendente" && ` (${rotulosRole[perfil.role] ?? perfil.role})`}
+                      {perfil?.role && perfil.role !== "pendente" && ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
                     </p>
                     <form action={logout}>
                       <Button size="sm" variant="outline" type="submit" className="w-full">

@@ -101,6 +101,11 @@ export function EditarPagamentoForm({
         </label>
       </div>
 
+      <p className="text-xs text-muted-foreground">
+        Ao salvar, o devido e o valor declarado são recalculados (entrada ou
+        total, com taxa se for crédito parcelado).
+      </p>
+
       <label className="block text-sm">
         <span className="mb-1.5 block font-medium">Nota interna (opcional)</span>
         <textarea
