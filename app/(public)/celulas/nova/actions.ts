@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { geocodificarEndereco } from "@/lib/geocoding";
 
 export async function criarCelula(dados: {
   nome: string;
@@ -22,8 +23,12 @@ export async function criarCelula(dados: {
     redirect("/login");
   }
 
+  const coordenadas = await geocodificarEndereco(dados.endereco);
+
   const { error } = await supabase.from("celulas").insert({
     ...dados,
+    latitude: coordenadas?.lat ?? null,
+    longitude: coordenadas?.lng ?? null,
     lider_id: user.id,
   });
 

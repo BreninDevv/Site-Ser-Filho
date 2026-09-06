@@ -3,6 +3,45 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { geocodificarEndereco } from "@/lib/geocoding";
+import { calcularDistanciaKm } from "@/lib/geocoding";
+
+export async function buscarCelulasPorDistancia(
+  prevState: { celulas: any[]; error: string | null },
+  formData: FormData
+) {
+  const endereco = formData.get("endereco") as string;
+  const supabase = await createClient();
+
+  const coordenadas = await geocodificarEndereco(endereco);
+  if (!coordenadas) {
+    return { celulas: [], error: "Endereço não encontrado. Tente um endereço mais específico." };
+  }
+
+  const { data: celulas } = await supabase
+    .from("celulas")
+    .select(
+      "id, nome, endereco, dia, horario, descricao, lider_id, foto_url, nome_responsavel, latitude, longitude"
+    )
+    .not("latitude", "is", null)
+    .not("longitude", "is", null);
+
+  if (!celulas || celulas.length === 0) {
+    return { celulas: [], error: null };
+  }
+
+  const visitor = { lat: coordenadas.lat, lng: coordenadas.lng };
+
+  const comDistancia = celulas
+    .filter((c: any) => c.latitude && c.longitude)
+    .map((c: any) => ({
+      ...c,
+      distanciaKm: calcularDistanciaKm(visitor, { lat: c.latitude, lng: c.longitude }),
+    }))
+    .sort((a: any, b: any) => a.distanciaKm - b.distanciaKm);
+
+  return { celulas: comDistancia, error: null };
+}
 
 export async function atualizarCelula(
   id: string,
@@ -17,21 +56,15 @@ export async function atualizarCelula(
   }
 ) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { error } = await supabase.from("celulas").update(dados).eq("id", id);
-
-  if (error) {
-    redirect(`/celulas/${id}/editar?erro=1`);
-  }
-
+  const coordenadas = await geocodificarEndereco(dados.endereco);
+  const { error } = await supabase
+    .from("celulas")
+    .update({ ...dados, latitude: coordenadas?.lat ?? null, longitude: coordenadas?.lng ?? null })
+    .eq("id", id);
+  if (error) redirect(`/celulas/${id}/editar?erro=1`);
   redirect("/celulas");
 }
 

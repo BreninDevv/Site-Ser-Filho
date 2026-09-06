@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { excluirCelula } from "./actions";
 import { ExcluirCelulaButton } from "@/components/excluir-celula-button";
+import { BuscaDistanciaForm } from "./busca-distancia-form";
 
 export default async function CelulasPage() {
   const supabase = await createClient();
@@ -25,7 +26,7 @@ export default async function CelulasPage() {
 
   const { data: celulas } = await supabase
     .from("celulas")
-    .select("id, nome, endereco, dia, horario, descricao, lider_id, foto_url, nome_responsavel")
+    .select("id, nome, endereco, dia, horario, descricao, lider_id, foto_url, nome_responsavel, latitude, longitude")
     .order("created_at", { ascending: false });
 
   function podeEditarOuExcluir(liderId: string) {
@@ -47,6 +48,8 @@ export default async function CelulasPage() {
       <p className="mb-10 text-sm text-muted-foreground">
         Encontre uma célula perto de você e participe.
       </p>
+
+      <BuscaDistanciaForm />
 
       {!celulas || celulas.length === 0 ? (
         <p className="border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
