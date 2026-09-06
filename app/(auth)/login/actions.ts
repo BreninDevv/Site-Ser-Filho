@@ -18,10 +18,25 @@ export async function login(formData: FormData) {
     redirect("/login?erro=credenciais");
   }
 
-  redirect("/painel");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: perfil } = await supabase
+    .from("perfis")
+    .select("role")
+    .eq("id", user!.id)
+    .single();
+
+  if (perfil?.role === "dev") {
+    redirect("/painel");
+  }
+
+  redirect("/inicio");
 }
+
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/");
+  redirect("/login");
 }

@@ -26,7 +26,7 @@ export function PainelNav() {
           </Button>
         ))}
         <Button variant="outline" size="sm" className="mt-2 justify-start" asChild>
-          <Link href="/">Voltar ao site</Link>
+          <Link href="/inicio">Voltar ao site</Link>
         </Button>
       </div>
     </aside>
