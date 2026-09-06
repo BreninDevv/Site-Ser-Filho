@@ -4,9 +4,9 @@ import { login } from "./actions";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erro?: string; confirmado?: string }>;
+  searchParams: Promise<{ erro?: string; confirmado?: string; senha_redefinida?: string }>;
 }) {
-  const { erro, confirmado } = await searchParams;
+  const { erro, confirmado, senha_redefinida } = await searchParams;
 
   const mensagensErro: Record<string, string> = {
     email_nao_confirmado: "Confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.",
@@ -25,6 +25,12 @@ export default async function LoginPage({
           E-mail confirmado! Se você já tinha outra aba aberta aguardando,
           pode fechar esta e continuar por lá — ou entrar direto aqui
           mesmo, tanto faz.
+        </p>
+      )}
+
+      {senha_redefinida === "1" && (
+        <p className="mb-5 border border-border bg-muted px-4 py-3 text-sm">
+          Senha redefinida com sucesso! Entre com sua senha nova.
         </p>
       )}
 
@@ -50,6 +56,11 @@ export default async function LoginPage({
             required
             className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
           />
+          <div className="mt-1.5 text-right">
+            <Link href="/esqueci-senha" className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">
+              Esqueci minha senha
+            </Link>
+          </div>
         </div>
         <button
           type="submit"
