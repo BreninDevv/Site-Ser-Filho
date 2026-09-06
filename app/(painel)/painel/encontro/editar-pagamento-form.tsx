@@ -91,7 +91,7 @@ export function EditarPagamentoForm({
         </label>
 
         <label className="text-sm">
-          <span className="mb-1.5 block font-medium">Valor pago (R$)</span>
+          <span className="mb-1.5 block font-medium">Quanto entrou (R$)</span>
           <input
             name="valor_pago"
             inputMode="decimal"
@@ -102,7 +102,7 @@ export function EditarPagamentoForm({
       </div>
 
       <label className="block text-sm">
-        <span className="mb-1.5 block font-medium">Observação do pagamento</span>
+        <span className="mb-1.5 block font-medium">Nota interna (opcional)</span>
         <textarea
           name="pagamento_observacao"
           rows={2}

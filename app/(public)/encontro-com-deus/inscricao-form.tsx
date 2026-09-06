@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
 import { inscreverNoEncontro } from "./actions";
@@ -317,7 +324,9 @@ export function InscricaoForm() {
     formData.delete("comprovante");
     formData.set("comprovante_path", caminho);
 
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   }
 
   return (
