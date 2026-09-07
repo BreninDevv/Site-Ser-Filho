@@ -8,7 +8,9 @@ import {
 } from "@/lib/auth/roles";
 
 export {
+  ROLE_DEV,
   ROLES_ATRIBUIVEIS,
+  ROLES_EQUIPE_MIDIA,
   ROLES_MASTER,
   ROLES_QUE_APROVAM_PAGAMENTO,
   ROLES_QUE_VEEM_INSCRICOES,
@@ -16,6 +18,7 @@ export {
   destinoAposLogin,
   destinoDoPainel,
   eAcessoMaster,
+  eDev,
   podeAcessarRotaPainel,
   podeAdminUsuarios,
   podeAprovarPagamento,

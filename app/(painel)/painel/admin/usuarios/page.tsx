@@ -69,16 +69,26 @@ export default async function AdminUsuariosPage() {
         </p>
         <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
           <li>
-            <strong className="text-foreground">Mídia</strong> — só Eventos e
-            os 3 testemunhos da home.
+            <strong className="text-foreground">Dev</strong> — acesso a tudo,
+            inclusive o que for implantado daqui pra frente.
+          </li>
+          <li>
+            <strong className="text-foreground">Apóstolo(a)</strong> — painel
+            completo, inclusive Eventos e Testemunhos.
+          </li>
+          <li>
+            <strong className="text-foreground">Mídia</strong> — Eventos
+            (editar, programar, descrição e se precisa de inscrição) e os 3
+            testemunhos da home.
+          </li>
+          <li>
+            <strong className="text-foreground">Tesouraria</strong> —
+            inscrições e pagamento (Encontro, Legado e eventos com inscrição).
+            Sem editar posts de Eventos e sem Testemunhos.
           </li>
           <li>
             <strong className="text-foreground">Líder/Pastor</strong> — vê
-            inscrições, sem aprovar pagamento.
-          </li>
-          <li>
-            <strong className="text-foreground">Tesouraria / Apóstolo(a)</strong>{" "}
-            — mesmo acesso master que o Dev.
+            inscrições, sem aprovar pagamento e sem mídia.
           </li>
         </ul>
       </div>

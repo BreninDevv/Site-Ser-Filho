@@ -7,17 +7,23 @@ export function PainelNav({
   mostrarEncontro,
   mostrarMidia,
   mostrarAdmin,
+  mostrarInscricoesEventos,
 }: {
   titulo: string;
   mostrarDashboard: boolean;
   mostrarEncontro: boolean;
   mostrarMidia: boolean;
   mostrarAdmin: boolean;
+  mostrarInscricoesEventos: boolean;
 }) {
   const links = [
     mostrarDashboard && { href: "/painel", label: "Dashboard" },
     mostrarEncontro && { href: "/painel/encontro", label: "Inscrições do Volta ao Jardim" },
     mostrarEncontro && { href: "/painel/legado", label: "Inscrições do Legado" },
+    mostrarInscricoesEventos && {
+      href: "/painel/inscricoes-eventos",
+      label: "Inscrições de eventos",
+    },
     mostrarMidia && { href: "/painel/eventos", label: "Eventos" },
     mostrarMidia && { href: "/painel/testemunhos", label: "Testemunhos" },
     mostrarAdmin && { href: "/painel/admin/usuarios", label: "Admin · Usuários" },

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { urlPublicaDoPost } from "@/lib/midia";
+import { formatarQuando, urlPublicaDoPost } from "@/lib/midia";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Eventos | Ser Filho",
@@ -9,10 +11,12 @@ export const metadata: Metadata = {
 
 export default async function EventosPage() {
   const supabase = await createClient();
-  const { data: eventos } = await supabase
+  const agora = new Date().toISOString();
+  const { data: eventos, error } = await supabase
     .from("eventos")
-    .select("id, nome, imagem_path")
-    .order("created_at", { ascending: false });
+    .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao")
+    .lte("publicar_em", agora)
+    .order("publicar_em", { ascending: false });
 
   return (
     <div className="mx-auto max-w-4xl px-2 py-8 sm:py-12">
@@ -27,7 +31,12 @@ export default async function EventosPage() {
         sempre que um post novo entra.
       </p>
 
-      {!eventos?.length ? (
+      {error ? (
+        <p className="mt-12 rounded-2xl border border-destructive/40 p-6 text-sm text-destructive">
+          Não foi possível carregar os eventos. Rode a migration 009 no
+          Supabase.
+        </p>
+      ) : !eventos?.length ? (
         <p className="mt-12 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           Nenhum evento no ar neste momento.
         </p>
@@ -43,10 +52,23 @@ export default async function EventosPage() {
                 alt={evento.nome}
                 className="aspect-[4/5] w-full object-cover"
               />
-              <div className="p-5">
+              <div className="space-y-2 p-5">
+                <p className="text-xs text-muted-foreground">
+                  {formatarQuando(evento.publicar_em)}
+                </p>
                 <h2 className="font-heading text-2xl font-bold tracking-tight">
-                  {evento.nome}
+                  <Link href={`/eventos/${evento.id}`}>{evento.nome}</Link>
                 </h2>
+                {evento.descricao && (
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {evento.descricao}
+                  </p>
+                )}
+                {evento.exige_inscricao && (
+                  <Button className="mt-3 rounded-full" asChild>
+                    <Link href={`/eventos/${evento.id}`}>Inscrever-se</Link>
+                  </Button>
+                )}
               </div>
             </article>
           ))}

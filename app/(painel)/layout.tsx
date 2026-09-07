@@ -5,6 +5,7 @@ import {
   eAcessoMaster,
   obterPerfilAtual,
   podeAdminUsuarios,
+  podeAprovarPagamento,
   podeGerenciarMidia,
   podeVerInscricoes,
 } from "@/lib/auth/permissoes";
@@ -28,6 +29,7 @@ export default async function PainelLayout({
         mostrarDashboard={master}
         mostrarEncontro={podeVerInscricoes(perfil)}
         mostrarMidia={podeGerenciarMidia(perfil)}
+        mostrarInscricoesEventos={podeAprovarPagamento(perfil)}
         mostrarAdmin={podeAdminUsuarios(perfil)}
       />
       <main className="flex-1 px-4 py-8 md:px-8">{children}</main>

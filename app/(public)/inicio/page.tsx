@@ -3,7 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/typewriter";
 import { createClient } from "@/lib/supabase/server";
 import { TestemunhosHome } from "@/components/testemunhos-home";
-import { embedDoVideo, INSTAGRAM_SER_FILHO, urlPublicaDoPost } from "@/lib/midia";
+import { HandwritingText } from "@/components/ui/handwriting-text";
+import GlobeStudy from "@/components/ui/globe-study";
+import {
+  destinoDoTestemunho,
+  INSTAGRAM_SER_FILHO,
+  previaEhVideo,
+  urlPublicaDaPrevia,
+  urlPublicaDoPost,
+} from "@/lib/midia";
 
 export default async function InicioPage() {
   const supabase = await createClient();
@@ -14,48 +22,82 @@ export default async function InicioPage() {
     .order("created_at", { ascending: false })
     .limit(3);
 
+  const agora = new Date().toISOString();
   const { data: eventos } = await supabase
     .from("eventos")
     .select("id, nome, imagem_path")
-    .order("created_at", { ascending: false })
+    .lte("publicar_em", agora)
+    .order("publicar_em", { ascending: false })
     .limit(3);
 
-  const { data: testemunhos } = await supabase
+  const { data: testemunhosNovos } = await supabase
     .from("testemunhos")
-    .select("nome, video_url")
+    .select("nome, titulo, descricao, video_url, previa_path")
     .order("created_at", { ascending: false })
     .limit(3);
 
-  const testemunhosHome = (testemunhos ?? [])
+  const { data: testemunhosLegado } = testemunhosNovos
+    ? { data: null }
+    : await supabase
+        .from("testemunhos")
+        .select("nome, titulo, video_url")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+  const testemunhos = testemunhosNovos ??
+    testemunhosLegado?.map((item) => ({
+      ...item,
+      descricao: null as string | null,
+      previa_path: null as string | null,
+    })) ??
+    [];
+
+  const testemunhosHome = testemunhos
     .map((item) => {
-      const embed = embedDoVideo(item.video_url);
-      if (!embed) return null;
-      return { nome: item.nome, embed };
+      const destino = destinoDoTestemunho(item.video_url);
+      if (!destino) return null;
+      const previa = item.previa_path ? urlPublicaDaPrevia(item.previa_path) : "";
+      return {
+        nome: item.nome || item.titulo || "",
+        descricao: item.descricao ?? "",
+        destino,
+        previa,
+        video: item.previa_path ? previaEhVideo(item.previa_path) : false,
+      };
     })
-    .filter((item): item is { nome: string; embed: string } => Boolean(item));
+    .filter(
+      (
+        item
+      ): item is {
+        nome: string;
+        descricao: string;
+        destino: string;
+        previa: string;
+        video: boolean;
+      } => Boolean(item)
+    );
 
   return (
     <div>
       <section className="relative flex min-h-[calc(100svh-7.5rem)] items-center justify-center overflow-hidden px-4 py-16 text-center -mt-12 sm:-mt-16">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tertiary/10 blur-3xl"
-        />
         <div className="relative mx-auto max-w-2xl">
-          <img
-            src="/logo-yenps-transparente.png"
-            alt="YENPS"
-            width={80}
-            height={80}
-            className="mx-auto mb-3 h-16 w-16 bg-transparent object-contain"
-          />
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-tertiary">
+          <div className="relative z-10 mx-auto h-[280px] w-[280px] sm:h-[380px] sm:w-[380px]">
+            <GlobeStudy mode="light" />
+          </div>
+          <div className="relative z-10 -mt-3 mb-4 flex justify-center text-tertiary">
+            <HandwritingText
+              words={["1 MILHÃO"]}
+              className="w-full max-w-md text-tertiary"
+              height="3.4rem"
+            />
+          </div>
+          <p className="relative z-10 mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-tertiary">
             Ministério
           </p>
-          <h1 className="font-heading text-6xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
+          <h1 className="font-heading relative z-10 text-6xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
             Ser Filho
           </h1>
-          <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
+          <p className="relative z-10 mx-auto mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
             Um lugar para{" "}
             <Typewriter
               palavras={["pertencer.", "crescer.", "ser chamado filho."]}
@@ -242,7 +284,7 @@ export default async function InicioPage() {
               {eventos.map((evento) => (
                 <Link
                   key={evento.id}
-                  href="/eventos"
+                  href={`/eventos/${evento.id}`}
                   className="overflow-hidden rounded-2xl bg-white shadow-[0_1rem_2.5rem_rgba(20,20,18,0.08)]"
                 >
                   <img

@@ -1,11 +1,18 @@
 /**
  * Fonte única dos nomes de role. O SQL (`e_acesso_master`,
- * `pode_ver_inscricoes`, `pode_aprovar_pagamento`) precisa da mesma lista.
+ * `e_equipe_midia`, `pode_ver_inscricoes`, `pode_aprovar_pagamento`)
+ * precisa da mesma lista.
+ *
+ * Dev entra em tudo o que for implantado daqui pra frente.
+ * Tesouraria e Líder/Pastor não mexem em eventos/testemunhos.
  */
+export const ROLE_DEV = "dev";
 export const ROLES_MASTER = ["dev", "tesouraria", "apostolo"] as const;
 export const ROLE_LIDER = "lider";
 export const ROLE_PENDENTE = "pendente";
 export const ROLE_MIDIA = "midia";
+
+export const ROLES_EQUIPE_MIDIA = ["dev", "apostolo", "midia"] as const;
 
 export const ROLES_QUE_VEEM_INSCRICOES = [
   ...ROLES_MASTER,
@@ -24,6 +31,7 @@ export const ROLES_ATRIBUIVEIS = [
 
 export type RoleMaster = (typeof ROLES_MASTER)[number];
 export type RoleAtribuivel = (typeof ROLES_ATRIBUIVEIS)[number];
+export type RoleEquipeMidia = (typeof ROLES_EQUIPE_MIDIA)[number];
 
 export const ROTULOS_ROLE: Record<string, string> = {
   dev: "Dev",
@@ -39,6 +47,12 @@ function roleDe(
 ): string | null {
   if (!perfilOuRole) return null;
   return typeof perfilOuRole === "string" ? perfilOuRole : perfilOuRole.role;
+}
+
+export function eDev(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  return roleDe(perfilOuRole) === ROLE_DEV;
 }
 
 export function eAcessoMaster(
@@ -86,7 +100,23 @@ export function podeGerenciarMidia(
   perfilOuRole: { role: string } | string | null | undefined
 ) {
   const role = roleDe(perfilOuRole);
-  return eAcessoMaster(role) || role === ROLE_MIDIA;
+  return ROLES_EQUIPE_MIDIA.includes(role as RoleEquipeMidia);
+}
+
+function rotaDeInscricoesEvento(pathname: string) {
+  return (
+    pathname === "/painel/inscricoes-eventos" ||
+    pathname.startsWith("/painel/inscricoes-eventos/")
+  );
+}
+
+function rotaDeMidia(pathname: string) {
+  return (
+    pathname === "/painel/eventos" ||
+    pathname.startsWith("/painel/eventos/") ||
+    pathname === "/painel/testemunhos" ||
+    pathname.startsWith("/painel/testemunhos/")
+  );
 }
 
 export function destinoAposLogin(role: string | null | undefined) {
@@ -107,7 +137,21 @@ export function podeAcessarRotaPainel(
   role: string | null | undefined,
   pathname: string
 ) {
-  if (eAcessoMaster(role)) return true;
+  if (eDev(role)) return true;
+
+  if (role === "apostolo") return true;
+
+  if (role === "tesouraria") {
+    if (rotaDeMidia(pathname)) return false;
+    return (
+      pathname === "/painel" ||
+      pathname.startsWith("/painel/encontro") ||
+      pathname.startsWith("/painel/legado") ||
+      rotaDeInscricoesEvento(pathname) ||
+      pathname.startsWith("/painel/admin")
+    );
+  }
+
   if (role === ROLE_LIDER) {
     return (
       pathname === "/painel/encontro" ||
@@ -117,12 +161,7 @@ export function podeAcessarRotaPainel(
     );
   }
   if (role === ROLE_MIDIA) {
-    return (
-      pathname === "/painel/eventos" ||
-      pathname.startsWith("/painel/eventos/") ||
-      pathname === "/painel/testemunhos" ||
-      pathname.startsWith("/painel/testemunhos/")
-    );
+    return rotaDeMidia(pathname);
   }
   return false;
 }

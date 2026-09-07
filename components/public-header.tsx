@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { destinoDoPainel, ROTULOS_ROLE } from "@/lib/auth/roles";
 import { logout } from "@/app/(auth)/login/actions";
+import { SlideTabs } from "@/components/ui/slide-tabs";
 
 const publicLinks = [
   { href: "/inicio", label: "Início" },
@@ -55,24 +56,16 @@ export async function PublicHeader() {
           />
         </Link>
 
-        <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center gap-5 md:flex">
-          {publicLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="pointer-events-auto text-[12px] font-semibold text-foreground/65 transition-colors hover:text-tertiary"
-            >
-              {link.label}
-            </Link>
-          ))}
-          {hrefPainel && (
-            <Link
-              href={hrefPainel}
-              className="pointer-events-auto text-[12px] font-semibold text-foreground/65 transition-colors hover:text-tertiary"
-            >
-              Painel
-            </Link>
-          )}
+        <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center md:flex">
+          <div className="pointer-events-auto">
+            <SlideTabs
+              compact
+              items={[
+                ...publicLinks,
+                ...(hrefPainel ? [{ href: hrefPainel, label: "Painel" }] : []),
+              ]}
+            />
+          </div>
         </nav>
 
         <div className="relative z-10 ml-auto hidden items-center gap-2 md:flex">
