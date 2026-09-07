@@ -2,26 +2,45 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import {
+  dentroDoLimite,
+  emailValido,
+  ipDoPedido,
+  origemDoSite,
+  senhaForte,
+} from "@/lib/seguranca";
 
 export async function cadastrar(formData: FormData) {
-  const senha = formData.get("senha") as string;
-  const confirmarSenha = formData.get("confirmarSenha") as string;
-  const email = formData.get("email") as string;
+  const senha = String(formData.get("senha") ?? "");
+  const confirmarSenha = String(formData.get("confirmarSenha") ?? "");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const nome = String(formData.get("nome") ?? "").trim().slice(0, 80);
+
+  if (!emailValido(email) || nome.length < 2) {
+    redirect("/cadastro?erro=cadastro_falhou");
+  }
+
+  if (!senhaForte(senha)) {
+    redirect("/cadastro?erro=senha_fraca");
+  }
 
   if (senha !== confirmarSenha) {
     redirect("/cadastro?erro=senha_diferente");
   }
 
+  const ip = await ipDoPedido();
+  if (!dentroDoLimite(`cadastro:${ip}`, 8, 15 * 60 * 1000)) {
+    redirect("/cadastro?erro=cadastro_falhou");
+  }
+
   const supabase = await createClient();
-  const headersList = await headers();
-  const origin = headersList.get("origin") ?? "http://localhost:3000";
+  const origin = await origemDoSite();
 
   const { error } = await supabase.auth.signUp({
     email,
     password: senha,
     options: {
-      data: { nome: formData.get("nome") as string },
+      data: { nome },
       emailRedirectTo: `${origin}/auth/confirmar-email`,
     },
   });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { tipoOtpSeguro } from "@/lib/seguranca";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -16,9 +17,10 @@ export async function GET(request: Request) {
     }
   }
 
-  if (tokenHash && type) {
+  const tipo = tipoOtpSeguro(type);
+  if (tokenHash && tipo) {
     const { error } = await supabase.auth.verifyOtp({
-      type: type as "recovery" | "signup" | "email" | "magiclink" | "invite" | "email_change",
+      type: tipo,
       token_hash: tokenHash,
     });
     if (!error) {

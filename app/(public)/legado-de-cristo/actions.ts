@@ -10,11 +10,32 @@ import {
   lerValoresPagamentoLegado,
   validarPagamentoLegado,
 } from "@/lib/validations/pagamento-legado";
+import {
+  caminhoArquivoValido,
+  dentroDoLimite,
+  ehHoneypot,
+  ipDoPedido,
+} from "@/lib/seguranca";
 
 export async function inscreverNoLegado(
   _estadoAnterior: EstadoInscricaoLegado,
   formData: FormData
 ): Promise<EstadoInscricaoLegado> {
+  if (ehHoneypot(formData)) {
+    return { status: "sucesso", nome: "Inscrição" };
+  }
+
+  const ip = await ipDoPedido();
+  if (!dentroDoLimite(`inscricao-legado:${ip}`, 8, 10 * 60 * 1000)) {
+    return {
+      status: "erro",
+      erros: {},
+      valores: {},
+      etapa: 2,
+      mensagem: "Muitas tentativas. Espere alguns minutos e tente de novo.",
+    };
+  }
+
   const valoresPessoais = lerValoresLegado(formData);
   const valoresPagamento = lerValoresPagamentoLegado(formData);
   const valores = { ...valoresPessoais, ...valoresPagamento };
@@ -27,6 +48,15 @@ export async function inscreverNoLegado(
   const pagamento = validarPagamentoLegado(valoresPagamento);
   if (Object.keys(pagamento.erros).length > 0) {
     return { status: "erro", erros: pagamento.erros, valores, etapa: 2 };
+  }
+
+  if (!caminhoArquivoValido(pagamento.dados.comprovante_path)) {
+    return {
+      status: "erro",
+      erros: { comprovante_path: "Comprovante inválido. Envie de novo." },
+      valores,
+      etapa: 2,
+    };
   }
 
   const supabase = await createClient();

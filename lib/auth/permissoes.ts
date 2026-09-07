@@ -2,6 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import {
   podeAdminUsuarios as rolePodeAdminUsuarios,
   podeAprovarPagamento as rolePodeAprovarPagamento,
+  podeEditarQualquerCelula as rolePodeEditarQualquerCelula,
+  podeGerenciarCelulas as rolePodeGerenciarCelulas,
+  podeGerenciarMidia as rolePodeGerenciarMidia,
 } from "@/lib/auth/roles";
 
 export {
@@ -18,6 +21,7 @@ export {
   podeAprovarPagamento,
   podeEditarQualquerCelula,
   podeGerenciarCelulas,
+  podeGerenciarMidia,
   podeVerInscricoes,
   type RoleAtribuivel,
 } from "@/lib/auth/roles";
@@ -56,4 +60,19 @@ export async function exigeAprovadorDePagamento() {
 
 export async function exigeAdminUsuarios() {
   return rolePodeAdminUsuarios(await obterPerfilAtual());
+}
+
+export async function exigeEquipeMidia() {
+  return rolePodeGerenciarMidia(await obterPerfilAtual());
+}
+
+export async function exigeGerenciarCelulas() {
+  return rolePodeGerenciarCelulas(await obterPerfilAtual());
+}
+
+export async function podeMexerNestaCelula(liderId: string | null | undefined) {
+  const perfil = await obterPerfilAtual();
+  if (!rolePodeGerenciarCelulas(perfil)) return false;
+  if (rolePodeEditarQualquerCelula(perfil)) return true;
+  return Boolean(perfil && liderId && perfil.id === liderId);
 }

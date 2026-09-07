@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { exigeAprovadorDePagamento } from "@/lib/auth/permissoes";
+import { uuidValido } from "@/lib/seguranca";
 import {
   STATUS_INSCRICAO,
   type StatusInscricao,
@@ -20,6 +21,7 @@ function revalidar() {
 }
 
 export async function definirStatus(id: string, status: StatusInscricao) {
+  if (!uuidValido(id)) return;
   if (!STATUS_INSCRICAO.includes(status)) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
@@ -29,6 +31,7 @@ export async function definirStatus(id: string, status: StatusInscricao) {
 }
 
 export async function aprovarInscricao(id: string) {
+  if (!uuidValido(id)) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const supabase = await createClient();
@@ -61,6 +64,7 @@ export async function aprovarInscricao(id: string) {
 }
 
 export async function alternarPresenca(id: string, presente: boolean) {
+  if (!uuidValido(id)) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const supabase = await createClient();
@@ -69,6 +73,7 @@ export async function alternarPresenca(id: string, presente: boolean) {
 }
 
 export async function excluirInscricao(id: string) {
+  if (!uuidValido(id)) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const supabase = await createClient();
@@ -89,6 +94,7 @@ export async function excluirInscricao(id: string) {
 }
 
 export async function atualizarPagamento(id: string, formData: FormData) {
+  if (!uuidValido(id)) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const formaBruta = String(formData.get("forma_pagamento") ?? "");
@@ -111,7 +117,11 @@ export async function atualizarPagamento(id: string, formData: FormData) {
   const valorPago = Math.round(Number(bruto) * 100);
   if (!Number.isFinite(valorPago) || valorPago < 0) return;
 
-  const observacao = String(formData.get("pagamento_observacao") ?? "").trim();
+  const observacao = String(formData.get("pagamento_observacao") ?? "")
+    .trim()
+    .slice(0, 500);
+
+  if (valorPago > 200_000) return;
 
   const supabase = await createClient();
   const { data: atual } = await supabase
@@ -139,7 +149,7 @@ export async function atualizarPagamento(id: string, formData: FormData) {
       valor_devido_centavos: calculo.devido,
       valor_escolhido_centavos: calculo.escolhido,
       valor_cobrado_centavos: calculo.cobrado,
-      valor_pago_centavos: valorPago,
+      valor_pago_centavos: Math.min(valorPago, calculo.cobrado),
       pagamento_observacao: observacao || null,
     })
     .eq("id", id);

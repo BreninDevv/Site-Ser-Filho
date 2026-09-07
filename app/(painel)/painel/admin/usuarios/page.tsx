@@ -52,6 +52,7 @@ export default async function AdminUsuariosPage() {
     .order("created_at", { ascending: false });
 
   const pendentes = usuarios?.filter((u) => u.role === "pendente") ?? [];
+  const midias = usuarios?.filter((u) => u.role === "midia") ?? [];
   const lideres = usuarios?.filter((u) => u.role === "lider") ?? [];
   const masters = usuarios?.filter((u) =>
     ROLES_MASTER.includes(u.role as (typeof ROLES_MASTER)[number])
@@ -62,9 +63,24 @@ export default async function AdminUsuariosPage() {
       <div>
         <h1 className="text-xl font-semibold mb-1">Admin · Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Tesouraria e Apóstolo(a) têm o mesmo acesso do Dev. Líder só vê as
-          inscrições do Encontro, sem aprovar pagamento.
+          Você está logado como Dev. Quem se cadastra no site entra em
+          <strong> Aguardando aprovação</strong>. É aqui que você libera o
+          acesso: clique no botão da função dela.
         </p>
+        <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
+          <li>
+            <strong className="text-foreground">Mídia</strong> — só Eventos e
+            os 3 testemunhos da home.
+          </li>
+          <li>
+            <strong className="text-foreground">Líder/Pastor</strong> — vê
+            inscrições, sem aprovar pagamento.
+          </li>
+          <li>
+            <strong className="text-foreground">Tesouraria / Apóstolo(a)</strong>{" "}
+            — mesmo acesso master que o Dev.
+          </li>
+        </ul>
       </div>
 
       <section>
@@ -83,6 +99,7 @@ export default async function AdminUsuariosPage() {
                 <span className="text-sm">{u.nome}</span>
                 <div className="flex flex-wrap gap-2">
                   <AcaoRole userId={u.id} role="lider" rotulo="Líder/Pastor" />
+                  <AcaoRole userId={u.id} role="midia" rotulo="Mídia" outline />
                   <AcaoRole userId={u.id} role="tesouraria" rotulo="Tesouraria" outline />
                   <AcaoRole userId={u.id} role="apostolo" rotulo="Apóstolo(a)" outline />
                 </div>
@@ -124,6 +141,7 @@ export default async function AdminUsuariosPage() {
                       <AcaoRole userId={u.id} role="apostolo" rotulo="Apóstolo(a)" outline />
                     )}
                     <AcaoRole userId={u.id} role="lider" rotulo="Virar líder" outline />
+                    <AcaoRole userId={u.id} role="midia" rotulo="Virar mídia" outline />
                     <AcaoRole userId={u.id} role="pendente" rotulo="Remover acesso" outline />
                   </div>
                 )}
@@ -148,8 +166,33 @@ export default async function AdminUsuariosPage() {
               >
                 <span className="text-sm">{u.nome}</span>
                 <div className="flex flex-wrap gap-2">
+                  <AcaoRole userId={u.id} role="midia" rotulo="Mídia" outline />
                   <AcaoRole userId={u.id} role="tesouraria" rotulo="Tesouraria" outline />
                   <AcaoRole userId={u.id} role="apostolo" rotulo="Apóstolo(a)" outline />
+                  <AcaoRole userId={u.id} role="pendente" rotulo="Remover acesso" outline />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium mb-3">
+          Mídia ({midias.length})
+        </h2>
+        {midias.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhuma pessoa de mídia ainda.</p>
+        ) : (
+          <ul className="space-y-2">
+            {midias.map((u) => (
+              <li
+                key={u.id}
+                className="flex flex-wrap items-center justify-between gap-3 border rounded-lg px-4 py-3"
+              >
+                <span className="text-sm">{u.nome}</span>
+                <div className="flex flex-wrap gap-2">
+                  <AcaoRole userId={u.id} role="lider" rotulo="Virar líder" outline />
                   <AcaoRole userId={u.id} role="pendente" rotulo="Remover acesso" outline />
                 </div>
               </li>

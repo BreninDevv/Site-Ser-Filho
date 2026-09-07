@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { destinoPosAuth, tipoOtpSeguro } from "@/lib/seguranca";
 
 /**
  * O e-mail do Supabase volta com um `code` (PKCE). Sem esta rota, o código
@@ -11,8 +12,7 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type");
-  const nextBruto = url.searchParams.get("next") ?? "/redefinir-senha";
-  const destino = nextBruto.startsWith("/") ? nextBruto : "/redefinir-senha";
+  const destino = destinoPosAuth(url.searchParams.get("next"));
 
   const supabase = await createClient();
 
@@ -23,9 +23,10 @@ export async function GET(request: Request) {
     }
   }
 
-  if (tokenHash && type) {
+  const tipo = tipoOtpSeguro(type);
+  if (tokenHash && tipo) {
     const { error } = await supabase.auth.verifyOtp({
-      type: type as "recovery" | "signup" | "email" | "magiclink" | "invite" | "email_change",
+      type: tipo,
       token_hash: tokenHash,
     });
     if (!error) {

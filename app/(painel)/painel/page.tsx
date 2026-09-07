@@ -1,8 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import {
+  destinoDoPainel,
+  eAcessoMaster,
+  obterPerfilAtual,
+} from "@/lib/auth/permissoes";
 
 export default async function PainelDashboardPage() {
+  const perfil = await obterPerfilAtual();
+  if (!eAcessoMaster(perfil)) {
+    redirect(destinoDoPainel(perfil?.role) ?? "/login");
+  }
+
   const supabase = await createClient();
 
   const { count: totalCelulas } = await supabase

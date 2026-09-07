@@ -35,6 +35,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-tertiary: var(--tertiary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -55,7 +56,7 @@
   --card-foreground: #141412;
   --popover: #faf9f6;
   --popover-foreground: #141412;
-  --primary: #0a0a0a;
+  --primary: #141412;
   --primary-foreground: #faf9f6;
   --secondary: #efeee9;
   --secondary-foreground: #141412;
@@ -66,21 +67,22 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: #dcdad3;
   --input: #dcdad3;
-  --ring: #0a0a0a;
+  --ring: #141412;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.125rem;
+  --radius: 0.75rem;
   --sidebar: #faf9f6;
   --sidebar-foreground: #141412;
-  --sidebar-primary: #0a0a0a;
+  --sidebar-primary: #141412;
   --sidebar-primary-foreground: #faf9f6;
   --sidebar-accent: #efeee9;
   --sidebar-accent-foreground: #141412;
   --sidebar-border: #dcdad3;
-  --sidebar-ring: #0a0a0a;
+  --sidebar-ring: #141412;
+  --tertiary: #4a8bc2;
 }
 
 .dark {
@@ -127,4 +129,36 @@
   html {
     @apply font-sans;
   }
+  ::selection {
+    color: #faf9f6;
+    background-color: #141412;
+  }
+}
+
+.pagina-volta-ao-jardim button.bg-foreground {
+  background-color: #6b8f3e;
+  color: #faf9f6;
+}
+
+.pagina-volta-ao-jardim button.bg-foreground:hover {
+  background-color: #5a7a34;
+}
+
+.pagina-volta-ao-jardim input[type="file"]::file-selector-button {
+  background-color: #6b8f3e;
+  color: #faf9f6;
+}
+
+.pagina-legado-de-cristo button.bg-foreground {
+  background-color: #c6ff00;
+  color: #000000;
+}
+
+.pagina-legado-de-cristo button.bg-foreground:hover {
+  background-color: #b3e600;
+}
+
+.pagina-legado-de-cristo input[type="file"]::file-selector-button {
+  background-color: #c6ff00;
+  color: #000000;
 }

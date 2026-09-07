@@ -5,17 +5,21 @@ export function PainelNav({
   titulo,
   mostrarDashboard,
   mostrarEncontro,
+  mostrarMidia,
   mostrarAdmin,
 }: {
   titulo: string;
   mostrarDashboard: boolean;
   mostrarEncontro: boolean;
+  mostrarMidia: boolean;
   mostrarAdmin: boolean;
 }) {
   const links = [
     mostrarDashboard && { href: "/painel", label: "Dashboard" },
-    mostrarEncontro && { href: "/painel/encontro", label: "Inscrições do Encontro" },
+    mostrarEncontro && { href: "/painel/encontro", label: "Inscrições do Volta ao Jardim" },
     mostrarEncontro && { href: "/painel/legado", label: "Inscrições do Legado" },
+    mostrarMidia && { href: "/painel/eventos", label: "Eventos" },
+    mostrarMidia && { href: "/painel/testemunhos", label: "Testemunhos" },
     mostrarAdmin && { href: "/painel/admin/usuarios", label: "Admin · Usuários" },
   ].filter((link): link is { href: string; label: string } => Boolean(link));
 

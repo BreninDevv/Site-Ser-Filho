@@ -5,6 +5,7 @@
 export const ROLES_MASTER = ["dev", "tesouraria", "apostolo"] as const;
 export const ROLE_LIDER = "lider";
 export const ROLE_PENDENTE = "pendente";
+export const ROLE_MIDIA = "midia";
 
 export const ROLES_QUE_VEEM_INSCRICOES = [
   ...ROLES_MASTER,
@@ -16,6 +17,7 @@ export const ROLES_QUE_APROVAM_PAGAMENTO = ROLES_MASTER;
 export const ROLES_ATRIBUIVEIS = [
   ROLE_PENDENTE,
   ROLE_LIDER,
+  ROLE_MIDIA,
   "tesouraria",
   "apostolo",
 ] as const;
@@ -28,6 +30,7 @@ export const ROTULOS_ROLE: Record<string, string> = {
   tesouraria: "Tesouraria",
   apostolo: "Apóstolo(a)",
   lider: "Líder/Pastor",
+  midia: "Mídia",
   pendente: "Aguardando aprovação",
 };
 
@@ -79,15 +82,24 @@ export function podeEditarQualquerCelula(
   return eAcessoMaster(perfilOuRole);
 }
 
+export function podeGerenciarMidia(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  const role = roleDe(perfilOuRole);
+  return eAcessoMaster(role) || role === ROLE_MIDIA;
+}
+
 export function destinoAposLogin(role: string | null | undefined) {
   if (eAcessoMaster(role)) return "/painel";
   if (role === ROLE_LIDER) return "/painel/encontro";
+  if (role === ROLE_MIDIA) return "/painel/eventos";
   return "/inicio";
 }
 
 export function destinoDoPainel(role: string | null | undefined) {
   if (eAcessoMaster(role)) return "/painel";
   if (role === ROLE_LIDER) return "/painel/encontro";
+  if (role === ROLE_MIDIA) return "/painel/eventos";
   return null;
 }
 
@@ -102,6 +114,14 @@ export function podeAcessarRotaPainel(
       pathname.startsWith("/painel/encontro/") ||
       pathname === "/painel/legado" ||
       pathname.startsWith("/painel/legado/")
+    );
+  }
+  if (role === ROLE_MIDIA) {
+    return (
+      pathname === "/painel/eventos" ||
+      pathname.startsWith("/painel/eventos/") ||
+      pathname === "/painel/testemunhos" ||
+      pathname.startsWith("/painel/testemunhos/")
     );
   }
   return false;

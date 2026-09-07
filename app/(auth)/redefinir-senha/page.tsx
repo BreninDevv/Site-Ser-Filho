@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { redefinirSenha } from "./actions";
 import { CapturarSessaoHash } from "./capturar-sessao-hash";
+import { SENHA_MINIMA, SENHA_PADRAO, TEXTO_SENHA } from "@/lib/seguranca";
 
 export default async function RedefinirSenhaPage({
   searchParams,
@@ -28,7 +29,7 @@ export default async function RedefinirSenhaPage({
     senha_diferente: "As senhas não conferem. Tente novamente.",
     link_invalido:
       "Este link expirou ou já foi usado. Solicite um novo em Esqueci minha senha.",
-    senha_fraca: "A senha precisa ter pelo menos 6 caracteres.",
+    senha_fraca: TEXTO_SENHA,
   };
 
   return (
@@ -65,9 +66,13 @@ export default async function RedefinirSenhaPage({
               name="senha"
               type="password"
               required
-              minLength={6}
+              minLength={SENHA_MINIMA}
+              maxLength={72}
+              pattern={SENHA_PADRAO}
+              title={TEXTO_SENHA}
               className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
             />
+            <p className="mt-1.5 text-xs text-muted-foreground">{TEXTO_SENHA}</p>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5">
@@ -77,7 +82,10 @@ export default async function RedefinirSenhaPage({
               name="confirmarSenha"
               type="password"
               required
-              minLength={6}
+              minLength={SENHA_MINIMA}
+              maxLength={72}
+              pattern={SENHA_PADRAO}
+              title={TEXTO_SENHA}
               className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
             />
           </div>

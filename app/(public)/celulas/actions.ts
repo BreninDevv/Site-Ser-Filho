@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { geocodificarEndereco } from "@/lib/geocoding";
 import { calcularDistanciaKm } from "@/lib/geocoding";
+import {
+  exigeGerenciarCelulas,
+  podeMexerNestaCelula,
+} from "@/lib/auth/permissoes";
+import { uuidValido } from "@/lib/seguranca";
 
 export async function buscarCelulasPorDistancia(
   prevState: { celulas: any[]; error: string | null },
@@ -55,21 +60,49 @@ export async function atualizarCelula(
     foto_url?: string;
   }
 ) {
+  if (!uuidValido(id)) redirect("/celulas");
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const { data: celula } = await supabase
+    .from("celulas")
+    .select("lider_id")
+    .eq("id", id)
+    .single();
+
+  if (!(await podeMexerNestaCelula(celula?.lider_id))) redirect("/login");
 
   const coordenadas = await geocodificarEndereco(dados.endereco);
   const { error } = await supabase
     .from("celulas")
-    .update({ ...dados, latitude: coordenadas?.lat ?? null, longitude: coordenadas?.lng ?? null })
+    .update({
+      nome: String(dados.nome ?? "").trim().slice(0, 120),
+      endereco: String(dados.endereco ?? "").trim().slice(0, 300),
+      dia: String(dados.dia ?? "").trim().slice(0, 40),
+      horario: String(dados.horario ?? "").trim().slice(0, 40),
+      descricao: String(dados.descricao ?? "").trim().slice(0, 1000),
+      nome_responsavel: String(dados.nome_responsavel ?? "").trim().slice(0, 80),
+      foto_url: dados.foto_url?.slice(0, 500) ?? undefined,
+      latitude: coordenadas?.lat ?? null,
+      longitude: coordenadas?.lng ?? null,
+    })
     .eq("id", id);
   if (error) redirect(`/celulas/${id}/editar?erro=1`);
   redirect("/celulas");
 }
 
 export async function excluirCelula(id: string) {
+  if (!uuidValido(id)) return;
+  if (!(await exigeGerenciarCelulas())) return;
+
   const supabase = await createClient();
+  const { data: celula } = await supabase
+    .from("celulas")
+    .select("lider_id")
+    .eq("id", id)
+    .single();
+
+  if (!(await podeMexerNestaCelula(celula?.lider_id))) return;
+
   await supabase.from("celulas").delete().eq("id", id);
   revalidatePath("/celulas");
 }

@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { destinoAposLogin } from "@/lib/auth/roles";
+import { emailValido } from "@/lib/seguranca";
 
 type LoginState = {
   error: string | null;
@@ -14,8 +16,12 @@ export async function login(
 ): Promise<LoginState> {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const senha = formData.get("senha") as string;
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const senha = String(formData.get("senha") ?? "");
+
+  if (!emailValido(email) || !senha) {
+    return { error: "E-mail ou senha incorretos" };
+  }
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -28,5 +34,17 @@ export async function login(
     };
   }
 
-  redirect("/home");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "E-mail ou senha incorretos" };
+
+  const { data: perfil } = await supabase
+    .from("perfis")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  redirect(destinoAposLogin(perfil?.role));
 }

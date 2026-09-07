@@ -1,4 +1,5 @@
 import { cadastrar } from "./actions";
+import { SENHA_MINIMA, SENHA_PADRAO, TEXTO_SENHA } from "@/lib/seguranca";
 
 export default async function CadastroPage({
   searchParams,
@@ -9,6 +10,7 @@ export default async function CadastroPage({
 
   const mensagens: Record<string, string> = {
     senha_diferente: "As senhas não conferem. Tente novamente.",
+    senha_fraca: TEXTO_SENHA,
     cadastro_falhou: "Não foi possível criar sua conta. Verifique os dados e tente de novo.",
   };
 
@@ -31,11 +33,30 @@ export default async function CadastroPage({
         </div>
         <div>
           <label className="block text-sm mb-1">Senha</label>
-          <input name="senha" type="password" required minLength={6} className="w-full border rounded px-3 py-2" />
+          <input
+            name="senha"
+            type="password"
+            required
+            minLength={SENHA_MINIMA}
+            maxLength={72}
+            pattern={SENHA_PADRAO}
+            title={TEXTO_SENHA}
+            className="w-full border rounded px-3 py-2"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">{TEXTO_SENHA}</p>
         </div>
         <div>
           <label className="block text-sm mb-1">Confirmar senha</label>
-          <input name="confirmarSenha" type="password" required minLength={6} className="w-full border rounded px-3 py-2" />
+          <input
+            name="confirmarSenha"
+            type="password"
+            required
+            minLength={SENHA_MINIMA}
+            maxLength={72}
+            pattern={SENHA_PADRAO}
+            title={TEXTO_SENHA}
+            className="w-full border rounded px-3 py-2"
+          />
         </div>
         <button type="submit" className="w-full bg-black text-white rounded py-2">
           Cadastrar

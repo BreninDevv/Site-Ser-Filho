@@ -1,10 +1,5 @@
-import { PagePlaceholder } from "@/components/page-placeholder";
+import { redirect } from "next/navigation";
 
 export default function TestemunhosPage() {
-  return (
-    <PagePlaceholder
-      title="Testemunhos"
-      description="Galeria pública de vídeos e gifs de testemunhos. Sem regra de permissão especial nesta etapa."
-    />
-  );
+  redirect("/inicio#testemunhos");
 }

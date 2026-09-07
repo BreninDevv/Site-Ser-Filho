@@ -2,12 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { senhaForte } from "@/lib/seguranca";
 
 export async function redefinirSenha(formData: FormData) {
-  const senha = formData.get("senha") as string;
-  const confirmarSenha = formData.get("confirmarSenha") as string;
+  const senha = String(formData.get("senha") ?? "");
+  const confirmarSenha = String(formData.get("confirmarSenha") ?? "");
 
-  if (senha.length < 6) {
+  if (!senhaForte(senha)) {
     redirect("/redefinir-senha?erro=senha_fraca");
   }
 

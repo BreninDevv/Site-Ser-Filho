@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,9 @@ import { logout } from "@/app/(auth)/login/actions";
 const publicLinks = [
   { href: "/inicio", label: "Início" },
   { href: "/celulas", label: "Células" },
-  { href: "/testemunhos", label: "Testemunhos" },
-  { href: "/encontro-com-deus", label: "Encontro com Deus" },
+  { href: "/eventos", label: "Eventos" },
+  { href: "/inicio#testemunhos", label: "Testemunhos" },
+  { href: "/encontro-com-deus", label: "Volta ao Jardim" },
   { href: "/legado-de-cristo", label: "Legado de Cristo" },
 ];
 
@@ -40,59 +42,73 @@ export async function PublicHeader() {
   const hrefPainel = destinoDoPainel(perfil?.role);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4">
-        <Link href="/inicio" className="flex items-center gap-2.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-foreground" />
-          <span className="font-heading text-lg tracking-wide">SER FILHO</span>
+    <header className="sticky top-0 z-20 bg-transparent px-3 pt-4 pb-2">
+      <div className="relative mx-auto flex max-w-5xl items-center rounded-full border border-white/70 bg-white/70 px-4 py-2 shadow-[0_8px_30px_rgba(20,20,18,0.08)] backdrop-blur-xl md:px-5">
+        <Link href="/inicio" className="relative z-10 flex shrink-0 items-center">
+          <Image
+            src="/logo-ser-filho.png"
+            alt="Ser Filho"
+            width={140}
+            height={140}
+            className="h-9 w-auto"
+            priority
+          />
         </Link>
 
-        {/* Menu completo — só aparece em telas médias/grandes */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center gap-5 md:flex">
           {publicLinks.map((link) => (
-            <Button key={link.href} variant="ghost" size="sm" className="text-sm font-semibold" asChild>
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
+            <Link
+              key={link.href}
+              href={link.href}
+              className="pointer-events-auto text-[12px] font-semibold text-foreground/65 transition-colors hover:text-tertiary"
+            >
+              {link.label}
+            </Link>
           ))}
-
           {hrefPainel && (
-            <Button size="sm" variant="ghost" className="text-sm font-semibold" asChild>
-              <Link href={hrefPainel}>Painel</Link>
-            </Button>
+            <Link
+              href={hrefPainel}
+              className="pointer-events-auto text-[12px] font-semibold text-foreground/65 transition-colors hover:text-tertiary"
+            >
+              Painel
+            </Link>
           )}
+        </nav>
 
+        <div className="relative z-10 ml-auto hidden items-center gap-2 md:flex">
           {user ? (
-            <div className="flex items-center gap-3 pl-2 text-sm">
-              <span className="text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm">
+              <span className="max-w-36 truncate text-muted-foreground">
                 Olá, <strong className="text-foreground">{perfil?.nome ?? user.email}</strong>
                 {perfil?.role && perfil.role !== "pendente" && ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
               </span>
               <form action={logout}>
-                <Button size="sm" variant="outline" type="submit">Sair</Button>
+                <Button size="sm" variant="outline" type="submit" className="rounded-full">Sair</Button>
               </form>
             </div>
           ) : (
             <>
-              <Button size="sm" variant="outline" asChild>
+              <Button size="sm" variant="outline" className="rounded-full" asChild>
                 <Link href="/login">Entrar</Link>
               </Button>
-              <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90" asChild>
+              <Button size="sm" className="rounded-full px-4" asChild>
                 <Link href="/cadastro">Cadastrar</Link>
               </Button>
             </>
           )}
-        </nav>
+        </div>
 
-        {/* Botão de menu — só aparece em telas pequenas */}
+        {/* Botão de menu — só no celular */}
+        <div className="ml-auto md:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-72">
             <SheetHeader>
-              <SheetTitle className="font-heading text-lg tracking-wide">SER FILHO</SheetTitle>
+              <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
 
             <div className="flex flex-col gap-1 px-4">
@@ -136,7 +152,7 @@ export async function PublicHeader() {
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button size="sm" className="w-full bg-foreground text-background hover:bg-foreground/90" asChild>
+                      <Button size="sm" className="w-full rounded-full" asChild>
                         <Link href="/cadastro">Cadastrar</Link>
                       </Button>
                     </SheetClose>
@@ -146,6 +162,7 @@ export async function PublicHeader() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
     </header>
   );

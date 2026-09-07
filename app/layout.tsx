@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Archivo, Anton, Geist_Mono } from "next/font/google";
+import { Montserrat, Open_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const archivo = Archivo({
+const openSans = Open_Sans({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const anton = Anton({
-  weight: "400",
+const montserrat = Montserrat({
   variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -20,14 +20,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ser Filho",
-  description: "Site da igreja Ser Filho — células, testemunhos e Encontro com Deus.",
+  description: "Site da igreja Ser Filho — células, testemunhos e Encontro de Volta ao Jardim.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${archivo.variable} ${anton.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${openSans.variable} ${montserrat.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

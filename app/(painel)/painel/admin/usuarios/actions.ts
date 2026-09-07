@@ -10,9 +10,11 @@ import {
   ROLES_ATRIBUIVEIS,
   type RoleAtribuivel,
 } from "@/lib/auth/roles";
+import { uuidValido } from "@/lib/seguranca";
 
 export async function definirRole(userId: string, role: RoleAtribuivel) {
   if (!(await exigeAdminUsuarios())) return;
+  if (!uuidValido(userId)) return;
   if (!ROLES_ATRIBUIVEIS.includes(role)) return;
 
   const eu = await obterPerfilAtual();
