@@ -39,14 +39,13 @@ export default function AuthLayout({
             Ser Filho
           </h1>
           <p className="mt-6 text-sm leading-relaxed text-background/70">
-            Um lugar para líderes e pastores cuidarem das células, dos
-            testemunhos e do Encontro de Volta ao Jardim — a comunidade toda num
-            só lugar.
+            Um lugar para a comunidade: discípulo, líder, pastor e equipe no
+            mesmo site — células, testemunhos e o Encontro de Volta ao Jardim.
           </p>
         </div>
 
         <p className="relative text-xs text-background/50">
-          Visitante não precisa de conta para navegar pelo site.
+          Visitante navega sem conta. Discípulo se cadastra e fica na base.
         </p>
       </div>
 

@@ -8,6 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
+import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
 import { inscreverNoEncontro } from "./actions";
@@ -16,6 +18,9 @@ import {
   ESTADO_INICIAL,
   OPCOES_COMO_SOUBE,
   OPCOES_SEXO,
+  PAPEIS_ENCONTRO,
+  ROTULOS_PAPEL_ENCONTRO,
+  ehMenorDeIdade,
   lerValores,
   validarInscricao,
   type CampoFormulario,
@@ -146,7 +151,14 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO.reduce((acumulado, campo) => {
   return acumulado;
 }, {} as ValoresInscricao);
 
-export function InscricaoForm() {
+export function InscricaoForm({
+  logado,
+  pastores,
+}: {
+  logado: boolean;
+  pastores: { id: string; nome: string }[];
+}) {
+  const router = useRouter();
   const [estado, formAction, enviandoAction] = useActionState(
     inscreverNoEncontro,
     ESTADO_INICIAL
@@ -168,6 +180,7 @@ export function InscricaoForm() {
   const [opcaoValor, setOpcaoValor] = useState<OpcaoValor | "">("");
   const [levaCrianca, setLevaCrianca] = useState<"sim" | "nao" | "">("");
   const [qtdCriancas, setQtdCriancas] = useState("1");
+  const [nascimento, setNascimento] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [caminhoComprovante, setCaminhoComprovante] = useState("");
   const [subindo, setSubindo] = useState(false);
@@ -181,6 +194,10 @@ export function InscricaoForm() {
     if (etapa === 2) tituloEtapaRef.current?.focus();
   }, [etapa]);
 
+  useEffect(() => {
+    if (estado.status === "sucesso") router.refresh();
+  }, [estado, router]);
+
   if (estado.status === "sucesso") {
     const primeiroNome = estado.nome.split(" ")[0];
 
@@ -188,10 +205,13 @@ export function InscricaoForm() {
       <div className="border border-border p-8 text-center">
         <h3 className="font-heading text-2xl uppercase">Inscrição enviada</h3>
         <p className="mt-4 text-sm text-muted-foreground">
-          Obrigado, {primeiroNome}! Sua inscrição foi enviada e está{" "}
-          <strong className="text-foreground">aguardando aprovação</strong>. A
-          equipe vai conferir o pagamento e confirmar sua vaga pelo telefone ou
+          Obrigado, {primeiroNome}! Sua inscrição foi enviada. Status do
+          pagamento:{" "}
+          <strong className="text-foreground">Em análise</strong>. A equipe
+          vai conferir o pagamento e confirmar sua vaga pelo telefone ou
           e-mail que você informou.
+          {!logado &&
+            " Para ver o status do pagamento nesta página, crie uma conta com o mesmo e-mail da inscrição."}
         </p>
         <a
           href="/encontro-com-deus"
@@ -235,7 +255,9 @@ export function InscricaoForm() {
     if (!formulario) return;
 
     const valores = lerValores(new FormData(formulario));
-    const { erros: errosEtapa1 } = validarInscricao(valores);
+    const { erros: errosEtapa1 } = validarInscricao(valores, {
+      temPastores: pastores.length > 0,
+    });
 
     setDadosEtapa1(valores);
 
@@ -338,13 +360,14 @@ export function InscricaoForm() {
   return (
     <form ref={formRef} action={aoEnviar} className="space-y-6">
       <input
-        type="text"
+        type="checkbox"
         name="hp_campo_extra"
         tabIndex={-1}
         autoComplete="off"
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
         aria-hidden="true"
       />
+      <AvisoStatusCadastro logado={logado} />
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Etapa {etapa} de 2 — {etapa === 1 ? "seus dados" : "pagamento"}
       </p>
@@ -373,9 +396,93 @@ export function InscricaoForm() {
             rotulo="Data de nascimento"
             type="date"
             erro={erros.data_nascimento}
-            defaultValue={valorEtapa1("data_nascimento")}
+            defaultValue={valorEtapa1("data_nascimento") || nascimento}
             disabled={ocupado}
+            onChange={(e) => setNascimento(e.target.value)}
           />
+
+          {ehMenorDeIdade(nascimento || valorEtapa1("data_nascimento")) && (
+            <div className="border border-[#4b6f36]/40 bg-[#fff8e7] p-4 text-sm leading-relaxed">
+              <p className="font-semibold">Menor de 18 anos</p>
+              <p className="mt-1">
+                Procure um líder para pegar a autorização antes do Encontro.
+              </p>
+              <label className="mt-3 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  name="autorizacao_lider"
+                  value="sim"
+                  defaultChecked={valorEtapa1("autorizacao_lider") === "sim"}
+                  disabled={ocupado}
+                  className="mt-1"
+                />
+                <span>Já falei com um líder e vou levar a autorização.</span>
+              </label>
+              {erros.autorizacao_lider && (
+                <p className="mt-2 text-sm text-destructive">
+                  {erros.autorizacao_lider}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <p className={CLASSE_ROTULO}>1. Você é?</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {PAPEIS_ENCONTRO.map((opcao) => (
+                <label
+                  key={opcao}
+                  className="flex cursor-pointer items-center gap-2 border border-border p-3 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="papel_encontro"
+                    value={opcao}
+                    defaultChecked={valorEtapa1("papel_encontro") === opcao}
+                    disabled={ocupado}
+                  />
+                  {ROTULOS_PAPEL_ENCONTRO[opcao]}
+                </label>
+              ))}
+            </div>
+            {erros.papel_encontro && (
+              <p className="mt-1 text-sm text-destructive">{erros.papel_encontro}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="pastor_id" className={CLASSE_ROTULO}>
+              2. De qual pastor?
+            </label>
+            <select
+              id="pastor_id"
+              name="pastor_id"
+              required={pastores.length > 0}
+              defaultValue={valorEtapa1("pastor_id")}
+              disabled={ocupado || pastores.length === 0}
+              className={CLASSE_CAMPO}
+            >
+              <option value="">
+                {pastores.length === 0
+                  ? "Nenhum pastor cadastrado ainda"
+                  : "Selecione o pastor"}
+              </option>
+              {pastores.map((pastor) => (
+                <option key={pastor.id} value={pastor.id}>
+                  {pastor.nome}
+                </option>
+              ))}
+            </select>
+            {pastores.length === 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                A lista vem do cadastro dos pastores. Quando um pastor criar
+                conta, o nome dele aparece aqui.
+              </p>
+            )}
+            {erros.pastor_id && (
+              <p className="mt-1 text-sm text-destructive">{erros.pastor_id}</p>
+            )}
+          </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <CampoTexto

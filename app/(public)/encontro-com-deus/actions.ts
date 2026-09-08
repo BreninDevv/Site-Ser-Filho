@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import {
   lerValores,
@@ -40,7 +41,13 @@ export async function inscreverNoEncontro(
   const valoresPagamento = lerValoresPagamento(formData);
   const valores = { ...valoresPessoais, ...valoresPagamento };
 
-  const pessoais = validarInscricao(valoresPessoais);
+  const supabase = await createClient();
+  const { data: pastores } = await supabase.rpc("pastores_para_inscricao");
+  const listaPastores = (pastores ?? []) as { id: string; nome: string }[];
+
+  const pessoais = validarInscricao(valoresPessoais, {
+    temPastores: listaPastores.length > 0,
+  });
   if (Object.keys(pessoais.erros).length > 0) {
     return { status: "erro", erros: pessoais.erros, valores, etapa: 1 };
   }
@@ -61,9 +68,19 @@ export async function inscreverNoEncontro(
     };
   }
 
-  const supabase = await createClient();
+  const pastor = listaPastores.find((p) => p.id === pessoais.dados.pastor_id);
+  if (pessoais.dados.pastor_id && !pastor) {
+    return {
+      status: "erro",
+      erros: { pastor_id: "Esse pastor não está na lista. Escolha de novo." },
+      valores,
+      etapa: 1,
+    };
+  }
+
   const { error } = await supabase.from("inscricoes_encontro").insert({
     ...pessoais.dados,
+    pastor_nome: pastor?.nome ?? null,
     ...pagamento.dados,
   });
 
@@ -74,9 +91,12 @@ export async function inscreverNoEncontro(
       valores,
       etapa: 2,
       mensagem:
+        error.message ||
         "Não foi possível enviar sua inscrição agora. Tente novamente em alguns instantes.",
     };
   }
 
+  revalidatePath("/encontro-com-deus");
+  revalidatePath("/painel/encontro");
   return { status: "sucesso", nome: pessoais.dados.nome_completo };
 }

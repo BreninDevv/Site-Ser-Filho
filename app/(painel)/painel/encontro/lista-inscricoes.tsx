@@ -3,7 +3,11 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
-import { type StatusInscricao } from "@/lib/validations/inscricao-encontro";
+import {
+  ROTULOS_PAPEL_ENCONTRO,
+  type PapelEncontro,
+  type StatusInscricao,
+} from "@/lib/validations/inscricao-encontro";
 import {
   ROTULOS_FORMA,
   VALOR_CRIANCA_CENTAVOS,
@@ -29,6 +33,9 @@ export type InscricaoPainel = {
   telefone_contato_emergencia: string | null;
   observacoes: string | null;
   como_soube: string | null;
+  papel_encontro: PapelEncontro | null;
+  pastor_nome: string | null;
+  autorizacao_lider: boolean;
   status: StatusInscricao;
   presente: boolean;
   created_at: string;
@@ -125,7 +132,14 @@ export function ListaInscricoes({
       })
       .filter((i) => {
         if (!texto) return true;
-        const alvo = [i.nome_completo, i.email, i.telefone, i.cidade ?? ""]
+        const alvo = [
+          i.nome_completo,
+          i.email,
+          i.telefone,
+          i.cidade ?? "",
+          i.pastor_nome ?? "",
+          i.papel_encontro ?? "",
+        ]
           .join(" ")
           .toLowerCase();
         return alvo.includes(texto);
@@ -226,6 +240,10 @@ function CartaoInscricao({
           <h2 className="font-semibold">{item.nome_completo}</h2>
           <p className="text-sm text-muted-foreground">
             {calcularIdade(item.data_nascimento)} anos
+            {item.papel_encontro
+              ? ` · ${ROTULOS_PAPEL_ENCONTRO[item.papel_encontro]}`
+              : ""}
+            {item.pastor_nome ? ` · Pastor ${item.pastor_nome}` : ""}
             {item.cidade ? ` · ${item.cidade}` : ""} ·{" "}
             {new Date(item.created_at).toLocaleDateString("pt-BR")}
           </p>
@@ -319,6 +337,23 @@ function CartaoInscricao({
 
         <div className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <Dado rotulo="Declarou no envio" valor={formatarReais(item.valor_cobrado_centavos || 0)} />
+          {item.papel_encontro && (
+            <Dado
+              rotulo="Você é"
+              valor={ROTULOS_PAPEL_ENCONTRO[item.papel_encontro]}
+            />
+          )}
+          {item.pastor_nome && <Dado rotulo="Pastor" valor={item.pastor_nome} />}
+          {calcularIdade(item.data_nascimento) < 18 && (
+            <Dado
+              rotulo="Menor de 18"
+              valor={
+                item.autorizacao_lider
+                  ? "Vai levar autorização do líder"
+                  : "Precisa de autorização do líder"
+              }
+            />
+          )}
           {item.como_soube && <Dado rotulo="Como soube" valor={item.como_soube} />}
           {item.nome_contato_emergencia && (
             <Dado

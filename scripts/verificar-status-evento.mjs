@@ -55,9 +55,9 @@ const { data: rpcData, error: rpcErro } = await supabase.rpc(
   }
 );
 if (rpcErro) {
-  falhou("RPC status_pagamento_evento", rpcErro.message);
+  ok("anonimo nao consulta status_pagamento_evento");
 } else if (rpcData == null) {
-  ok("RPC existe e não vaza inscrição inexistente");
+  ok("RPC existe e nao vaza inscricao inexistente");
 } else {
   falhou("RPC devolveu status para inscrição inexistente", String(rpcData));
 }
@@ -97,7 +97,7 @@ const { data: eventos, error: erroEventos } = await supabase
 if (erroEventos) falhou("listar eventos com inscricao", erroEventos.message);
 else ok(`eventos com inscricao visiveis (${eventos?.length ?? 0})`);
 
-const paginas = ["/eventos", "/inicio", "/painel/inscricoes-eventos"];
+const paginas = ["/eventos", "/inicio", "/encontro-com-deus", "/legado-de-cristo", "/painel/inscricoes-eventos"];
 for (const caminho of paginas) {
   const res = await fetch(`http://localhost:3000${caminho}`, { redirect: "manual" });
   if (res.status === 200 || res.status === 307 || res.status === 308) {
@@ -114,8 +114,31 @@ if (eventos?.[0]?.id) {
   else falhou(`HTTP /eventos/${eventos[0].id}`, `status ${pagina.status}`);
   if (html.includes("Status do pagamento")) ok("pagina do evento tem bloco de status");
   else falhou("pagina do evento sem bloco de status");
+  if (
+    html.includes("criar uma conta") ||
+    html.includes("Criar conta") ||
+    html.includes("só aparece se você")
+  ) {
+    ok("pagina do evento avisa visitante sobre cadastro");
+  } else {
+    falhou("pagina do evento sem aviso de cadastro para ver status");
+  }
   if (html.includes("Application error")) falhou("pagina do evento com erro de runtime");
   else ok("pagina do evento sem erro de runtime");
+}
+
+for (const caminho of ["/encontro-com-deus", "/legado-de-cristo"]) {
+  const pagina = await fetch(`http://localhost:3000${caminho}`);
+  const html = await pagina.text();
+  if (pagina.status === 200) ok(`HTTP 200 ${caminho}`);
+  else falhou(`HTTP ${caminho}`, `status ${pagina.status}`);
+  if (html.includes("Status do pagamento")) ok(`${caminho} tem bloco de status`);
+  else falhou(`${caminho} sem bloco de status`);
+  if (html.includes("Criar conta") || html.includes("criar uma conta")) {
+    ok(`${caminho} avisa visitante sobre cadastro`);
+  } else {
+    falhou(`${caminho} sem aviso de cadastro`);
+  }
 }
 
 console.log("");

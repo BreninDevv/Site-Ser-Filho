@@ -17,7 +17,8 @@ export default async function LoginPage({
     <div>
       <h1 className="font-heading text-3xl uppercase mb-1">Entrar</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        Acesso para líderes, pastores e administração.
+        Entre com sua conta. Discípulo navega o site e vê o status do
+        pagamento. Líder, pastor e equipe entram no painel.
       </p>
 
       {confirmado === "1" && (
@@ -82,12 +83,17 @@ export default async function LoginPage({
       >
         Continuar como visitante
       </Link>
+      <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+        Visitante pode se inscrever nos eventos. O status do pagamento só
+        aparece para quem tem conta.
+      </p>
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
-        É líder ou pastor e ainda não tem conta?{" "}
+        Ainda não tem conta?{" "}
         <Link href="/cadastro" className="font-semibold text-foreground underline underline-offset-4">
           Cadastre-se
-        </Link>
+        </Link>{" "}
+        e entre como discípulo.
       </p>
     </div>
   );

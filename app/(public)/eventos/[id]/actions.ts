@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import {
   ESTADO_INICIAL_EVENTO,
@@ -52,6 +53,16 @@ export async function consultarStatusPagamentoEvento(
   }
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      status: "erro",
+      mensagem: "Entre na sua conta para ver o status do pagamento.",
+    };
+  }
+
   const { data, error } = await supabase.rpc("status_pagamento_evento", {
     p_evento_id: eventoId,
     p_nome: nome,
@@ -145,10 +156,13 @@ export async function inscreverNoEvento(
       status: "erro",
       erros: {},
       mensagem:
+        error.message ||
         "Não foi possível enviar. Rode supabase/migrations/009_inscricoes_evento.sql no Supabase.",
     };
   }
 
+  revalidatePath(`/eventos/${eventoId}`);
+  revalidatePath("/painel/inscricoes-eventos");
   return { status: "sucesso", nome: validado.dados.nome };
 }
 

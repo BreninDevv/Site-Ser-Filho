@@ -8,6 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
+import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
 import { inscreverNoLegado } from "./actions";
@@ -143,7 +145,8 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO_LEGADO.reduce((acumulado, campo) 
   return acumulado;
 }, {} as ValoresInscricaoLegado);
 
-export function InscricaoLegadoForm() {
+export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
+  const router = useRouter();
   const [estado, formAction, enviandoAction] = useActionState(
     inscreverNoLegado,
     ESTADO_INICIAL_LEGADO
@@ -177,6 +180,10 @@ export function InscricaoLegadoForm() {
     if (etapa === 2) tituloEtapaRef.current?.focus();
   }, [etapa]);
 
+  useEffect(() => {
+    if (estado.status === "sucesso") router.refresh();
+  }, [estado, router]);
+
   if (estado.status === "sucesso") {
     const primeiroNome = estado.nome.split(" ")[0];
 
@@ -184,10 +191,13 @@ export function InscricaoLegadoForm() {
       <div className="border border-border p-8 text-center">
         <h3 className="font-heading text-2xl uppercase">Inscrição enviada</h3>
         <p className="mt-4 text-sm text-muted-foreground">
-          Obrigado, {primeiroNome}! Sua inscrição foi enviada e está{" "}
-          <strong className="text-foreground">aguardando aprovação</strong>. A
-          equipe vai conferir o pagamento e confirmar sua vaga pelo telefone ou
+          Obrigado, {primeiroNome}! Sua inscrição foi enviada. Status do
+          pagamento:{" "}
+          <strong className="text-foreground">Em análise</strong>. A equipe
+          vai conferir o pagamento e confirmar sua vaga pelo telefone ou
           e-mail que você informou.
+          {!logado &&
+            " Para ver o status do pagamento nesta página, crie uma conta com o mesmo e-mail da inscrição."}
         </p>
         <a
           href="/legado-de-cristo"
@@ -333,13 +343,14 @@ export function InscricaoLegadoForm() {
   return (
     <form ref={formRef} action={aoEnviar} className="space-y-6">
       <input
-        type="text"
+        type="checkbox"
         name="hp_campo_extra"
         tabIndex={-1}
         autoComplete="off"
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
         aria-hidden="true"
       />
+      <AvisoStatusCadastro logado={logado} />
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Etapa {etapa} de 2 — {etapa === 1 ? "seus dados" : "pagamento"}
       </p>

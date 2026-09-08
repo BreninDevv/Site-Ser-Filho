@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { StatusPagamentoPorEmail } from "@/components/status-pagamento-conta";
+import { createClient } from "@/lib/supabase/server";
 import { InscricaoForm } from "./inscricao-form";
 
 export const metadata: Metadata = {
@@ -8,7 +10,14 @@ export const metadata: Metadata = {
     "Inscreva-se no Encontro de Volta ao Jardim da igreja Ser Filho. Um fim de semana para sair da rotina, ouvir a Palavra e começar de novo.",
 };
 
-export default function EncontroComDeusPage() {
+export default async function EncontroComDeusPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const logado = Boolean(user);
+  const { data: pastores } = await supabase.rpc("pastores_para_inscricao");
+
   return (
     <div className="pagina-volta-ao-jardim">
       <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-8 bg-[#1f3d1f]">
@@ -41,11 +50,13 @@ export default function EncontroComDeusPage() {
           </h2>
           <p className="mt-3 mb-8 text-sm leading-relaxed text-[#141412]/75">
             Primeiro seus dados, depois o pagamento. A inscrição só é confirmada
-            depois que a equipe conferir. Não é preciso ter conta no site.
+            depois que a equipe conferir. Dá para se inscrever como visitante. O
+            status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-[#dcdad3] bg-[#faf9f6]/92 p-5 sm:p-7">
-            <InscricaoForm />
+            <InscricaoForm logado={logado} pastores={pastores ?? []} />
           </div>
+          <StatusPagamentoPorEmail rpc="status_pagamento_encontro" />
         </div>
       </section>
     </div>

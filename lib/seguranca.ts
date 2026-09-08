@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
 
-export const SENHA_MINIMA = 8;
-export const SENHA_MAXIMA = 72;
-export const SENHA_PADRAO = "(?=.*[A-Za-z])(?=.*\\d).{8,72}";
-export const TEXTO_SENHA =
-  "Mínimo 8 caracteres, com pelo menos uma letra e um número.";
+export {
+  SENHA_MAXIMA,
+  SENHA_MINIMA,
+  SENHA_PADRAO,
+  TEXTO_SENHA,
+} from "@/lib/senha";
+import { SENHA_MAXIMA, SENHA_MINIMA } from "@/lib/senha";
 
 const FORMATO_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const FORMATO_UUID =
@@ -109,5 +111,16 @@ export function dentroDoLimite(chave: string, max: number, janelaMs: number) {
 }
 
 export function ehHoneypot(formData: FormData) {
-  return String(formData.get("hp_campo_extra") ?? "").trim().length > 0;
+  const isca = String(formData.get("hp_campo_extra") ?? "").trim();
+  if (!isca) return false;
+
+  const nome = String(
+    formData.get("nome") ?? formData.get("nome_completo") ?? ""
+  ).trim();
+  const email = String(formData.get("email") ?? "").trim();
+  // Chrome e gerenciador de senha às vezes preenchem o campo escondido.
+  // Se o formulário tem dados reais, é pessoa — não bot.
+  if (nome.length >= 3 || email.includes("@")) return false;
+
+  return true;
 }

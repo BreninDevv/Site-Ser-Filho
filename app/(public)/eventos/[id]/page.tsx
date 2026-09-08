@@ -16,15 +16,19 @@ export default async function EventoPublicoPage({
 
   const supabase = await createClient();
   const agora = new Date().toISOString();
-  const { data: evento } = await supabase
-    .from("eventos")
-    .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao, valor_centavos")
-    .eq("id", id)
-    .lte("publicar_em", agora)
-    .maybeSingle();
+  const [{ data: evento }, { data: auth }] = await Promise.all([
+    supabase
+      .from("eventos")
+      .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao, valor_centavos")
+      .eq("id", id)
+      .lte("publicar_em", agora)
+      .maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
   if (!evento) notFound();
 
+  const logado = Boolean(auth.user);
   const imagem = urlPublicaDoPost(evento.imagem_path);
 
   return (
@@ -70,15 +74,17 @@ export default async function EventoPublicoPage({
               </h2>
               <p className="mb-6 text-sm leading-relaxed text-[#141412]/75">
                 Nome, idade e pagamento. A inscrição só é confirmada depois que
-                a tesouraria conferir. Não é preciso ter conta no site.
+                a tesouraria conferir. Dá para se inscrever como visitante. O
+                status do pagamento só aparece para quem tem conta no site.
               </p>
               <div className="border border-[#dcdad3] bg-[#faf9f6]/94 p-5 sm:p-7">
                 <InscricaoEventoForm
                   eventoId={evento.id}
                   valorCentavos={evento.valor_centavos}
+                  logado={logado}
                 />
               </div>
-              <ConsultaPagamentoEvento eventoId={evento.id} />
+              <ConsultaPagamentoEvento eventoId={evento.id} logado={logado} />
             </>
           ) : (
             <p className="mt-8 text-sm text-[#141412]/70">

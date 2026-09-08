@@ -25,6 +25,16 @@ export default async function PainelDashboardPage() {
     .select("*", { count: "exact", head: true })
     .eq("role", "lider");
 
+  const { count: totalPastores } = await supabase
+    .from("perfis")
+    .select("*", { count: "exact", head: true })
+    .eq("role", "pastor");
+
+  const { count: totalMembros } = await supabase
+    .from("perfis")
+    .select("*", { count: "exact", head: true })
+    .eq("role", "discipulo");
+
   const { count: totalPendentes } = await supabase
     .from("perfis")
     .select("*", { count: "exact", head: true })
@@ -45,18 +55,22 @@ export default async function PainelDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-background p-6">
           <p className="text-3xl font-bold">{totalCelulas ?? 0}</p>
           <p className="text-sm text-muted-foreground">Células ativas</p>
         </div>
         <div className="bg-background p-6">
           <p className="text-3xl font-bold">{totalLideres ?? 0}</p>
-          <p className="text-sm text-muted-foreground">Líderes/pastores</p>
+          <p className="text-sm text-muted-foreground">Líderes</p>
         </div>
         <div className="bg-background p-6">
-          <p className="text-3xl font-bold">{totalPendentes ?? 0}</p>
-          <p className="text-sm text-muted-foreground">Aguardando aprovação</p>
+          <p className="text-3xl font-bold">{totalPastores ?? 0}</p>
+          <p className="text-sm text-muted-foreground">Pastores</p>
+        </div>
+        <div className="bg-background p-6">
+          <p className="text-3xl font-bold">{totalMembros ?? 0}</p>
+          <p className="text-sm text-muted-foreground">Discípulos</p>
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { StatusPagamentoPorEmail } from "@/components/status-pagamento-conta";
+import { createClient } from "@/lib/supabase/server";
 import { InscricaoLegadoForm } from "./inscricao-form";
 
 export const metadata: Metadata = {
@@ -8,7 +10,13 @@ export const metadata: Metadata = {
     "Inscreva-se no Legado de Cristo da igreja Ser Filho. Um tempo para firmar o que Deus já começou e deixar um rastro de fé.",
 };
 
-export default function LegadoDeCristoPage() {
+export default async function LegadoDeCristoPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const logado = Boolean(user);
+
   return (
     <div className="pagina-legado-de-cristo">
       <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-8 bg-black">
@@ -41,11 +49,13 @@ export default function LegadoDeCristoPage() {
           </h2>
           <p className="mt-3 mb-8 text-sm leading-relaxed text-white/70">
             Primeiro seus dados, depois o pagamento. A inscrição só é confirmada
-            depois que a equipe conferir. Não é preciso ter conta no site.
+            depois que a equipe conferir. Dá para se inscrever como visitante. O
+            status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-white/15 bg-[#faf9f6] p-5 sm:p-7">
-            <InscricaoLegadoForm />
+            <InscricaoLegadoForm logado={logado} />
           </div>
+          <StatusPagamentoPorEmail rpc="status_pagamento_legado" />
         </div>
       </section>
     </div>

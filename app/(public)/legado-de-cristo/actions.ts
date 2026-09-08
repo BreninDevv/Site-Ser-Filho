@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import {
   lerValoresLegado,
@@ -72,9 +73,12 @@ export async function inscreverNoLegado(
       valores,
       etapa: 2,
       mensagem:
+        error.message ||
         "Não foi possível enviar sua inscrição agora. Tente novamente em alguns instantes.",
     };
   }
 
+  revalidatePath("/legado-de-cristo");
+  revalidatePath("/painel/legado");
   return { status: "sucesso", nome: pessoais.dados.nome_completo };
 }

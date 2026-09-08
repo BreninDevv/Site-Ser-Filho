@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import {
+  eLiderOuPastor,
   podeEditarQualquerCelula,
   podeGerenciarCelulas,
 } from "@/lib/auth/roles";
@@ -35,7 +36,7 @@ export default async function CelulasPage() {
 
   function podeEditarOuExcluir(liderId: string) {
     if (podeEditarQualquerCelula(role)) return true;
-    if (role === "lider" && user && liderId === user.id) return true;
+    if (eLiderOuPastor(role) && user && liderId === user.id) return true;
     return false;
   }
 

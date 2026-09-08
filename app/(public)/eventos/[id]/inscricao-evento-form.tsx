@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -24,10 +26,13 @@ const campo =
 export function InscricaoEventoForm({
   eventoId,
   valorCentavos,
+  logado,
 }: {
   eventoId: string;
   valorCentavos: number;
+  logado: boolean;
 }) {
+  const router = useRouter();
   const [forma, setForma] = useState<FormaPagamento | "">("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [subindo, setSubindo] = useState(false);
@@ -90,13 +95,20 @@ export function InscricaoEventoForm({
     action(formData);
   }
 
+  useEffect(() => {
+    if (estado.status === "sucesso") router.refresh();
+  }, [estado, router]);
+
   if (estado.status === "sucesso") {
     return (
       <div className="space-y-2 text-sm">
         <p>Inscrição enviada, {estado.nome}.</p>
         <p>
           Status do pagamento: <strong>Em análise</strong>. A tesouraria
-          confere e depois aparece como aprovado ou recusado.
+          confere e depois aparece como aprovado ou recusado
+          {logado
+            ? " no bloco abaixo."
+            : ". Para acompanhar, crie uma conta e entre no site."}
         </p>
       </div>
     );
@@ -110,13 +122,14 @@ export function InscricaoEventoForm({
   return (
     <form action={aoEnviar} className="space-y-4">
       <input
-        type="text"
+        type="checkbox"
         name="hp_campo_extra"
         tabIndex={-1}
         autoComplete="off"
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
         aria-hidden="true"
       />
+      <AvisoStatusCadastro logado={logado} />
       <p className="text-sm text-muted-foreground">
         Valor: <strong>{formatarReais(valorCentavos)}</strong>
       </p>
