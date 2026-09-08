@@ -1,18 +1,17 @@
 "use client";
 
 import {
-  startTransition,
-  useActionState,
   useEffect,
   useRef,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
+import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
-import { inscreverNoLegado } from "./actions";
 import {
   CAMPOS_INSCRICAO_LEGADO,
   ESTADO_INICIAL_LEGADO,
@@ -21,6 +20,7 @@ import {
   validarInscricaoLegado,
   type CampoFormularioLegado,
   type ErrosFormularioLegado,
+  type EstadoInscricaoLegado,
   type ValoresInscricaoLegado,
 } from "@/lib/validations/inscricao-legado";
 import {
@@ -146,10 +146,8 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO_LEGADO.reduce((acumulado, campo) 
 }, {} as ValoresInscricaoLegado);
 
 export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
-  const [estado, formAction, enviandoAction] = useActionState(
-    inscreverNoLegado,
-    ESTADO_INICIAL_LEGADO
-  );
+  const [estado, setEstado] = useState<EstadoInscricaoLegado>(ESTADO_INICIAL_LEGADO);
+  const [enviandoAction, setEnviandoAction] = useState(false);
 
   const [etapa, setEtapa] = useState<1 | 2>(1);
   const [estadoVisto, setEstadoVisto] = useState(estado);
@@ -278,7 +276,9 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
     setErrosLocais((atual) => ({ ...atual, comprovante_path: undefined }));
   }
 
-  async function aoEnviar(formData: FormData) {
+  async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const formData = new FormData(evento.currentTarget);
     setErrosLocais({});
 
     if (!primeiroLegado) {
@@ -330,13 +330,25 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
     formData.set("comprovante_path", caminho);
     formData.set("primeiro_legado", primeiroLegado);
 
-    startTransition(() => {
-      formAction(formData);
-    });
+    setEnviandoAction(true);
+    const resultado = await enviarInscricaoJson<EstadoInscricaoLegado>(
+      "/api/inscricoes/legado",
+      formData,
+      {
+        status: "erro",
+        erros: {},
+        valores: {},
+        etapa: 2,
+        mensagem:
+          "Não foi possível enviar sua inscrição agora. Tente novamente em alguns instantes.",
+      }
+    );
+    setEstado(resultado);
+    setEnviandoAction(false);
   }
 
   return (
-    <form ref={formRef} action={aoEnviar} className="space-y-6">
+    <form ref={formRef} onSubmit={aoEnviar} className="space-y-6">
       <input
         type="checkbox"
         name="hp_campo_extra"

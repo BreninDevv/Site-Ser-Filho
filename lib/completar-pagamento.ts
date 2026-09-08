@@ -1,5 +1,3 @@
-"use server";
-
 import { createClient } from "@/lib/supabase/server";
 import { caminhoArquivoValido, dentroDoLimite, ipDoPedido } from "@/lib/seguranca";
 import {
@@ -7,17 +5,10 @@ import {
   exigeComprovante,
   type FormaPagamento,
 } from "@/lib/validations/pagamento-encontro";
+import type { EstadoComplemento } from "@/lib/completar-pagamento-estado";
 
-export type EstadoComplemento =
-  | { status: "inicial" }
-  | { status: "sucesso" }
-  | { status: "erro"; mensagem: string };
-
-export const ESTADO_COMPLEMENTO_INICIAL: EstadoComplemento = { status: "inicial" };
-
-export async function enviarComplementoPagamento(
+export async function processarComplementoPagamento(
   origem: "encontro" | "legado",
-  _estadoAnterior: EstadoComplemento,
   formData: FormData
 ): Promise<EstadoComplemento> {
   try {

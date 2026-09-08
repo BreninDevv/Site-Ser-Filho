@@ -25,19 +25,25 @@ const publicLinks = [
 ];
 
 export async function PublicHeader() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  let user: { id: string; email?: string } | null = null;
   let perfil: { nome: string; role: string } | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from("perfis")
-      .select("nome, role")
-      .eq("id", user.id)
-      .single();
-    perfil = data;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: sessao },
+    } = await supabase.auth.getUser();
+    user = sessao;
+    if (sessao) {
+      const { data } = await supabase
+        .from("perfis")
+        .select("nome, role")
+        .eq("id", sessao.id)
+        .maybeSingle();
+      perfil = data;
+    }
+  } catch {
+    user = null;
+    perfil = null;
   }
 
   const hrefPainel = destinoDoPainel(perfil?.role);

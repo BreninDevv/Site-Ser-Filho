@@ -1,18 +1,17 @@
 "use client";
 
 import {
-  startTransition,
-  useActionState,
   useEffect,
   useRef,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
+import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
-import { inscreverNoEncontro } from "./actions";
 import {
   CAMPOS_INSCRICAO,
   ESTADO_INICIAL,
@@ -25,6 +24,7 @@ import {
   validarInscricao,
   type CampoFormulario,
   type ErrosFormulario,
+  type EstadoInscricao,
   type ValoresInscricao,
 } from "@/lib/validations/inscricao-encontro";
 import {
@@ -158,10 +158,8 @@ export function InscricaoForm({
   logado: boolean;
   pastores: { id: string; nome: string }[];
 }) {
-  const [estado, formAction, enviandoAction] = useActionState(
-    inscreverNoEncontro,
-    ESTADO_INICIAL
-  );
+  const [estado, setEstado] = useState<EstadoInscricao>(ESTADO_INICIAL);
+  const [enviandoAction, setEnviandoAction] = useState(false);
 
   const [etapa, setEtapa] = useState<1 | 2>(1);
   const [estadoVisto, setEstadoVisto] = useState(estado);
@@ -300,7 +298,9 @@ export function InscricaoForm({
     setErrosLocais((atual) => ({ ...atual, comprovante_path: undefined }));
   }
 
-  async function aoEnviar(formData: FormData) {
+  async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const formData = new FormData(evento.currentTarget);
     setErrosLocais({});
 
     if (comprovanteObrigatorio && !arquivo && !caminhoComprovante) {
@@ -347,13 +347,25 @@ export function InscricaoForm({
     formData.delete("comprovante");
     formData.set("comprovante_path", caminho);
 
-    startTransition(() => {
-      formAction(formData);
-    });
+    setEnviandoAction(true);
+    const resultado = await enviarInscricaoJson<EstadoInscricao>(
+      "/api/inscricoes/encontro",
+      formData,
+      {
+        status: "erro",
+        erros: {},
+        valores: {},
+        etapa: 2,
+        mensagem:
+          "Não foi possível enviar sua inscrição agora. Tente novamente em alguns instantes.",
+      }
+    );
+    setEstado(resultado);
+    setEnviandoAction(false);
   }
 
   return (
-    <form ref={formRef} action={aoEnviar} className="space-y-6">
+    <form ref={formRef} onSubmit={aoEnviar} className="space-y-6">
       <input
         type="checkbox"
         name="hp_campo_extra"

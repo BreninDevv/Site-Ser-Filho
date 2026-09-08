@@ -1,14 +1,15 @@
 "use client";
 
-import { startTransition, useActionState, useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
-import { createClient } from "@/lib/supabase/client";
 import {
   ESTADO_COMPLEMENTO_INICIAL,
-  enviarComplementoPagamento,
-} from "@/lib/completar-pagamento";
+  type EstadoComplemento,
+} from "@/lib/completar-pagamento-estado";
+import { enviarInscricaoJson } from "@/lib/inscricoes/http";
+import { createClient } from "@/lib/supabase/client";
 import {
   CHAVE_PIX,
   DESCRICOES_FORMA,
@@ -31,11 +32,8 @@ export function CompletarPagamentoForm({
   bucket: string;
 }) {
   const router = useRouter();
-  const action = enviarComplementoPagamento.bind(null, origem);
-  const [estado, formAction, enviando] = useActionState(
-    action,
-    ESTADO_COMPLEMENTO_INICIAL
-  );
+  const [estado, setEstado] = useState<EstadoComplemento>(ESTADO_COMPLEMENTO_INICIAL);
+  const [enviando, setEnviando] = useState(false);
   const [forma, setForma] = useState<FormaPagamento | "">("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [subindo, setSubindo] = useState(false);
@@ -44,7 +42,9 @@ export function CompletarPagamentoForm({
   const ocupado = enviando || subindo;
   const comprovanteObrigatorio = forma ? exigeComprovante(forma) : false;
 
-  async function aoEnviar(formData: FormData) {
+  async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const formData = new FormData(evento.currentTarget);
     setErroLocal("");
 
     if (!forma) {
@@ -88,11 +88,20 @@ export function CompletarPagamentoForm({
 
     formData.set("forma_pagamento", forma);
     formData.set("comprovante_path", caminho);
+    formData.set("origem", origem);
     formData.delete("comprovante");
 
-    startTransition(() => {
-      formAction(formData);
-    });
+    setEnviando(true);
+    const resultado = await enviarInscricaoJson<EstadoComplemento>(
+      "/api/inscricoes/complemento",
+      formData,
+      {
+        status: "erro",
+        mensagem: "Não foi possível enviar o complemento. Tente de novo.",
+      }
+    );
+    setEstado(resultado);
+    setEnviando(false);
   }
 
   if (estado.status === "sucesso") {
@@ -115,7 +124,7 @@ export function CompletarPagamentoForm({
   }
 
   return (
-    <form action={aoEnviar} className="mt-5 space-y-4 border border-[#dcdad3] p-4">
+    <form onSubmit={aoEnviar} className="mt-5 space-y-4 border border-[#dcdad3] p-4">
       <div>
         <p className="text-sm font-semibold">Completar pagamento</p>
         <p className="mt-1 text-sm text-[#141412]/70">

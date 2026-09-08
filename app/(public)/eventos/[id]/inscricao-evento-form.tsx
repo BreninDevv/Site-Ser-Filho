@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState, type FormEvent } from "react";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
+import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
 import {
   BUCKET_COMPROVANTES_EVENTO,
@@ -16,9 +17,9 @@ import {
   TIPOS_COMPROVANTE,
   exigeComprovante,
   formatarReais,
+  type EstadoInscricaoEvento,
   type FormaPagamento,
 } from "@/lib/validations/inscricao-evento";
-import { inscreverNoEvento } from "./actions";
 
 const campo =
   "w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground";
@@ -36,21 +37,15 @@ export function InscricaoEventoForm({
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [subindo, setSubindo] = useState(false);
   const [erroLocal, setErroLocal] = useState<string | null>(null);
-
-  const [estado, action, pendente] = useActionState(
-    async (
-      _prev: Awaited<ReturnType<typeof inscreverNoEvento>>,
-      formData: FormData
-    ) => {
-      return inscreverNoEvento(eventoId, _prev, formData);
-    },
-    ESTADO_INICIAL_EVENTO
-  );
+  const [estado, setEstado] = useState<EstadoInscricaoEvento>(ESTADO_INICIAL_EVENTO);
+  const [pendente, setPendente] = useState(false);
 
   const comprovanteObrigatorio =
     forma !== "" && exigeComprovante(forma as FormaPagamento);
 
-  async function aoEnviar(formData: FormData) {
+  async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const formData = new FormData(evento.currentTarget);
     setErroLocal(null);
 
     if (comprovanteObrigatorio && !arquivo) {
@@ -92,7 +87,19 @@ export function InscricaoEventoForm({
     }
 
     formData.delete("comprovante");
-    action(formData);
+    formData.set("evento_id", eventoId);
+    setPendente(true);
+    const resultado = await enviarInscricaoJson<EstadoInscricaoEvento>(
+      "/api/inscricoes/evento",
+      formData,
+      {
+        status: "erro",
+        erros: {},
+        mensagem: "Não foi possível enviar sua inscrição agora. Tente novamente.",
+      }
+    );
+    setEstado(resultado);
+    setPendente(false);
   }
 
   if (estado.status === "sucesso") {
@@ -116,7 +123,7 @@ export function InscricaoEventoForm({
     (estado.status === "erro" ? estado.erros.comprovante_path : undefined);
 
   return (
-    <form action={aoEnviar} className="space-y-4">
+    <form onSubmit={aoEnviar} className="space-y-4">
       <input
         type="checkbox"
         name="hp_campo_extra"
