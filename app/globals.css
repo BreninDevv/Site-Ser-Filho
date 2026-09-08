@@ -127,7 +127,14 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply max-w-full overflow-x-clip font-sans;
+  }
+  img,
+  video,
+  iframe,
+  canvas,
+  svg {
+    max-width: 100%;
   }
   ::selection {
     color: #faf9f6;

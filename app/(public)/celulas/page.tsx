@@ -42,8 +42,8 @@ export default async function CelulasPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <div className="mb-2 flex items-end justify-between">
-        <h1 className="font-heading text-5xl uppercase">Células</h1>
+      <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="font-heading text-4xl uppercase sm:text-5xl">Células</h1>
         {podeGerenciar && (
           <Button className="bg-foreground text-background hover:bg-foreground/90" asChild>
             <Link href="/celulas/nova">Adicionar célula</Link>

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
@@ -725,6 +726,8 @@ export function InscricaoForm({
               {erros.forma_pagamento}
             </MensagemErro>
           </fieldset>
+
+          <AvisoPagamentoPresencial forma={forma} />
 
           {forma === "pix" && (
             <div className="border border-border p-4">

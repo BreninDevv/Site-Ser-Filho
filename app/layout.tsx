@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat, Open_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -23,13 +23,19 @@ export const metadata: Metadata = {
   description: "Site da igreja Ser Filho — células, testemunhos e Encontro de Volta ao Jardim.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
       className={`${openSans.variable} ${montserrat.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full min-w-0 flex-col overflow-x-clip">
         {children}
       </body>
     </html>

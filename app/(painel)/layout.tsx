@@ -23,7 +23,7 @@ export default async function PainelLayout({
   const master = eAcessoMaster(perfil);
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
+    <div className="flex min-h-full min-w-0 flex-col overflow-x-clip md:flex-row">
       <PainelNav
         titulo={master ? "Painel" : podeGerenciarMidia(perfil) ? "Mídia" : "Inscrições"}
         mostrarDashboard={master}
@@ -32,7 +32,7 @@ export default async function PainelLayout({
         mostrarInscricoesEventos={podeAprovarPagamento(perfil)}
         mostrarAdmin={podeAdminUsuarios(perfil)}
       />
-      <main className="flex-1 px-4 py-8 md:px-8">{children}</main>
+      <main className="min-w-0 flex-1 px-4 py-8 md:px-8">{children}</main>
     </div>
   );
 }

@@ -39,7 +39,17 @@ export type InscricaoLegadoPainel = {
   comprovanteUrl: string | null;
   ehPdf: boolean;
   temComprovante: boolean;
+  complemento_pendente: boolean;
+  complemento_forma: FormaPagamento | null;
+  complemento_valor_centavos: number;
+  complementoComprovanteUrl: string | null;
+  temComprovanteComplemento: boolean;
+  ehPdfComplemento: boolean;
 };
+
+function naFila(item: InscricaoLegadoPainel) {
+  return item.status === "pendente" || item.complemento_pendente;
+}
 
 const ROTULOS_STATUS: Record<StatusInscricao, string> = {
   pendente: "Pendente",
@@ -98,7 +108,7 @@ export function ListaInscricoes({
   const [filtro, setFiltro] = useState<Filtro>("fila");
 
   const contagem = {
-    fila: inscricoes.filter((i) => i.status === "pendente").length,
+    fila: inscricoes.filter(naFila).length,
     todas: inscricoes.length,
     confirmada: inscricoes.filter((i) => i.status === "confirmada").length,
     cancelada: inscricoes.filter((i) => i.status === "cancelada").length,
@@ -115,7 +125,7 @@ export function ListaInscricoes({
     const texto = busca.trim().toLowerCase();
     return inscricoes
       .filter((i) => {
-        if (filtro === "fila") return i.status === "pendente";
+        if (filtro === "fila") return naFila(i);
         if (filtro === "falta") return i.status !== "cancelada" && faltaPagar(i) > 0;
         if (filtro !== "todas") return i.status === filtro;
         return true;
@@ -231,6 +241,11 @@ function CartaoInscricao({
           <span className="border border-border px-2 py-0.5 text-xs font-semibold">
             {ROTULOS_STATUS[item.status]}
           </span>
+          {item.complemento_pendente && (
+            <span className="border border-foreground px-2 py-0.5 text-xs font-semibold">
+              Complemento para conferir
+            </span>
+          )}
           {item.presente && (
             <span className="border border-foreground px-2 py-0.5 text-xs font-semibold">
               Presente
@@ -273,10 +288,12 @@ function CartaoInscricao({
 
       {podeAprovar && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          {item.status === "pendente" && (
+          {naFila(item) && (
             <form action={aprovarInscricao.bind(null, item.id)}>
               <Button size="sm" type="submit">
-                Aprovar
+                {item.complemento_pendente && item.status !== "pendente"
+                  ? "Aprovar complemento"
+                  : "Aprovar"}
               </Button>
             </form>
           )}
@@ -302,9 +319,9 @@ function CartaoInscricao({
         </div>
       )}
 
-      <details className="mt-4 border-t border-border pt-3" open={item.status === "pendente"}>
+      <details className="mt-4 border-t border-border pt-3" open={naFila(item)}>
         <summary className="cursor-pointer text-sm font-semibold">
-          {item.status === "pendente" ? "Comprovante e dados para conferir" : "Mais detalhes"}
+          {naFila(item) ? "Comprovante e dados para conferir" : "Mais detalhes"}
         </summary>
 
         <div className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -323,6 +340,12 @@ function CartaoInscricao({
             <div className="sm:col-span-2">
               <Dado rotulo="Nota do pagamento" valor={item.pagamento_observacao} />
             </div>
+          )}
+          {item.complemento_pendente && (
+            <Dado
+              rotulo="Complemento"
+              valor={`${item.complemento_forma ? ROTULOS_FORMA[item.complemento_forma] : "Forma não informada"} · ${formatarReais(item.complemento_valor_centavos)}`}
+            />
           )}
         </div>
 
@@ -358,6 +381,41 @@ function CartaoInscricao({
               <p className="text-sm text-muted-foreground">
                 Sem comprovante — pagamento presencial (dinheiro ou débito).
               </p>
+            )}
+            {item.complemento_pendente && item.temComprovanteComplemento && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs text-muted-foreground">Comprovante do restante</p>
+                {item.complementoComprovanteUrl ? (
+                  item.ehPdfComplemento ? (
+                    <a
+                      href={item.complementoComprovanteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold underline underline-offset-2"
+                    >
+                      Abrir comprovante do restante (PDF)
+                    </a>
+                  ) : (
+                    <a
+                      href={item.complementoComprovanteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block max-w-sm"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.complementoComprovanteUrl}
+                        alt={`Comprovante do restante de ${item.nome_completo}`}
+                        className="max-h-64 w-full border border-border object-contain"
+                      />
+                    </a>
+                  )
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Comprovante do restante enviado, mas o link não abriu.
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}

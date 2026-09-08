@@ -79,9 +79,9 @@ export default async function InicioPage() {
 
   return (
     <div>
-      <section className="relative flex min-h-[calc(100svh-7.5rem)] items-center justify-center overflow-hidden px-4 py-16 text-center -mt-12 sm:-mt-16">
-        <div className="relative mx-auto max-w-2xl">
-          <div className="relative z-10 mx-auto h-[280px] w-[280px] sm:h-[380px] sm:w-[380px]">
+      <section className="relative flex min-h-[calc(100svh-7.5rem)] items-center justify-center overflow-hidden px-4 py-16 text-center">
+        <div className="relative mx-auto w-full max-w-2xl min-w-0">
+          <div className="relative z-10 mx-auto aspect-square w-full max-w-[280px] sm:max-w-[380px]">
             <GlobeStudy mode="light" />
           </div>
           <div className="relative z-10 -mt-3 mb-4 flex justify-center text-tertiary">
@@ -94,7 +94,7 @@ export default async function InicioPage() {
           <p className="relative z-10 mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-tertiary">
             Ministério
           </p>
-          <h1 className="font-heading relative z-10 text-6xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
+          <h1 className="font-heading relative z-10 text-5xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
             Ser Filho
           </h1>
           <p className="relative z-10 mx-auto mt-7 max-w-md text-lg leading-relaxed text-muted-foreground">
@@ -103,11 +103,11 @@ export default async function InicioPage() {
               palavras={["pertencer.", "crescer.", "ser chamado filho."]}
             />
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" className="h-11 rounded-full px-7" asChild>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" className="h-11 w-full max-w-xs whitespace-normal rounded-full px-7 sm:w-auto" asChild>
               <Link href="/encontro-com-deus">Conheça o Volta ao Jardim</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-11 rounded-full px-7" asChild>
+            <Button size="lg" variant="outline" className="h-11 w-full max-w-xs rounded-full px-7 sm:w-auto" asChild>
               <Link href="/celulas">Ver células</Link>
             </Button>
           </div>
@@ -160,7 +160,7 @@ export default async function InicioPage() {
 
       <section
         id="testemunhos"
-        className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-tertiary px-4 py-24 text-white"
+        className="relative w-full bg-tertiary px-4 py-24 text-white"
       >
         <div className="mx-auto max-w-5xl">
           <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -317,7 +317,7 @@ export default async function InicioPage() {
           <p className="mb-5 text-sm font-semibold tracking-wide text-[#faf9f6]/60">
             O evento principal
           </p>
-          <h2 className="font-heading text-6xl font-bold leading-[0.95] sm:text-7xl">
+          <h2 className="font-heading text-5xl font-bold leading-[0.95] sm:text-7xl">
             Volta ao
             <br />
             Jardim
@@ -346,7 +346,7 @@ export default async function InicioPage() {
           <p className="mb-5 text-sm font-semibold tracking-wide text-white/50">
             Continuidade
           </p>
-          <h2 className="font-heading text-6xl font-bold leading-[0.95] text-[#c6ff00] sm:text-7xl">
+          <h2 className="font-heading text-5xl font-bold leading-[0.95] text-[#c6ff00] sm:text-7xl">
             Legado
             <br />
             de Cristo

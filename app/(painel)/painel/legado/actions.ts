@@ -42,9 +42,29 @@ export async function aprovarInscricao(id: string) {
 
   const { data } = await supabase
     .from("inscricoes_legado")
-    .select("valor_cobrado_centavos, valor_pago_centavos")
+    .select(
+      "valor_cobrado_centavos, valor_pago_centavos, valor_devido_centavos, complemento_pendente, complemento_valor_centavos"
+    )
     .eq("id", id)
     .single();
+
+  if (data?.complemento_pendente) {
+    const extra = data.complemento_valor_centavos ?? 0;
+    const devido = data.valor_devido_centavos ?? 0;
+    const pago = data.valor_pago_centavos ?? 0;
+    await supabase
+      .from("inscricoes_legado")
+      .update({
+        status: "confirmada",
+        valor_pago_centavos: devido > 0 ? Math.min(devido, pago + extra) : pago + extra,
+        complemento_pendente: false,
+        aprovado_por: user.id,
+        aprovado_em: new Date().toISOString(),
+      })
+      .eq("id", id);
+    revalidar();
+    return;
+  }
 
   const jaLancado = (data?.valor_pago_centavos ?? 0) > 0;
 

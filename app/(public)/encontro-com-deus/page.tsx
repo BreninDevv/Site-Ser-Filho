@@ -20,14 +20,14 @@ export default async function EncontroComDeusPage() {
 
   return (
     <div className="pagina-volta-ao-jardim">
-      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-8 bg-[#1f3d1f]">
+      <div className="relative w-full bg-[#1f3d1f]">
         <h1 className="sr-only">Encontro de Volta ao Jardim</h1>
         <Image
           src="/encontro/hero-mobile.jpg"
           alt="Encontro de Volta ao Jardim"
           width={1024}
           height={1024}
-          className="h-auto w-full md:hidden"
+          className="block h-auto w-full max-w-full md:hidden"
           priority
         />
         <Image
@@ -35,13 +35,13 @@ export default async function EncontroComDeusPage() {
           alt="Encontro de Volta ao Jardim"
           width={1920}
           height={1080}
-          className="hidden h-auto w-full md:block"
+          className="hidden h-auto w-full max-w-full md:block"
           priority
         />
       </div>
 
       <section
-        className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-[#faf9f6] bg-cover bg-center"
+        className="relative w-full bg-[#faf9f6] bg-cover bg-center"
         style={{ backgroundImage: "url('/encontro/fundo.jpg')" }}
       >
         <div className="mx-auto max-w-xl px-4 py-12 sm:py-16">

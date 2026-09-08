@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import {
+  eLider,
   obterPerfilAtual,
+  pastorIdDaEquipeDoPerfil,
   podeAprovarPagamento,
   podeVerInscricoes,
 } from "@/lib/auth/permissoes";
@@ -23,10 +25,28 @@ export default async function PainelEncontroPage() {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let consulta = supabase
     .from("inscricoes_encontro")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (eLider(perfil)) {
+    const pastorId = await pastorIdDaEquipeDoPerfil(perfil);
+    if (!pastorId) {
+      return (
+        <div>
+          <h1 className="text-xl font-semibold mb-1">Inscrições do Volta ao Jardim</h1>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Você só vê as inscrições da sua equipe. Peça ao pastor para te
+            colocar na equipe pastoral pelo cadastro.
+          </p>
+        </div>
+      );
+    }
+    consulta = consulta.eq("pastor_id", pastorId);
+  }
+
+  const { data, error } = await consulta;
 
   if (error) {
     return (
@@ -43,6 +63,7 @@ export default async function PainelEncontroPage() {
 
   const brutas = data ?? [];
   const comprovantes = new Map<string, string>();
+  const comprovantesComplemento = new Map<string, string>();
 
   if (podeAprovar) {
     const comArquivo = brutas.filter((i) => i.comprovante_path);
@@ -56,6 +77,19 @@ export default async function PainelEncontroPage() {
     );
     for (const [id, url] of urls) {
       if (url) comprovantes.set(id, url);
+    }
+
+    const comComplemento = brutas.filter((i) => i.complemento_comprovante_path);
+    const urlsComplemento = await Promise.all(
+      comComplemento.map(async (i) => {
+        const { data: assinado } = await supabase.storage
+          .from(BUCKET_COMPROVANTES)
+          .createSignedUrl(i.complemento_comprovante_path, 60 * 30);
+        return [i.id, assinado?.signedUrl ?? ""] as const;
+      })
+    );
+    for (const [id, url] of urlsComplemento) {
+      if (url) comprovantesComplemento.set(id, url);
     }
   }
 
@@ -88,6 +122,16 @@ export default async function PainelEncontroPage() {
       comprovanteUrl: comprovantes.get(i.id) ?? null,
       ehPdf: Boolean(path?.toLowerCase().endsWith(".pdf")),
       temComprovante: Boolean(path),
+      complemento_pendente: Boolean(i.complemento_pendente),
+      complemento_forma: i.complemento_forma ?? null,
+      complemento_valor_centavos: i.complemento_valor_centavos ?? 0,
+      complementoComprovanteUrl: comprovantesComplemento.get(i.id) ?? null,
+      temComprovanteComplemento: Boolean(i.complemento_comprovante_path),
+      ehPdfComplemento: Boolean(
+        String(i.complemento_comprovante_path ?? "")
+          .toLowerCase()
+          .endsWith(".pdf")
+      ),
     };
   });
 
@@ -98,7 +142,9 @@ export default async function PainelEncontroPage() {
         <p className="text-sm text-muted-foreground">
           {podeAprovar
             ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."
-            : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
+            : eLider(perfil)
+              ? "Você vê só as inscrições da sua equipe pastoral. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."
+              : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
         </p>
       </div>
 

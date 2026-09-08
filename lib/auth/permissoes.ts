@@ -21,6 +21,7 @@ export {
   eAcessoMaster,
   eDev,
   eDiscipulo,
+  eLider,
   eLiderOuPastor,
   eMembro,
   podeAcessarRotaPainel,
@@ -37,6 +38,7 @@ export type PerfilAtual = {
   id: string;
   nome: string | null;
   role: string;
+  equipe_id: string | null;
 };
 
 export async function obterPerfilAtual(): Promise<PerfilAtual | null> {
@@ -50,11 +52,33 @@ export async function obterPerfilAtual(): Promise<PerfilAtual | null> {
 
   const { data } = await supabase
     .from("perfis")
-    .select("id, nome, role")
+    .select("id, nome, role, equipe_id")
     .eq("id", user.id)
     .single();
 
-  return data ?? null;
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    nome: data.nome,
+    role: data.role,
+    equipe_id: data.equipe_id ?? null,
+  };
+}
+
+export async function pastorIdDaEquipeDoPerfil(
+  perfil: PerfilAtual | null
+): Promise<string | null> {
+  if (!perfil?.equipe_id) return null;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("equipes_pastorais")
+    .select("pastor_id")
+    .eq("id", perfil.equipe_id)
+    .maybeSingle();
+
+  return data?.pastor_id ?? null;
 }
 
 /**

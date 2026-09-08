@@ -33,16 +33,16 @@ export default async function EventoPublicoPage({
 
   return (
     <div>
-      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-8 bg-[#141412]">
+      <div className="relative w-full bg-[#141412]">
         <img
           src={imagem}
           alt={evento.nome}
-          className="mx-auto h-auto w-full max-w-lg object-contain md:max-w-xl"
+          className="mx-auto block h-auto w-full max-w-full object-contain md:max-w-xl"
         />
       </div>
 
       <section
-        className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-[#faf9f6] bg-cover bg-center"
+        className="relative w-full bg-[#faf9f6] bg-cover bg-center"
         style={imagem ? { backgroundImage: `url("${imagem}")` } : undefined}
       >
         <div

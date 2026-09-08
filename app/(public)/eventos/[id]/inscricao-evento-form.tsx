@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
 import { createClient } from "@/lib/supabase/client";
@@ -194,6 +195,7 @@ export function InscricaoEventoForm({
           </p>
         )}
       </div>
+      <AvisoPagamentoPresencial forma={forma} />
       {forma === "pix" && (
         <div className="rounded-xl bg-muted p-4 text-sm">
           <p className="font-medium">Chave Pix</p>

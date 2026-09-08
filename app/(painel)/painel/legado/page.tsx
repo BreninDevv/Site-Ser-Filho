@@ -43,6 +43,7 @@ export default async function PainelLegadoPage() {
 
   const brutas = data ?? [];
   const comprovantes = new Map<string, string>();
+  const comprovantesComplemento = new Map<string, string>();
 
   if (podeAprovar) {
     const comArquivo = brutas.filter((i) => i.comprovante_path);
@@ -56,6 +57,19 @@ export default async function PainelLegadoPage() {
     );
     for (const [id, url] of urls) {
       if (url) comprovantes.set(id, url);
+    }
+
+    const comComplemento = brutas.filter((i) => i.complemento_comprovante_path);
+    const urlsComplemento = await Promise.all(
+      comComplemento.map(async (i) => {
+        const { data: assinado } = await supabase.storage
+          .from(BUCKET_COMPROVANTES_LEGADO)
+          .createSignedUrl(i.complemento_comprovante_path, 60 * 30);
+        return [i.id, assinado?.signedUrl ?? ""] as const;
+      })
+    );
+    for (const [id, url] of urlsComplemento) {
+      if (url) comprovantesComplemento.set(id, url);
     }
   }
 
@@ -83,6 +97,16 @@ export default async function PainelLegadoPage() {
       comprovanteUrl: comprovantes.get(i.id) ?? null,
       ehPdf: Boolean(path?.toLowerCase().endsWith(".pdf")),
       temComprovante: Boolean(path),
+      complemento_pendente: Boolean(i.complemento_pendente),
+      complemento_forma: i.complemento_forma ?? null,
+      complemento_valor_centavos: i.complemento_valor_centavos ?? 0,
+      complementoComprovanteUrl: comprovantesComplemento.get(i.id) ?? null,
+      temComprovanteComplemento: Boolean(i.complemento_comprovante_path),
+      ehPdfComplemento: Boolean(
+        String(i.complemento_comprovante_path ?? "")
+          .toLowerCase()
+          .endsWith(".pdf")
+      ),
     };
   });
 

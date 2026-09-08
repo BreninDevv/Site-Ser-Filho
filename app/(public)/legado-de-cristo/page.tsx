@@ -19,14 +19,14 @@ export default async function LegadoDeCristoPage() {
 
   return (
     <div className="pagina-legado-de-cristo">
-      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-8 bg-black">
+      <div className="relative w-full bg-black">
         <h1 className="sr-only">Legado de Cristo</h1>
         <Image
           src="/legado/hero-mobile.jpg"
           alt="Legado de Cristo"
           width={1024}
           height={1024}
-          className="h-auto w-full md:hidden"
+          className="block h-auto w-full max-w-full md:hidden"
           priority
         />
         <Image
@@ -34,13 +34,13 @@ export default async function LegadoDeCristoPage() {
           alt="Legado de Cristo"
           width={1920}
           height={1080}
-          className="hidden h-auto w-full md:block"
+          className="hidden h-auto w-full max-w-full md:block"
           priority
         />
       </div>
 
       <section
-        className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-black bg-cover bg-center"
+        className="relative w-full bg-black bg-cover bg-center"
         style={{ backgroundImage: "url('/legado/fundo.jpg')" }}
       >
         <div className="mx-auto max-w-xl px-4 py-12 sm:py-16">

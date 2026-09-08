@@ -75,6 +75,12 @@ export function eAcessoMaster(
   return ROLES_MASTER.includes(role as RoleMaster);
 }
 
+export function eLider(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  return roleDe(perfilOuRole) === ROLE_LIDER;
+}
+
 export function eLiderOuPastor(
   perfilOuRole: { role: string } | string | null | undefined
 ) {

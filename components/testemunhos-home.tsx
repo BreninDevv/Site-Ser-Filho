@@ -18,7 +18,7 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:justify-items-center sm:overflow-visible sm:pb-0">
+    <div className="flex min-w-0 gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:justify-items-center sm:overflow-visible sm:pb-0">
       {itens.map((item) => (
         <CartaoReel key={item.nome + item.destino} item={item} />
       ))}

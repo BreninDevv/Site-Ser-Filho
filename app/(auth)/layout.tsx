@@ -4,7 +4,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-svh">
+    <div className="flex min-h-svh min-w-0 overflow-x-clip">
       {/* Painel de marca — some em telas pequenas */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-foreground p-12 text-background lg:flex">
         <div
