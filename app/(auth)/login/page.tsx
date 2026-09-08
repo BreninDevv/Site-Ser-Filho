@@ -1,31 +1,30 @@
 import Link from "next/link";
-import { login } from "./actions";
+import { LoginForm } from "./login-form";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erro?: string; confirmado?: string; senha_redefinida?: string }>;
+  searchParams: Promise<{
+    erro?: string;
+    confirmado?: string;
+    senha_redefinida?: string;
+  }>;
 }) {
   const { erro, confirmado, senha_redefinida } = await searchParams;
 
-  const mensagensErro: Record<string, string> = {
-    email_nao_confirmado: "Confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.",
-    credenciais: "E-mail ou senha incorretos.",
-  };
-
   return (
     <div>
-      <h1 className="font-heading text-3xl uppercase mb-1">Entrar</h1>
+      <h1 className="font-heading mb-1 text-3xl uppercase">Entrar</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        Entre com sua conta. Depois do login você cai no site. Quem tem
-        acesso à equipe vê o botão Painel no menu, quando quiser entrar.
+        Depois de entrar você vai para a página inicial, com o globo. Quem tem
+        acesso à equipe vê o botão Painel no menu.
       </p>
 
       {confirmado === "1" && (
         <p className="mb-5 border border-border bg-muted px-4 py-3 text-sm">
           E-mail confirmado! Se você já tinha outra aba aberta aguardando,
-          pode fechar esta e continuar por lá — ou entrar direto aqui
-          mesmo, tanto faz.
+          pode fechar esta e continuar por lá — ou entrar direto aqui mesmo,
+          tanto faz.
         </p>
       )}
 
@@ -35,41 +34,7 @@ export default async function LoginPage({
         </p>
       )}
 
-      {erro && mensagensErro[erro] && (
-        <p className="mb-5 text-sm text-destructive">{mensagensErro[erro]}</p>
-      )}
-
-      <form action={login} className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium mb-1.5">E-mail</label>
-          <input
-            name="email"
-            type="email"
-            required
-            className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1.5">Senha</label>
-          <input
-            name="senha"
-            type="password"
-            required
-            className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground"
-          />
-          <div className="mt-1.5 text-right">
-            <Link href="/esqueci-senha" className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">
-              Esqueci minha senha
-            </Link>
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-foreground text-background py-2.5 text-sm font-semibold hover:bg-foreground/90"
-        >
-          Entrar
-        </button>
-      </form>
+      <LoginForm erroInicial={erro} />
 
       <div className="mt-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
@@ -90,7 +55,10 @@ export default async function LoginPage({
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Ainda não tem conta?{" "}
-        <Link href="/cadastro" className="font-semibold text-foreground underline underline-offset-4">
+        <Link
+          href="/cadastro"
+          className="font-semibold text-foreground underline underline-offset-4"
+        >
           Cadastre-se
         </Link>{" "}
         e entre como discípulo.
