@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { destinoAposLogin } from "@/lib/auth/roles";
 import { redirect } from "next/navigation";
 import { dentroDoLimite, emailValido, ipDoPedido } from "@/lib/seguranca";
 
@@ -38,13 +37,7 @@ export async function login(formData: FormData) {
 
   if (!user) redirect("/login?erro=credenciais");
 
-  const { data: perfil } = await supabase
-    .from("perfis")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  redirect(destinoAposLogin(perfil?.role));
+  redirect("/inicio");
 }
 
 export async function logout() {

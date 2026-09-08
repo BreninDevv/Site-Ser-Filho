@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { destinoAposLogin } from "@/lib/auth/roles";
 import { emailValido } from "@/lib/seguranca";
 
 type LoginState = {
@@ -40,11 +39,5 @@ export async function login(
 
   if (!user) return { error: "E-mail ou senha incorretos" };
 
-  const { data: perfil } = await supabase
-    .from("perfis")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  redirect(destinoAposLogin(perfil?.role));
+  redirect("/inicio");
 }

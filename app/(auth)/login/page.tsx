@@ -17,8 +17,8 @@ export default async function LoginPage({
     <div>
       <h1 className="font-heading text-3xl uppercase mb-1">Entrar</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        Entre com sua conta. Discípulo navega o site e vê o status do
-        pagamento. Líder, pastor e equipe entram no painel.
+        Entre com sua conta. Depois do login você cai no site. Quem tem
+        acesso à equipe vê o botão Painel no menu, quando quiser entrar.
       </p>
 
       {confirmado === "1" && (

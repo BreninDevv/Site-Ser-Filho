@@ -158,10 +158,7 @@ function rotaDeMidia(pathname: string) {
   );
 }
 
-export function destinoAposLogin(role: string | null | undefined) {
-  if (eAcessoMaster(role)) return "/painel";
-  if (eLiderOuPastor(role)) return "/painel/encontro";
-  if (role === ROLE_MIDIA) return "/painel/eventos";
+export function destinoAposLogin(_role?: string | null) {
   return "/inicio";
 }
 
