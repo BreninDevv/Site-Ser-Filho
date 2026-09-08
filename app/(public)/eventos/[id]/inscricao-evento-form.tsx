@@ -20,6 +20,7 @@ import {
   type EstadoInscricaoEvento,
   type FormaPagamento,
 } from "@/lib/validations/inscricao-evento";
+import { OPCOES_SEXO, ROTULOS_SEXO } from "@/lib/validations/inscricao-encontro";
 
 const campo =
   "w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground";
@@ -161,6 +162,22 @@ export function InscricaoEventoForm({
         />
         {estado.status === "erro" && estado.erros.idade && (
           <p className="mt-1 text-sm text-destructive">{estado.erros.idade}</p>
+        )}
+      </div>
+      <div>
+        <label htmlFor="sexo" className="mb-1.5 block text-sm font-medium">
+          Sexo
+        </label>
+        <select id="sexo" name="sexo" required disabled={ocupado} className={campo}>
+          <option value="">Selecione</option>
+          {OPCOES_SEXO.map((opcao) => (
+            <option key={opcao} value={opcao}>
+              {ROTULOS_SEXO[opcao]}
+            </option>
+          ))}
+        </select>
+        {estado.status === "erro" && estado.erros.sexo && (
+          <p className="mt-1 text-sm text-destructive">{estado.erros.sexo}</p>
         )}
       </div>
       <div>

@@ -3,6 +3,7 @@ import {
   FORMAS_PAGAMENTO,
   type FormaPagamento,
 } from "./pagamento-encontro";
+import { OPCOES_SEXO } from "./inscricao-encontro";
 
 export {
   CHAVE_PIX,
@@ -40,7 +41,7 @@ export type EstadoInscricaoEvento =
   | { status: "inicial" }
   | {
       status: "erro";
-      erros: Partial<Record<"nome" | "idade" | "forma_pagamento" | "comprovante_path", string>>;
+      erros: Partial<Record<"nome" | "idade" | "sexo" | "forma_pagamento" | "comprovante_path", string>>;
       mensagem?: string;
     }
   | { status: "sucesso"; nome: string };
@@ -50,11 +51,12 @@ export const ESTADO_INICIAL_EVENTO: EstadoInscricaoEvento = { status: "inicial" 
 export function validarInscricaoEvento(entrada: {
   nome: string;
   idade: string;
+  sexo: string;
   forma: string;
   comprovante: string | null;
 }) {
   const erros: Partial<
-    Record<"nome" | "idade" | "forma_pagamento" | "comprovante_path", string>
+    Record<"nome" | "idade" | "sexo" | "forma_pagamento" | "comprovante_path", string>
   > = {};
 
   const nome = entrada.nome.trim().slice(0, 80);
@@ -65,6 +67,11 @@ export function validarInscricaoEvento(entrada: {
   if (!Number.isInteger(idade) || idade < 1 || idade > 120) {
     erros.idade = "Informe uma idade válida.";
   }
+
+  const sexo = OPCOES_SEXO.includes(entrada.sexo as (typeof OPCOES_SEXO)[number])
+    ? (entrada.sexo as (typeof OPCOES_SEXO)[number])
+    : null;
+  if (!sexo) erros.sexo = "Informe se você é homem ou mulher.";
 
   const forma = FORMAS_PAGAMENTO.includes(entrada.forma as FormaPagamento)
     ? (entrada.forma as FormaPagamento)
@@ -80,6 +87,7 @@ export function validarInscricaoEvento(entrada: {
     dados: {
       nome,
       idade: Number.isInteger(idade) ? idade : 0,
+      sexo,
       forma_pagamento: forma ?? "pix",
       comprovante_path: entrada.comprovante,
     },

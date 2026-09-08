@@ -85,6 +85,7 @@ export default async function PainelLegadoPage() {
       nome_contato_emergencia: i.nome_contato_emergencia,
       telefone_contato_emergencia: i.telefone_contato_emergencia,
       primeiro_legado: Boolean(i.primeiro_legado),
+      sexo: i.sexo ?? null,
       status: i.status,
       presente: i.presente,
       created_at: i.created_at,

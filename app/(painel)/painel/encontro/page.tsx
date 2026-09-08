@@ -109,6 +109,7 @@ export default async function PainelEncontroPage() {
       papel_encontro: i.papel_encontro ?? null,
       pastor_nome: i.pastor_nome ?? null,
       autorizacao_lider: Boolean(i.autorizacao_lider),
+      sexo: i.sexo ?? null,
       status: i.status,
       presente: i.presente,
       created_at: i.created_at,

@@ -35,6 +35,7 @@ export async function processarInscricaoEvento(
     const validado = validarInscricaoEvento({
       nome: String(formData.get("nome") ?? ""),
       idade: String(formData.get("idade") ?? ""),
+      sexo: String(formData.get("sexo") ?? ""),
       forma: String(formData.get("forma_pagamento") ?? ""),
       comprovante: String(formData.get("comprovante_path") ?? "") || null,
     });
@@ -67,13 +68,20 @@ export async function processarInscricaoEvento(
       };
     }
 
-    const { error } = await supabase.from("inscricoes_evento").insert({
+    const payload = {
       evento_id: eventoId,
       nome: validado.dados.nome,
       idade: validado.dados.idade,
+      sexo: validado.dados.sexo,
       forma_pagamento: validado.dados.forma_pagamento,
       comprovante_path: validado.dados.comprovante_path,
-    });
+    };
+
+    let { error } = await supabase.from("inscricoes_evento").insert(payload);
+    if (error && /sexo/i.test(error.message ?? "")) {
+      const { sexo: _sexo, ...semSexo } = payload;
+      ({ error } = await supabase.from("inscricoes_evento").insert(semSexo));
+    }
 
     if (error) {
       return {

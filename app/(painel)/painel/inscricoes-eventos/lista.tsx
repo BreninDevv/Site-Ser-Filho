@@ -6,6 +6,10 @@ import {
   BarraExclusaoTesouraria,
   CheckboxInscricao,
 } from "@/components/barra-exclusao-tesouraria";
+import {
+  PlanilhaInscricoes,
+  rotuloFormaPlanilha,
+} from "@/components/planilha-inscricoes";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
 import {
   ROTULOS_FORMA,
@@ -26,6 +30,7 @@ export type InscricaoEventoPainel = {
   id: string;
   nome: string;
   idade: number;
+  sexo: string | null;
   eventoNome: string;
   status: StatusInscricao;
   forma_pagamento: FormaPagamento | null;
@@ -66,6 +71,17 @@ export function ListaInscricoesEvento({
         onSelecionados={setSelecionados}
         onApagarSelecionadas={excluirInscricoesEvento}
         onApagarTodas={excluirTodasInscricoesEvento}
+      />
+      <PlanilhaInscricoes
+        linhas={inscricoes
+          .filter((i) => i.status !== "cancelada")
+          .map((i) => ({
+            id: i.id,
+            nome: i.nome,
+            sexo: i.sexo,
+            forma: rotuloFormaPlanilha(i.forma_pagamento),
+            pagoCentavos: i.valor_pago_centavos,
+          }))}
       />
       <ul className="space-y-4">
         {inscricoes.map((item) => (

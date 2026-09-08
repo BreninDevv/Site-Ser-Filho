@@ -25,10 +25,19 @@ export default async function PainelInscricoesEventosPage() {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("inscricoes_evento")
-    .select("id, nome, idade, status, forma_pagamento, valor_cobrado_centavos, valor_pago_centavos, comprovante_path, created_at, eventos(nome)")
+    .select("id, nome, idade, sexo, status, forma_pagamento, valor_cobrado_centavos, valor_pago_centavos, comprovante_path, created_at, eventos(nome)")
     .order("created_at", { ascending: false });
+
+  if (error && /sexo/i.test(error.message ?? "")) {
+    const retry = await supabase
+      .from("inscricoes_evento")
+      .select("id, nome, idade, status, forma_pagamento, valor_cobrado_centavos, valor_pago_centavos, comprovante_path, created_at, eventos(nome)")
+      .order("created_at", { ascending: false });
+    data = retry.data as typeof data;
+    error = retry.error;
+  }
 
   if (error) {
     return (
@@ -36,7 +45,8 @@ export default async function PainelInscricoesEventosPage() {
         <h1 className="mb-1 text-xl font-semibold">Inscrições de eventos</h1>
         <p className="mt-4 border border-destructive/40 p-4 text-sm text-destructive">
           Não carregou. Rode{" "}
-          <code>supabase/migrations/009_inscricoes_evento.sql</code> no
+          <code>supabase/migrations/009_inscricoes_evento.sql</code> e{" "}
+          <code>supabase/migrations/019_sexo_inscricoes_evento.sql</code> no
           Supabase.
         </p>
       </div>
@@ -68,6 +78,7 @@ export default async function PainelInscricoesEventosPage() {
       id: i.id,
       nome: i.nome,
       idade: i.idade,
+      sexo: ("sexo" in i ? (i.sexo as string | null) : null) ?? null,
       eventoNome: eventoNome ?? "Evento",
       status: i.status as StatusInscricao,
       forma_pagamento: i.forma_pagamento as FormaPagamento | null,
@@ -81,7 +92,7 @@ export default async function PainelInscricoesEventosPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="mb-1 text-xl font-semibold">Inscrições de eventos</h1>
         <p className="text-sm text-muted-foreground">

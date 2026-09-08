@@ -67,6 +67,12 @@ export const ESTADO_INICIAL: EstadoInscricao = { status: "inicial" };
 
 export const OPCOES_SEXO = ["feminino", "masculino", "outro"] as const;
 
+export const ROTULOS_SEXO: Record<(typeof OPCOES_SEXO)[number], string> = {
+  feminino: "Mulher",
+  masculino: "Homem",
+  outro: "Prefiro não informar",
+};
+
 export const STATUS_INSCRICAO = ["pendente", "confirmada", "cancelada"] as const;
 export type StatusInscricao = (typeof STATUS_INSCRICAO)[number];
 

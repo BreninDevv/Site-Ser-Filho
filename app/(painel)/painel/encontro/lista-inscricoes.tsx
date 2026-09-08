@@ -8,6 +8,10 @@ import {
 } from "@/components/barra-exclusao-tesouraria";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
 import {
+  PlanilhaInscricoes,
+  rotuloFormaPlanilha,
+} from "@/components/planilha-inscricoes";
+import {
   ROTULOS_PAPEL_ENCONTRO,
   type PapelEncontro,
   type StatusInscricao,
@@ -42,6 +46,7 @@ export type InscricaoPainel = {
   papel_encontro: PapelEncontro | null;
   pastor_nome: string | null;
   autorizacao_lider: boolean;
+  sexo: string | null;
   status: StatusInscricao;
   presente: boolean;
   created_at: string;
@@ -184,6 +189,18 @@ export function ListaInscricoes({
         <Quadro titulo="Já entrou" valor={formatarReais(arrecadado)} detalhe="soma do que você marcou como pago" />
         <Quadro titulo="Ainda falta" valor={formatarReais(aReceber)} detalhe="confirmadas e pendentes com saldo" />
       </div>
+
+      <PlanilhaInscricoes
+        linhas={inscricoes
+          .filter((i) => i.status !== "cancelada")
+          .map((i) => ({
+            id: i.id,
+            nome: i.nome_completo,
+            sexo: i.sexo,
+            forma: rotuloFormaPlanilha(i.forma_pagamento, i.parcelas),
+            pagoCentavos: i.valor_pago_centavos,
+          }))}
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
