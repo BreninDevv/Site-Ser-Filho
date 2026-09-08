@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { exigeAprovadorDePagamento } from "@/lib/auth/permissoes";
+import { idsInscricaoValidos, removerArquivosDoBucket } from "@/lib/inscricoes/excluir-lote";
 import { uuidValido } from "@/lib/seguranca";
 import {
   STATUS_INSCRICAO,
@@ -93,23 +94,46 @@ export async function alternarPresenca(id: string, presente: boolean) {
 }
 
 export async function excluirInscricao(id: string) {
-  if (!uuidValido(id)) return;
+  await excluirInscricoes([id]);
+}
+
+export async function excluirInscricoes(ids: string[]) {
+  const validos = idsInscricaoValidos(ids);
+  if (validos.length === 0) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const supabase = await createClient();
   const { data } = await supabase
     .from("inscricoes_legado")
-    .select("comprovante_path")
-    .eq("id", id)
-    .single();
+    .select("comprovante_path, complemento_comprovante_path")
+    .in("id", validos);
 
-  if (data?.comprovante_path) {
-    await supabase.storage
-      .from(BUCKET_COMPROVANTES_LEGADO)
-      .remove([data.comprovante_path]);
-  }
+  await removerArquivosDoBucket(BUCKET_COMPROVANTES_LEGADO, [
+    ...(data ?? []).map((i) => i.comprovante_path),
+    ...(data ?? []).map((i) => i.complemento_comprovante_path),
+  ]);
 
-  await supabase.from("inscricoes_legado").delete().eq("id", id);
+  await supabase.from("inscricoes_legado").delete().in("id", validos);
+  revalidar();
+}
+
+export async function excluirTodasInscricoes() {
+  if (!(await exigeAprovadorDePagamento())) return;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("inscricoes_legado")
+    .select("comprovante_path, complemento_comprovante_path");
+
+  await removerArquivosDoBucket(BUCKET_COMPROVANTES_LEGADO, [
+    ...(data ?? []).map((i) => i.comprovante_path),
+    ...(data ?? []).map((i) => i.complemento_comprovante_path),
+  ]);
+
+  await supabase
+    .from("inscricoes_legado")
+    .delete()
+    .gte("created_at", "1970-01-01");
   revalidar();
 }
 

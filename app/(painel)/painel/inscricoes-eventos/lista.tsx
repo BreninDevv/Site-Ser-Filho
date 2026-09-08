@@ -1,6 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  BarraExclusaoTesouraria,
+  CheckboxInscricao,
+} from "@/components/barra-exclusao-tesouraria";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
 import {
   ROTULOS_FORMA,
@@ -13,6 +18,8 @@ import {
   aprovarInscricaoEvento,
   definirStatusEvento,
   excluirInscricaoEvento,
+  excluirInscricoesEvento,
+  excluirTodasInscricoesEvento,
 } from "./actions";
 
 export type InscricaoEventoPainel = {
@@ -37,6 +44,9 @@ export function ListaInscricoesEvento({
 }: {
   inscricoes: InscricaoEventoPainel[];
 }) {
+  const [modoSelecao, setModoSelecao] = useState(false);
+  const [selecionados, setSelecionados] = useState<string[]>([]);
+
   if (inscricoes.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -46,12 +56,38 @@ export function ListaInscricoesEvento({
   }
 
   return (
-    <ul className="space-y-4">
-      {inscricoes.map((item) => (
-        <li key={item.id} className="rounded-2xl border border-border p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-semibold">{item.nome}</p>
+    <div className="space-y-4">
+      <BarraExclusaoTesouraria
+        total={inscricoes.length}
+        idsVisiveis={inscricoes.map((i) => i.id)}
+        modoSelecao={modoSelecao}
+        onModoSelecao={setModoSelecao}
+        selecionados={selecionados}
+        onSelecionados={setSelecionados}
+        onApagarSelecionadas={excluirInscricoesEvento}
+        onApagarTodas={excluirTodasInscricoesEvento}
+      />
+      <ul className="space-y-4">
+        {inscricoes.map((item) => (
+          <li key={item.id} className="rounded-2xl border border-border p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                {modoSelecao && (
+                  <div className="mb-2">
+                    <CheckboxInscricao
+                      id={item.id}
+                      marcado={selecionados.includes(item.id)}
+                      onChange={(id, marcado) =>
+                        setSelecionados((atual) =>
+                          marcado
+                            ? [...new Set([...atual, id])]
+                            : atual.filter((x) => x !== id)
+                        )
+                      }
+                    />
+                  </div>
+                )}
+                <p className="font-semibold">{item.nome}</p>
               <p className="text-sm text-muted-foreground">
                 {item.idade} anos · {item.eventoNome}
               </p>
@@ -137,5 +173,6 @@ export function ListaInscricoesEvento({
         </li>
       ))}
     </ul>
+    </div>
   );
 }

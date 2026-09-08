@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  BarraExclusaoTesouraria,
+  CheckboxInscricao,
+} from "@/components/barra-exclusao-tesouraria";
 import { ExcluirInscricaoButton } from "@/components/excluir-inscricao-button";
 import { type StatusInscricao } from "@/lib/validations/inscricao-encontro";
 import {
@@ -14,6 +18,8 @@ import {
   aprovarInscricao,
   definirStatus,
   excluirInscricao,
+  excluirInscricoes,
+  excluirTodasInscricoes,
 } from "./actions";
 import { EditarPagamentoForm } from "./editar-pagamento-form";
 
@@ -106,6 +112,8 @@ export function ListaInscricoes({
 }) {
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("fila");
+  const [modoSelecao, setModoSelecao] = useState(false);
+  const [selecionados, setSelecionados] = useState<string[]>([]);
 
   const contagem = {
     fila: inscricoes.filter(naFila).length,
@@ -186,6 +194,19 @@ export function ListaInscricoes({
         </div>
       </div>
 
+      {podeAprovar && (
+        <BarraExclusaoTesouraria
+          total={inscricoes.length}
+          idsVisiveis={visiveis.map((i) => i.id)}
+          modoSelecao={modoSelecao}
+          onModoSelecao={setModoSelecao}
+          selecionados={selecionados}
+          onSelecionados={setSelecionados}
+          onApagarSelecionadas={excluirInscricoes}
+          onApagarTodas={excluirTodasInscricoes}
+        />
+      )}
+
       {visiveis.length === 0 ? (
         <p className="border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           {inscricoes.length === 0
@@ -195,7 +216,20 @@ export function ListaInscricoes({
       ) : (
         <ul className="space-y-3">
           {visiveis.map((item) => (
-            <CartaoInscricao key={item.id} item={item} podeAprovar={podeAprovar} />
+            <CartaoInscricao
+              key={item.id}
+              item={item}
+              podeAprovar={podeAprovar}
+              modoSelecao={modoSelecao && podeAprovar}
+              selecionado={selecionados.includes(item.id)}
+              onToggle={(id, marcado) =>
+                setSelecionados((atual) =>
+                  marcado
+                    ? [...new Set([...atual, id])]
+                    : atual.filter((x) => x !== id)
+                )
+              }
+            />
           ))}
         </ul>
       )}
@@ -216,9 +250,15 @@ function Quadro({ titulo, valor, detalhe }: { titulo: string; valor: string; det
 function CartaoInscricao({
   item,
   podeAprovar,
+  modoSelecao,
+  selecionado,
+  onToggle,
 }: {
   item: InscricaoLegadoPainel;
   podeAprovar: boolean;
+  modoSelecao: boolean;
+  selecionado: boolean;
+  onToggle: (id: string, marcado: boolean) => void;
 }) {
   const pago = item.valor_pago_centavos;
   const devido = item.valor_devido_centavos;
@@ -230,6 +270,15 @@ function CartaoInscricao({
     <li className="border border-border p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
+          {modoSelecao && (
+            <div className="mb-2">
+              <CheckboxInscricao
+                id={item.id}
+                marcado={selecionado}
+                onChange={onToggle}
+              />
+            </div>
+          )}
           <h2 className="font-semibold">{item.nome_completo}</h2>
           <p className="text-sm text-muted-foreground">
             {calcularIdade(item.data_nascimento)} anos

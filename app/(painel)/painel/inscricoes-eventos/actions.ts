@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { exigeAprovadorDePagamento } from "@/lib/auth/permissoes";
+import { idsInscricaoValidos, removerArquivosDoBucket } from "@/lib/inscricoes/excluir-lote";
 import { uuidValido } from "@/lib/seguranca";
 import { STATUS_INSCRICAO, type StatusInscricao } from "@/lib/validations/inscricao-encontro";
 import { BUCKET_COMPROVANTES_EVENTO } from "@/lib/validations/inscricao-evento";
@@ -54,22 +55,45 @@ export async function aprovarInscricaoEvento(id: string) {
 }
 
 export async function excluirInscricaoEvento(id: string) {
-  if (!uuidValido(id)) return;
+  await excluirInscricoesEvento([id]);
+}
+
+export async function excluirInscricoesEvento(ids: string[]) {
+  const validos = idsInscricaoValidos(ids);
+  if (validos.length === 0) return;
   if (!(await exigeAprovadorDePagamento())) return;
 
   const supabase = await createClient();
   const { data } = await supabase
     .from("inscricoes_evento")
     .select("comprovante_path")
-    .eq("id", id)
-    .single();
+    .in("id", validos);
 
-  if (data?.comprovante_path) {
-    await supabase.storage
-      .from(BUCKET_COMPROVANTES_EVENTO)
-      .remove([data.comprovante_path]);
-  }
+  await removerArquivosDoBucket(
+    BUCKET_COMPROVANTES_EVENTO,
+    (data ?? []).map((i) => i.comprovante_path)
+  );
 
-  await supabase.from("inscricoes_evento").delete().eq("id", id);
+  await supabase.from("inscricoes_evento").delete().in("id", validos);
+  revalidar();
+}
+
+export async function excluirTodasInscricoesEvento() {
+  if (!(await exigeAprovadorDePagamento())) return;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("inscricoes_evento")
+    .select("comprovante_path");
+
+  await removerArquivosDoBucket(
+    BUCKET_COMPROVANTES_EVENTO,
+    (data ?? []).map((i) => i.comprovante_path)
+  );
+
+  await supabase
+    .from("inscricoes_evento")
+    .delete()
+    .gte("created_at", "1970-01-01");
   revalidar();
 }
