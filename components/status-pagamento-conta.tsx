@@ -74,8 +74,20 @@ async function carregarDetalhe(
       ? "detalhe_pagamento_encontro"
       : "detalhe_pagamento_legado";
 
-  const { data } = await supabase.rpc(rpcDetalhe);
-  const linha = Array.isArray(data) ? data[0] : data;
+  let linha: {
+    status?: string;
+    valor_devido_centavos?: number;
+    valor_pago_centavos?: number;
+    falta_centavos?: number;
+    complemento_pendente?: boolean;
+  } | null = null;
+
+  try {
+    const { data } = await supabase.rpc(rpcDetalhe);
+    linha = (Array.isArray(data) ? data[0] : data) ?? null;
+  } catch {
+    linha = null;
+  }
 
   if (linha?.status && STATUS_INSCRICAO.includes(linha.status as StatusInscricao)) {
     return {
@@ -87,7 +99,12 @@ async function carregarDetalhe(
     };
   }
 
-  let bruto = (await supabase.rpc(rpc)).data as string | null;
+  let bruto: string | null = null;
+  try {
+    bruto = (await supabase.rpc(rpc)).data as string | null;
+  } catch {
+    bruto = null;
+  }
 
   if (!bruto && user.email) {
     const tabela =

@@ -90,12 +90,16 @@ export async function origemDoSite() {
 }
 
 export async function ipDoPedido() {
-  const h = await headers();
-  return (
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    h.get("x-real-ip") ||
-    "local"
-  );
+  try {
+    const h = await headers();
+    return (
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      h.get("x-real-ip") ||
+      "local"
+    );
+  } catch {
+    return "local";
+  }
 }
 
 export function dentroDoLimite(chave: string, max: number, janelaMs: number) {

@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   ESTADO_COMPLEMENTO_INICIAL,
   enviarComplementoPagamento,
-} from "@/app/(public)/completar-pagamento-actions";
+} from "@/lib/completar-pagamento";
 import {
   CHAVE_PIX,
   DESCRICOES_FORMA,
@@ -88,6 +88,7 @@ export function CompletarPagamentoForm({
 
     formData.set("forma_pagamento", forma);
     formData.set("comprovante_path", caminho);
+    formData.delete("comprovante");
 
     startTransition(() => {
       formAction(formData);

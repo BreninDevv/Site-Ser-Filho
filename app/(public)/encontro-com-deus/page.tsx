@@ -16,7 +16,13 @@ export default async function EncontroComDeusPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const logado = Boolean(user);
-  const { data: pastores } = await supabase.rpc("pastores_para_inscricao");
+  let pastores: { id: string; nome: string }[] = [];
+  try {
+    const { data } = await supabase.rpc("pastores_para_inscricao");
+    pastores = (data ?? []) as { id: string; nome: string }[];
+  } catch {
+    pastores = [];
+  }
 
   return (
     <div className="pagina-volta-ao-jardim">
@@ -54,7 +60,7 @@ export default async function EncontroComDeusPage() {
             status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-[#dcdad3] bg-[#faf9f6]/92 p-5 sm:p-7">
-            <InscricaoForm logado={logado} pastores={pastores ?? []} />
+            <InscricaoForm logado={logado} pastores={pastores} />
           </div>
           <StatusPagamentoPorEmail rpc="status_pagamento_encontro" />
         </div>

@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
@@ -147,7 +146,6 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO_LEGADO.reduce((acumulado, campo) 
 }, {} as ValoresInscricaoLegado);
 
 export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
-  const router = useRouter();
   const [estado, formAction, enviandoAction] = useActionState(
     inscreverNoLegado,
     ESTADO_INICIAL_LEGADO
@@ -180,10 +178,6 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
   useEffect(() => {
     if (etapa === 2) tituloEtapaRef.current?.focus();
   }, [etapa]);
-
-  useEffect(() => {
-    if (estado.status === "sucesso") router.refresh();
-  }, [estado, router]);
 
   if (estado.status === "sucesso") {
     const primeiroNome = estado.nome.split(" ")[0];

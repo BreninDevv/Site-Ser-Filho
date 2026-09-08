@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
@@ -33,7 +32,6 @@ export function InscricaoEventoForm({
   valorCentavos: number;
   logado: boolean;
 }) {
-  const router = useRouter();
   const [forma, setForma] = useState<FormaPagamento | "">("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [subindo, setSubindo] = useState(false);
@@ -93,12 +91,9 @@ export function InscricaoEventoForm({
       formData.set("comprovante_path", destino);
     }
 
+    formData.delete("comprovante");
     action(formData);
   }
-
-  useEffect(() => {
-    if (estado.status === "sucesso") router.refresh();
-  }, [estado, router]);
 
   if (estado.status === "sucesso") {
     return (

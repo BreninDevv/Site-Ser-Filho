@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
@@ -159,7 +158,6 @@ export function InscricaoForm({
   logado: boolean;
   pastores: { id: string; nome: string }[];
 }) {
-  const router = useRouter();
   const [estado, formAction, enviandoAction] = useActionState(
     inscreverNoEncontro,
     ESTADO_INICIAL
@@ -194,10 +192,6 @@ export function InscricaoForm({
   useEffect(() => {
     if (etapa === 2) tituloEtapaRef.current?.focus();
   }, [etapa]);
-
-  useEffect(() => {
-    if (estado.status === "sucesso") router.refresh();
-  }, [estado, router]);
 
   if (estado.status === "sucesso") {
     const primeiroNome = estado.nome.split(" ")[0];
