@@ -5,19 +5,10 @@ import {
   OPCOES_SEXO,
   ROTULOS_SEXO,
 } from "@/lib/validations/inscricao-encontro";
-import { formatarReais, ROTULOS_FORMA, type FormaPagamento } from "@/lib/validations/pagamento-encontro";
+import { formatarReais } from "@/lib/validations/pagamento-encontro";
+import { rotuloFormaPlanilha } from "@/lib/inscricoes/rotulo-forma-planilha";
 
-export function rotuloFormaPlanilha(
-  forma: FormaPagamento | null | undefined,
-  parcelas?: number | null
-) {
-  if (!forma) return "Não informada";
-  const base = ROTULOS_FORMA[forma];
-  if (forma === "credito" && parcelas) {
-    return parcelas === 1 ? `${base} à vista` : `${base} em ${parcelas}x`;
-  }
-  return base;
-}
+export { rotuloFormaPlanilha };
 
 export type LinhaPlanilhaInscricao = {
   id: string;
