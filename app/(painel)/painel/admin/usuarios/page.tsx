@@ -43,6 +43,14 @@ function BotoesPromover({
       {roleAtual !== "lider" && (
         <AcaoRole userId={userId} role="lider" rotulo="Líder" outline={roleAtual !== "pendente" && roleAtual !== "discipulo" && roleAtual !== "membro"} />
       )}
+      {roleAtual !== "lider_tesouraria" && (
+        <AcaoRole
+          userId={userId}
+          role="lider_tesouraria"
+          rotulo="Líder / Tesouraria"
+          outline
+        />
+      )}
       {roleAtual !== "pastor" && (
         <AcaoRole userId={userId} role="pastor" rotulo="Pastor" outline />
       )}
@@ -164,6 +172,9 @@ export default async function AdminUsuariosPage() {
     (u) => u.role === "discipulo" || u.role === "membro"
   );
   const lideres = comEquipe.filter((u) => u.role === "lider");
+  const lideresTesouraria = comEquipe.filter(
+    (u) => u.role === "lider_tesouraria"
+  );
   const pastores = comEquipe.filter((u) => u.role === "pastor");
   const midias = comEquipe.filter((u) => u.role === "midia");
   const masters = comEquipe.filter((u) =>
@@ -186,6 +197,10 @@ export default async function AdminUsuariosPage() {
           <li>
             <strong className="text-foreground">Líder</strong> — vê inscrições
             e cuida das células. Sem aprovar pagamento e sem mídia.
+          </li>
+          <li>
+            <strong className="text-foreground">Líder / Tesouraria</strong> —
+            mesmo do líder + planilha de chegada (OK na porta) e download Excel.
           </li>
           <li>
             <strong className="text-foreground">Pastor</strong> — vê inscrições
@@ -229,6 +244,13 @@ export default async function AdminUsuariosPage() {
         titulo={`Líderes (${lideres.length})`}
         vazio="Nenhum líder ativo ainda."
         pessoas={lideres}
+        perfilId={perfil?.id}
+      />
+
+      <ListaUsuarios
+        titulo={`Líder / Tesouraria (${lideresTesouraria.length})`}
+        vazio="Nenhuma conta Líder / Tesouraria ainda."
+        pessoas={lideresTesouraria}
         perfilId={perfil?.id}
       />
 

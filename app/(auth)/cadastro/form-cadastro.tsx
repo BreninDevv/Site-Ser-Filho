@@ -97,8 +97,8 @@ export function FormCadastro({
             </select>
             {equipes.length === 0 && funcao && (
               <p className="mt-1 text-xs text-muted-foreground">
-                O pastor cadastra o nome da equipe primeiro. Discípulo e líder
-                escolhem essa equipe depois.
+                O pastor cadastra o nome da equipe primeiro. Discípulo, líder e
+                Líder / Tesouraria escolhem essa equipe depois.
               </p>
             )}
           </>

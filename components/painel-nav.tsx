@@ -8,6 +8,7 @@ export function PainelNav({
   mostrarMidia,
   mostrarAdmin,
   mostrarInscricoesEventos,
+  mostrarPlanilha,
 }: {
   titulo: string;
   mostrarDashboard: boolean;
@@ -15,11 +16,22 @@ export function PainelNav({
   mostrarMidia: boolean;
   mostrarAdmin: boolean;
   mostrarInscricoesEventos: boolean;
+  mostrarPlanilha: boolean;
 }) {
   const links = [
     mostrarDashboard && { href: "/painel", label: "Dashboard" },
-    mostrarEncontro && { href: "/painel/encontro", label: "Inscrições do Volta ao Jardim" },
-    mostrarEncontro && { href: "/painel/legado", label: "Inscrições do Legado" },
+    mostrarPlanilha && {
+      href: "/painel/planilha-inscricoes",
+      label: "Planilha de inscrições",
+    },
+    mostrarEncontro && {
+      href: "/painel/encontro",
+      label: "Inscrições do Volta ao Jardim",
+    },
+    mostrarEncontro && {
+      href: "/painel/legado",
+      label: "Inscrições do Legado",
+    },
     mostrarInscricoesEventos && {
       href: "/painel/inscricoes-eventos",
       label: "Inscrições de eventos",

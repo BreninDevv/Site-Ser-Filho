@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import {
-  eLider,
   obterPerfilAtual,
   pastorIdDaEquipeDoPerfil,
   podeAprovarPagamento,
@@ -30,7 +29,7 @@ export default async function PainelEncontroPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (eLider(perfil)) {
+  if (perfil?.role === "lider") {
     const pastorId = await pastorIdDaEquipeDoPerfil(perfil);
     if (!pastorId) {
       return (
@@ -143,9 +142,11 @@ export default async function PainelEncontroPage() {
         <p className="text-sm text-muted-foreground">
           {podeAprovar
             ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."
-            : eLider(perfil)
+            : perfil?.role === "lider"
               ? "Você vê só as inscrições da sua equipe pastoral. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."
-              : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
+              : perfil?.role === "lider_tesouraria"
+                ? "Você vê as inscrições e usa a Planilha de inscrições para marcar OK na porta. Quem aprova pagamento é Tesouraria, Apóstolo(a) ou Dev."
+                : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
         </p>
       </div>
 

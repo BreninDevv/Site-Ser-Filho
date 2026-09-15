@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   podeAdminUsuarios as rolePodeAdminUsuarios,
   podeAprovarPagamento as rolePodeAprovarPagamento,
+  podeConferirPlanilha as rolePodeConferirPlanilha,
   podeEditarQualquerCelula as rolePodeEditarQualquerCelula,
   podeGerenciarCelulas as rolePodeGerenciarCelulas,
   podeGerenciarMidia as rolePodeGerenciarMidia,
@@ -9,11 +10,13 @@ import {
 
 export {
   ROLE_DEV,
+  ROLE_LIDER_TESOURARIA,
   ROLES_ATRIBUIVEIS,
   ROLES_EQUIPE_MIDIA,
   ROLES_LIDER_PASTOR,
   ROLES_MASTER,
   ROLES_QUE_APROVAM_PAGAMENTO,
+  ROLES_QUE_CONFEREM_PLANILHA,
   ROLES_QUE_VEEM_INSCRICOES,
   ROTULOS_ROLE,
   destinoAposLogin,
@@ -23,10 +26,12 @@ export {
   eDiscipulo,
   eLider,
   eLiderOuPastor,
+  eLiderTesouraria,
   eMembro,
   podeAcessarRotaPainel,
   podeAdminUsuarios,
   podeAprovarPagamento,
+  podeConferirPlanilha,
   podeEditarQualquerCelula,
   podeGerenciarCelulas,
   podeGerenciarMidia,
@@ -87,6 +92,10 @@ export async function pastorIdDaEquipeDoPerfil(
  */
 export async function exigeAprovadorDePagamento() {
   return rolePodeAprovarPagamento(await obterPerfilAtual());
+}
+
+export async function exigeConferirPlanilha() {
+  return rolePodeConferirPlanilha(await obterPerfilAtual());
 }
 
 export async function exigeAdminUsuarios() {

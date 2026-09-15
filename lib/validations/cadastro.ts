@@ -1,6 +1,7 @@
 export const ROLES_CADASTRO = [
   "discipulo",
   "lider",
+  "lider_tesouraria",
   "pastor",
   "apostolo",
   "midia",
@@ -12,6 +13,7 @@ export type RoleCadastro = (typeof ROLES_CADASTRO)[number];
 export const ROTULOS_ROLE_CADASTRO: Record<RoleCadastro, string> = {
   discipulo: "Discípulo",
   lider: "Líder",
+  lider_tesouraria: "Líder / Tesouraria",
   pastor: "Pastor",
   apostolo: "Apóstolo",
   midia: "Líder de mídia",
@@ -30,7 +32,11 @@ export const TEMPOS_IGREJA = [
 export type TempoIgreja = (typeof TEMPOS_IGREJA)[number];
 
 export function precisaEscolherEquipe(role: string) {
-  return role === "discipulo" || role === "lider";
+  return (
+    role === "discipulo" ||
+    role === "lider" ||
+    role === "lider_tesouraria"
+  );
 }
 
 export function ehRoleCadastro(valor: string): valor is RoleCadastro {
