@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 const MENSAGENS: Record<string, string> = {
   email_nao_confirmado:
@@ -81,13 +82,14 @@ export function LoginForm({ erroInicial }: { erroInicial?: string }) {
           </Link>
         </div>
       </div>
-      <button
+      <LiquidButton
         type="submit"
         disabled={enviando}
-        className="w-full bg-foreground py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 disabled:opacity-60"
+        size="lg"
+        className="w-full"
       >
         {enviando ? "Entrando..." : "Entrar"}
-      </button>
+      </LiquidButton>
     </form>
   );
 }

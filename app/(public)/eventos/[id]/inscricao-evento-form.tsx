@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -244,13 +245,14 @@ export function InscricaoEventoForm({
       {estado.status === "erro" && estado.mensagem && (
         <p className="text-sm text-destructive">{estado.mensagem}</p>
       )}
-      <button
+      <LiquidButton
         type="submit"
         disabled={ocupado}
-        className="w-full rounded-full bg-foreground py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+        size="lg"
+        className="w-full"
       >
         {ocupado ? "Enviando..." : "Enviar inscrição"}
-      </button>
+      </LiquidButton>
     </form>
   );
 }

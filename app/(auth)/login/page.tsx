@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LoginForm } from "./login-form";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export default async function LoginPage({
   searchParams,
@@ -42,12 +43,9 @@ export default async function LoginPage({
         <div className="h-px flex-1 bg-border" />
       </div>
 
-      <Link
-        href="/inicio"
-        className="mt-6 block w-full border border-border py-2.5 text-center text-sm font-semibold hover:bg-muted"
-      >
-        Continuar como visitante
-      </Link>
+      <LiquidButton asChild size="lg" className="mt-6 w-full">
+        <Link href="/inicio">Continuar como visitante</Link>
+      </LiquidButton>
       <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
         Visitante pode se inscrever nos eventos. O status do pagamento só
         aparece para quem tem conta.

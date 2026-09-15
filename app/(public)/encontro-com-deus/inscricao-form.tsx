@@ -10,6 +10,7 @@ import {
 import { AvisoPagamentoPresencial } from "@/components/aviso-pagamento-presencial";
 import { AvisoStatusCadastro } from "@/components/aviso-status-cadastro";
 import { CopiarTextoButton } from "@/components/copiar-texto-button";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -608,13 +609,14 @@ export function InscricaoForm({
             <MensagemErro id="erro-observacoes">{erros.observacoes}</MensagemErro>
           </div>
 
-          <button
+          <LiquidButton
             type="button"
             onClick={irParaPagamento}
-            className="w-full bg-foreground text-background py-2.5 text-sm font-semibold hover:bg-foreground/90"
+            size="lg"
+            className="w-full"
           >
             Quero me inscrever
-          </button>
+          </LiquidButton>
         </div>
       ) : (
         <div className="space-y-6">
@@ -832,18 +834,19 @@ export function InscricaoForm({
 
           <div className="flex flex-col gap-3 sm:flex-row-reverse">
             {podeEnviar ? (
-              <button
+              <LiquidButton
                 type="submit"
                 disabled={ocupado}
                 aria-busy={ocupado}
-                className="flex-1 bg-foreground text-background py-2.5 text-sm font-semibold hover:bg-foreground/90 disabled:opacity-60"
+                size="lg"
+                className="flex-1"
               >
                 {subindo
                   ? "Enviando comprovante..."
                   : enviandoAction
                     ? "Enviando..."
                     : "Enviar inscrição"}
-              </button>
+              </LiquidButton>
             ) : (
               <p className="flex-1 border border-dashed border-border px-4 py-2.5 text-center text-sm text-muted-foreground">
                 Preencha o pagamento
