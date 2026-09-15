@@ -157,10 +157,24 @@
     }
     cv.addEventListener("pointerup", release);
     cv.addEventListener("pointercancel", function(){ drag = null; cv.style.cursor = "grab"; });
-    cv.addEventListener("wheel", function(e){
-      e.preventDefault();
-      zoomT = Math.max(0.85, Math.min(2.6, zoomT * Math.exp(-e.deltaY*0.0016)));
-    }, {passive:false});
+    // Scroll da página não pode ser bloqueado pelo globo.
+    // Encaminha o wheel para o site pai e não usa scroll para zoom/rotação.
+    cv.addEventListener(
+      "wheel",
+      function (e) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: "serfilho-globe-wheel",
+              deltaX: e.deltaX,
+              deltaY: e.deltaY,
+            },
+            "*"
+          );
+        }
+      },
+      { passive: true }
+    );
 
     var view = {cx:0, cy:0, R:1, cs:1, sn:0, ct:1, st:0};
     function unproject(px, py){

@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 type PosicaoCursor = {
   left: number;
+  top: number;
   width: number;
+  height: number;
   opacity: number;
 };
 
@@ -24,6 +26,14 @@ const ABAS_PADRAO: SlideTabItem[] = [
   { label: "Blog" },
 ];
 
+const CURSOR_INICIAL: PosicaoCursor = {
+  left: 0,
+  top: 0,
+  width: 0,
+  height: 0,
+  opacity: 0,
+};
+
 function indiceDaRota(items: SlideTabItem[], pathname: string) {
   const exato = items.findIndex((item) => item.href && item.href === pathname);
   if (exato >= 0) return exato;
@@ -36,6 +46,15 @@ function indiceDaRota(items: SlideTabItem[], pathname: string) {
   );
 }
 
+function medirAba(node: HTMLElement): Omit<PosicaoCursor, "opacity"> {
+  return {
+    left: node.offsetLeft,
+    top: node.offsetTop,
+    width: node.offsetWidth,
+    height: node.offsetHeight,
+  };
+}
+
 export function SlideTabs({
   items = ABAS_PADRAO,
   compact = false,
@@ -44,46 +63,48 @@ export function SlideTabs({
   compact?: boolean;
 }) {
   const pathname = usePathname();
-  const [position, setPosition] = useState<PosicaoCursor>({
-    left: 0,
-    width: 0,
-    opacity: 0,
-  });
+  const [position, setPosition] = useState<PosicaoCursor>(CURSOR_INICIAL);
   const [selected, setSelected] = useState(0);
   const tabsRef = useRef<(HTMLLIElement | null)[]>([]);
+  const listaRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
     const daRota = indiceDaRota(items, pathname);
     if (daRota >= 0) setSelected(daRota);
   }, [items, pathname]);
 
-  useEffect(() => {
-    const selectedTab = tabsRef.current[selected];
+  const atualizarCursor = (indice: number, opacity = 1) => {
+    const selectedTab = tabsRef.current[indice];
     if (!selectedTab) return;
-    const { width } = selectedTab.getBoundingClientRect();
-    setPosition({
-      left: selectedTab.offsetLeft,
-      width,
-      opacity: 1,
-    });
+    setPosition({ ...medirAba(selectedTab), opacity });
+  };
+
+  useLayoutEffect(() => {
+    atualizarCursor(selected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, items, compact]);
+
+  useEffect(() => {
+    function aoRedimensionar() {
+      atualizarCursor(selected);
+    }
+    window.addEventListener("resize", aoRedimensionar);
+    const fontes = document.fonts;
+    fontes?.ready?.then(aoRedimensionar).catch(() => {});
+    return () => window.removeEventListener("resize", aoRedimensionar);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, items]);
 
   function voltarParaSelecionada() {
-    const selectedTab = tabsRef.current[selected];
-    if (!selectedTab) return;
-    const { width } = selectedTab.getBoundingClientRect();
-    setPosition({
-      left: selectedTab.offsetLeft,
-      width,
-      opacity: 1,
-    });
+    atualizarCursor(selected);
   }
 
   return (
     <ul
+      ref={listaRef}
       onMouseLeave={voltarParaSelecionada}
-      className={`relative mx-auto flex w-fit rounded-full border-2 border-black bg-white p-1 dark:border-white dark:bg-neutral-800 ${
-        compact ? "p-0.5" : ""
+      className={`relative mx-auto flex w-fit items-center rounded-full border-2 border-black bg-white dark:border-white dark:bg-neutral-800 ${
+        compact ? "gap-0 p-0.5" : "p-1"
       }`}
     >
       {items.map((tab, i) => (
@@ -100,7 +121,7 @@ export function SlideTabs({
           {tab.label}
         </Tab>
       ))}
-      <Cursor position={position} compact={compact} />
+      <Cursor position={position} />
     </ul>
   );
 }
@@ -123,50 +144,47 @@ const Tab = React.forwardRef<
     else if (ref) ref.current = el;
   }
 
-  const classe =
-    compact
-      ? "relative z-10 block cursor-pointer px-2.5 py-1 text-[11px] font-semibold text-white mix-blend-difference"
-      : "relative z-10 block cursor-pointer px-3 py-1.5 text-xs uppercase text-white mix-blend-difference md:px-5 md:py-3 md:text-base";
+  const classe = compact
+    ? "relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold text-white mix-blend-difference"
+    : "relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase text-white mix-blend-difference md:px-5 md:py-3 md:text-base";
 
   function aoEntrar() {
     const node = localRef.current;
     if (!node) return;
-    const { width } = node.getBoundingClientRect();
-    setPosition({
-      left: node.offsetLeft,
-      width,
-      opacity: 1,
-    });
+    setPosition({ ...medirAba(node), opacity: 1 });
   }
 
   return (
     <li ref={unirRef} onClick={onClick} onMouseEnter={aoEntrar} className={classe}>
       {href ? (
-        <Link href={href} className="block">
+        <Link
+          href={href}
+          className="flex items-center justify-center whitespace-nowrap"
+        >
           {children}
         </Link>
       ) : (
-        children
+        <span className="flex items-center justify-center whitespace-nowrap">
+          {children}
+        </span>
       )}
     </li>
   );
 });
 
-function Cursor({
-  position,
-  compact,
-}: {
-  position: PosicaoCursor;
-  compact?: boolean;
-}) {
+function Cursor({ position }: { position: PosicaoCursor }) {
   return (
     <motion.li
-      animate={{ ...position }}
-      className={
-        compact
-          ? "absolute z-0 h-7 rounded-full bg-black dark:bg-white"
-          : "absolute z-0 h-7 rounded-full bg-black dark:bg-white md:h-12"
-      }
+      aria-hidden
+      animate={{
+        left: position.left,
+        top: position.top,
+        width: position.width,
+        height: position.height,
+        opacity: position.opacity,
+      }}
+      transition={{ type: "spring", stiffness: 420, damping: 32 }}
+      className="pointer-events-none absolute z-0 rounded-full bg-black dark:bg-white"
     />
   );
 }

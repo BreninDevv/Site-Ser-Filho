@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 
 export type GlobeStudyProps = {
   mode?: "dark" | "light";
@@ -46,6 +46,20 @@ export default function GlobeStudy({
     boundedHue === 0 && boundedSaturation === 1 && boundedBrightness === 1
       ? undefined
       : `hue-rotate(${boundedHue}deg) saturate(${boundedSaturation}) brightness(${boundedBrightness})`;
+
+  useEffect(() => {
+    function aoWheelDoGlobo(evento: MessageEvent) {
+      const dados = evento.data;
+      if (!dados || dados.type !== "serfilho-globe-wheel") return;
+      window.scrollBy({
+        top: Number(dados.deltaY) || 0,
+        left: Number(dados.deltaX) || 0,
+        behavior: "auto",
+      });
+    }
+    window.addEventListener("message", aoWheelDoGlobo);
+    return () => window.removeEventListener("message", aoWheelDoGlobo);
+  }, []);
 
   return (
     <iframe
