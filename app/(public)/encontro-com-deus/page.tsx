@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { InscricaoForm } from "./inscricao-form";
 
 export const metadata: Metadata = {
-  title: "Encontro de Volta ao Jardim | Ser Filho",
+  title: "De Volta ao Jardim | Ser Filho",
   description:
-    "Inscreva-se no Encontro de Volta ao Jardim da igreja Ser Filho. Um fim de semana para sair da rotina, ouvir a Palavra e começar de novo.",
+    "Inscreva-se no Encontro De Volta ao Jardim da igreja Ser Filho. Um fim de semana para sair da rotina, ouvir a Palavra e começar de novo.",
 };
 
 export default async function EncontroComDeusPage() {
@@ -27,10 +27,10 @@ export default async function EncontroComDeusPage() {
   return (
     <div className="pagina-volta-ao-jardim">
       <div className="relative w-full bg-[#1f3d1f]">
-        <h1 className="sr-only">Encontro de Volta ao Jardim</h1>
+        <h1 className="sr-only">Encontro De Volta ao Jardim</h1>
         <Image
           src="/encontro/hero-mobile.jpg"
-          alt="Encontro de Volta ao Jardim"
+          alt="Encontro De Volta ao Jardim"
           width={1024}
           height={1024}
           className="block h-auto w-full max-w-full md:hidden"
@@ -38,7 +38,7 @@ export default async function EncontroComDeusPage() {
         />
         <Image
           src="/encontro/hero.jpg"
-          alt="Encontro de Volta ao Jardim"
+          alt="Encontro De Volta ao Jardim"
           width={1920}
           height={1080}
           className="hidden h-auto w-full max-w-full md:block"

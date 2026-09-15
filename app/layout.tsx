@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ser Filho",
-  description: "Site da igreja Ser Filho — células, testemunhos e Encontro de Volta ao Jardim.",
+  description: "Site da igreja Ser Filho — células, testemunhos e Encontro De Volta ao Jardim.",
 };
 
 export const viewport: Viewport = {

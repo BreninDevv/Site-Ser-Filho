@@ -15,7 +15,7 @@ export default async function PainelEncontroPage() {
   if (!podeVerInscricoes(perfil)) {
     return (
       <div>
-        <h1 className="text-xl font-semibold mb-1">Inscrições do Volta ao Jardim</h1>
+        <h1 className="text-xl font-semibold mb-1">Inscrições do De Volta ao Jardim</h1>
         <p className="text-sm text-muted-foreground">
           Apenas líderes e quem tem acesso master podem ver as inscrições.
         </p>
@@ -34,7 +34,7 @@ export default async function PainelEncontroPage() {
     if (!pastorId) {
       return (
         <div>
-          <h1 className="text-xl font-semibold mb-1">Inscrições do Volta ao Jardim</h1>
+          <h1 className="text-xl font-semibold mb-1">Inscrições do De Volta ao Jardim</h1>
           <p className="mt-4 text-sm text-muted-foreground">
             Você só vê as inscrições da sua equipe. Peça ao pastor para te
             colocar na equipe pastoral pelo cadastro.
@@ -50,7 +50,7 @@ export default async function PainelEncontroPage() {
   if (error) {
     return (
       <div>
-        <h1 className="text-xl font-semibold mb-1">Inscrições do Volta ao Jardim</h1>
+        <h1 className="text-xl font-semibold mb-1">Inscrições do De Volta ao Jardim</h1>
         <p className="mt-4 border border-destructive/40 p-4 text-sm text-destructive">
           Não foi possível carregar as inscrições. Rode{" "}
           <code>supabase/migrations/002_pagamento_encontro.sql</code> no SQL
@@ -138,7 +138,7 @@ export default async function PainelEncontroPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold mb-1">Inscrições do Volta ao Jardim</h1>
+        <h1 className="text-xl font-semibold mb-1">Inscrições do De Volta ao Jardim</h1>
         <p className="text-sm text-muted-foreground">
           {podeAprovar
             ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."

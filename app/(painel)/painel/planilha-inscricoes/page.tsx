@@ -60,7 +60,7 @@ export default async function PlanilhaInscricoesPage({
   }
 
   let linhas: LinhaPlanilhaPorta[] = [];
-  let titulo = "Volta ao Jardim";
+  let titulo = "De Volta ao Jardim";
   let fonte: FontePlanilha = "encontro";
   let aviso: string | null = null;
 
@@ -127,7 +127,7 @@ export default async function PlanilhaInscricoesPage({
       }
     } else {
       fonte = "encontro";
-      titulo = "Volta ao Jardim";
+      titulo = "De Volta ao Jardim";
       const { data, error } = await supabase
         .from("inscricoes_encontro")
         .select(
@@ -156,7 +156,7 @@ export default async function PlanilhaInscricoesPage({
   }
 
   const opcoes: { id: string; rotulo: string }[] = [
-    { id: "encontro", rotulo: "Volta ao Jardim" },
+    { id: "encontro", rotulo: "De Volta ao Jardim" },
     { id: "legado", rotulo: "Legado de Cristo" },
     ...eventos.map((e) => ({
       id: `evento:${e.id}`,

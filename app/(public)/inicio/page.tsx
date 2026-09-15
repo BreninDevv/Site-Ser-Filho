@@ -105,7 +105,7 @@ export default async function InicioPage() {
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" className="h-11 w-full max-w-xs whitespace-normal rounded-full px-7 sm:w-auto" asChild>
-              <Link href="/encontro-com-deus">Conheça o Volta ao Jardim</Link>
+              <Link href="/encontro-com-deus">Conheça o De Volta ao Jardim</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-11 w-full max-w-xs rounded-full px-7 sm:w-auto" asChild>
               <Link href="/celulas">Ver células</Link>
@@ -146,7 +146,7 @@ export default async function InicioPage() {
           <div className="rounded-2xl bg-secondary p-6">
             <p className="font-heading text-3xl font-bold">Encontro</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              O Volta ao Jardim, para começar de novo.
+              O De Volta ao Jardim, para começar de novo.
             </p>
           </div>
           <div className="rounded-2xl bg-secondary p-6">
@@ -318,7 +318,7 @@ export default async function InicioPage() {
             O evento principal
           </p>
           <h2 className="font-heading text-5xl font-bold leading-[0.95] sm:text-7xl">
-            Volta ao
+            De Volta ao
             <br />
             Jardim
           </h2>

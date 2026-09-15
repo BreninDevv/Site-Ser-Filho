@@ -570,7 +570,7 @@ export function InscricaoForm({
 
           <div>
             <label htmlFor="como_soube" className={CLASSE_ROTULO}>
-              Como você soube do Volta ao Jardim?{" "}
+              Como você soube do De Volta ao Jardim?{" "}
               <span className="font-normal text-muted-foreground">(opcional)</span>
             </label>
             <select
@@ -691,7 +691,7 @@ export function InscricaoForm({
                 onChange={(v) => setOpcaoValor(v as OpcaoValor)}
                 disabled={ocupado}
                 titulo={`Só a entrada — ${formatarReais(VALOR_ENTRADA_CENTAVOS)}`}
-                descricao="Garante sua vaga. O restante você paga até o Volta ao Jardim."
+                descricao="Garante sua vaga. O restante você paga até o De Volta ao Jardim."
               />
               <OpcaoRadio
                 name="opcao_valor"
@@ -798,7 +798,7 @@ export function InscricaoForm({
               className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-foreground file:px-3 file:py-1.5 file:text-background file:text-sm"
             />
             <p id="ajuda-comprovante" className="mt-1 text-xs text-muted-foreground">
-              Imagem ou PDF, até 5 MB. Só a equipe do Volta ao Jardim vê esse arquivo.
+              Imagem ou PDF, até 5 MB. Só a equipe do De Volta ao Jardim vê esse arquivo.
             </p>
             <MensagemErro id="erro-comprovante_path">
               {erros.comprovante_path}

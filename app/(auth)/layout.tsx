@@ -40,7 +40,7 @@ export default function AuthLayout({
           </h1>
           <p className="mt-6 text-sm leading-relaxed text-background/70">
             Um lugar para a comunidade: discípulo, líder, pastor e equipe no
-            mesmo site — células, testemunhos e o Encontro de Volta ao Jardim.
+            mesmo site — células, testemunhos e o Encontro De Volta ao Jardim.
           </p>
         </div>
 

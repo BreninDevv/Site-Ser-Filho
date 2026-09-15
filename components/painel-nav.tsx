@@ -26,7 +26,7 @@ export function PainelNav({
     },
     mostrarEncontro && {
       href: "/painel/encontro",
-      label: "Inscrições do Volta ao Jardim",
+      label: "Inscrições do De Volta ao Jardim",
     },
     mostrarEncontro && {
       href: "/painel/legado",

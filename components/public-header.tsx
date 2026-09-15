@@ -20,7 +20,7 @@ const publicLinks = [
   { href: "/celulas", label: "Células" },
   { href: "/eventos", label: "Eventos" },
   { href: "/inicio#testemunhos", label: "Testemunhos" },
-  { href: "/encontro-com-deus", label: "Volta ao Jardim" },
+  { href: "/encontro-com-deus", label: "De Volta ao Jardim" },
   { href: "/legado-de-cristo", label: "Legado de Cristo" },
 ];
 
