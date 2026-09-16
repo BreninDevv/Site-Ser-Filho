@@ -47,37 +47,38 @@ export default async function PainelDashboardPage() {
     .limit(5);
 
   return (
-    <div className="p-8 space-y-10">
+    <div className="space-y-8">
       <div>
-        <h1 className="font-heading text-3xl uppercase mb-1">Dashboard</h1>
+        <h1 className="font-heading mb-1 text-3xl uppercase">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
           Resumo geral do ministério.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-background p-6">
-          <p className="text-3xl font-bold">{totalCelulas ?? 0}</p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+          <p className="text-2xl font-bold">{totalCelulas ?? 0}</p>
           <p className="text-sm text-muted-foreground">Células ativas</p>
         </div>
-        <div className="bg-background p-6">
-          <p className="text-3xl font-bold">{totalLideres ?? 0}</p>
+        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+          <p className="text-2xl font-bold">{totalLideres ?? 0}</p>
           <p className="text-sm text-muted-foreground">Líderes</p>
         </div>
-        <div className="bg-background p-6">
-          <p className="text-3xl font-bold">{totalPastores ?? 0}</p>
+        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+          <p className="text-2xl font-bold">{totalPastores ?? 0}</p>
           <p className="text-sm text-muted-foreground">Pastores</p>
         </div>
-        <div className="bg-background p-6">
-          <p className="text-3xl font-bold">{totalMembros ?? 0}</p>
+        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+          <p className="text-2xl font-bold">{totalMembros ?? 0}</p>
           <p className="text-sm text-muted-foreground">Discípulos</p>
         </div>
       </div>
 
       {totalPendentes && totalPendentes > 0 ? (
-        <div className="border border-border p-5 flex items-center justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-background p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm">
-            Você tem <strong>{totalPendentes}</strong> conta(s) aguardando aprovação.
+            Você tem <strong>{totalPendentes}</strong> conta(s) aguardando
+            aprovação.
           </p>
           <Button size="sm" asChild>
             <Link href="/painel/admin/usuarios">Revisar agora</Link>
@@ -85,10 +86,14 @@ export default async function PainelDashboardPage() {
         </div>
       ) : null}
 
-      <div>
-        <h2 className="text-sm font-semibold mb-4">Últimas células cadastradas</h2>
+      <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold">
+          Últimas células cadastradas
+        </h2>
         {!ultimasCelulas || ultimasCelulas.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma célula cadastrada ainda.</p>
+          <p className="text-sm text-muted-foreground">
+            Nenhuma célula cadastrada ainda.
+          </p>
         ) : (
           <div className="border-t border-border">
             {ultimasCelulas.map((c) => (
