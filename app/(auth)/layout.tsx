@@ -3,17 +3,20 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  /* Mesmo degradê do painel de marca (claro no topo → escuro embaixo) */
+  const degradêTopo = {
+    background:
+      "linear-gradient(to bottom, rgba(255,255,255,0.88) 0%, rgba(180,200,220,0.45) 38%, rgba(20,20,18,0) 100%)",
+  };
+
   return (
     <div className="flex min-h-svh min-w-0 overflow-x-clip">
-      {/* Painel de marca — some em telas pequenas */}
+      {/* Painel de marca — desktop */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-foreground p-12 text-background lg:flex">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-1/2"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(214,230,255,0.55) 42%, rgba(214,230,255,0) 100%)",
-          }}
+          style={degradêTopo}
         />
         <div
           aria-hidden
@@ -25,6 +28,7 @@ export default function AuthLayout({
         />
 
         <a href="/inicio" className="relative inline-flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-ser-filho.png"
             alt="Ser Filho"
@@ -49,9 +53,28 @@ export default function AuthLayout({
         </p>
       </div>
 
-      {/* Painel do formulário */}
-      <div className="flex w-full flex-col items-center justify-center px-4 py-12 lg:w-1/2">
-        <a href="/inicio" className="mb-8 flex items-center lg:hidden">
+      {/* Formulário: no celular usa o mesmo degradê do painel de marca */}
+      <div className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-foreground px-4 py-12 text-background lg:w-1/2 lg:bg-background lg:text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[70%] lg:hidden"
+          style={degradêTopo}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[32%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-background/10 lg:hidden"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[32%] h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-background/10 lg:hidden"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[32%] h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-background/10 lg:hidden"
+        />
+
+        <a href="/inicio" className="relative mb-8 flex items-center lg:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-ser-filho.png"
             alt="Ser Filho"
@@ -60,7 +83,7 @@ export default function AuthLayout({
             className="h-12 w-auto"
           />
         </a>
-        <div className="w-full max-w-sm">{children}</div>
+        <div className="auth-form-panel relative w-full max-w-sm">{children}</div>
       </div>
     </div>
   );
