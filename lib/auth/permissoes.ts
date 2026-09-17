@@ -33,6 +33,8 @@ export {
   podeAprovarPagamento,
   podeConferirPlanilha,
   podeEditarQualquerCelula,
+  podeExcluirEsteUsuario,
+  podeExcluirUsuarios,
   podeGerenciarCelulas,
   podeGerenciarMidia,
   podeVerInscricoes,

@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { ExcluirUsuarioButton } from "@/components/excluir-usuario-button";
 import {
   obterPerfilAtual,
   podeAdminUsuarios,
+  podeExcluirEsteUsuario,
+  podeExcluirUsuarios,
 } from "@/lib/auth/permissoes";
 import {
   ROLES_MASTER,
@@ -41,7 +44,16 @@ function BotoesPromover({
   return (
     <div className="flex flex-wrap gap-2">
       {roleAtual !== "lider" && (
-        <AcaoRole userId={userId} role="lider" rotulo="Líder" outline={roleAtual !== "pendente" && roleAtual !== "discipulo" && roleAtual !== "membro"} />
+        <AcaoRole
+          userId={userId}
+          role="lider"
+          rotulo="Líder"
+          outline={
+            roleAtual !== "pendente" &&
+            roleAtual !== "discipulo" &&
+            roleAtual !== "membro"
+          }
+        />
       )}
       {roleAtual !== "lider_tesouraria" && (
         <AcaoRole
@@ -55,16 +67,36 @@ function BotoesPromover({
         <AcaoRole userId={userId} role="pastor" rotulo="Pastor" outline />
       )}
       {roleAtual !== "midia" && (
-        <AcaoRole userId={userId} role="midia" rotulo="Líder de mídia" outline />
+        <AcaoRole
+          userId={userId}
+          role="midia"
+          rotulo="Líder de mídia"
+          outline
+        />
       )}
       {roleAtual !== "tesouraria" && (
-        <AcaoRole userId={userId} role="tesouraria" rotulo="Tesouraria" outline />
+        <AcaoRole
+          userId={userId}
+          role="tesouraria"
+          rotulo="Tesouraria"
+          outline
+        />
       )}
       {roleAtual !== "apostolo" && (
-        <AcaoRole userId={userId} role="apostolo" rotulo="Apóstolo(a)" outline />
+        <AcaoRole
+          userId={userId}
+          role="apostolo"
+          rotulo="Apóstolo(a)"
+          outline
+        />
       )}
       {roleAtual !== "discipulo" && roleAtual !== "membro" && (
-        <AcaoRole userId={userId} role="discipulo" rotulo="Discípulo" outline />
+        <AcaoRole
+          userId={userId}
+          role="discipulo"
+          rotulo="Discípulo"
+          outline
+        />
       )}
     </div>
   );
@@ -74,7 +106,7 @@ function ListaUsuarios({
   titulo,
   vazio,
   pessoas,
-  perfilId,
+  perfil,
 }: {
   titulo: string;
   vazio: string;
@@ -85,8 +117,10 @@ function ListaUsuarios({
     tempo_igreja?: string | null;
     equipe?: string | null;
   }[];
-  perfilId?: string;
+  perfil: { id: string; role: string } | null;
 }) {
+  const podeExcluir = podeExcluirUsuarios(perfil);
+
   return (
     <section>
       <h2 className="text-sm font-medium mb-3">{titulo}</h2>
@@ -94,28 +128,45 @@ function ListaUsuarios({
         <p className="text-sm text-muted-foreground">{vazio}</p>
       ) : (
         <ul className="space-y-2">
-          {pessoas.map((u) => (
-            <li
-              key={u.id}
-              className="flex flex-wrap items-center justify-between gap-3 border rounded-lg px-4 py-3"
-            >
-              <span className="text-sm">
-                {u.nome}{" "}
-                <span className="text-muted-foreground">
-                  ({ROTULOS_ROLE[u.role] ?? u.role})
-                  {u.equipe ? ` · ${u.equipe}` : ""}
-                  {u.tempo_igreja ? ` · ${u.tempo_igreja}` : ""}
+          {pessoas.map((u) => {
+            const eEu = u.id === perfil?.id;
+            const eDev = u.role === "dev";
+            const mostrarExcluir =
+              podeExcluir &&
+              perfil &&
+              podeExcluirEsteUsuario(perfil, { id: u.id, role: u.role });
+
+            return (
+              <li
+                key={u.id}
+                className="flex flex-wrap items-center justify-between gap-3 border rounded-lg px-4 py-3"
+              >
+                <span className="text-sm">
+                  {u.nome}{" "}
+                  <span className="text-muted-foreground">
+                    ({ROTULOS_ROLE[u.role] ?? u.role})
+                    {u.equipe ? ` · ${u.equipe}` : ""}
+                    {u.tempo_igreja ? ` · ${u.tempo_igreja}` : ""}
+                  </span>
                 </span>
-              </span>
-              {u.role === "dev" || u.id === perfilId ? (
-                <span className="text-xs text-muted-foreground">
-                  {u.id === perfilId ? "É você" : "Não se altera por aqui"}
-                </span>
-              ) : (
-                <BotoesPromover userId={u.id} roleAtual={u.role} />
-              )}
-            </li>
-          ))}
+                <div className="flex flex-wrap items-center gap-2">
+                  {eDev || eEu ? (
+                    <span className="text-xs text-muted-foreground">
+                      {eEu ? "É você" : "Não se altera por aqui"}
+                    </span>
+                  ) : (
+                    <BotoesPromover userId={u.id} roleAtual={u.role} />
+                  )}
+                  {mostrarExcluir ? (
+                    <ExcluirUsuarioButton
+                      userId={u.id}
+                      nome={u.nome?.trim() || "este usuário"}
+                    />
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
@@ -129,7 +180,7 @@ export default async function AdminUsuariosPage() {
       <div>
         <h1 className="text-xl font-semibold mb-1">Admin · Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Apenas Dev, Tesouraria e Apóstolo(a) podem gerenciar acessos.
+          Apenas Dev, Tesouraria, Apóstolo(a) e Pastor podem gerenciar acessos.
         </p>
       </div>
     );
@@ -181,6 +232,10 @@ export default async function AdminUsuariosPage() {
     ROLES_MASTER.includes(u.role as (typeof ROLES_MASTER)[number])
   );
 
+  const perfilResumo = perfil
+    ? { id: perfil.id, role: perfil.role }
+    : null;
+
   return (
     <div className="space-y-10 p-6">
       <div>
@@ -188,6 +243,8 @@ export default async function AdminUsuariosPage() {
         <p className="text-sm text-muted-foreground">
           Quem se cadastra escolhe a função, a equipe pastoral e o tempo de
           igreja. <strong>Discípulo</strong> fica na base e não entra no painel.
+          Dev, Tesouraria, Apóstolo(a) e Pastor podem excluir contas (exceto
+          Dev; pastor não remove Tesouraria, Apóstolo nem outro Pastor).
         </p>
         <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
           <li>
@@ -203,8 +260,8 @@ export default async function AdminUsuariosPage() {
             mesmo do líder + planilha de chegada (OK na porta) e download Excel.
           </li>
           <li>
-            <strong className="text-foreground">Pastor</strong> — vê inscrições
-            e cuida das células. Sem aprovar pagamento e sem mídia.
+            <strong className="text-foreground">Pastor</strong> — células,
+            inscrições e Admin · Usuários (promover e excluir, com limites).
           </li>
           <li>
             <strong className="text-foreground">Líder de mídia</strong> —
@@ -212,7 +269,7 @@ export default async function AdminUsuariosPage() {
           </li>
           <li>
             <strong className="text-foreground">Tesouraria</strong> —
-            inscrições e pagamento.
+            inscrições, pagamento e Admin · Usuários.
           </li>
           <li>
             <strong className="text-foreground">Apóstolo(a)</strong> — painel
@@ -228,7 +285,7 @@ export default async function AdminUsuariosPage() {
         titulo={`Discípulos (${membros.length})`}
         vazio="Nenhum discípulo cadastrado ainda."
         pessoas={membros}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
 
       {pendentes.length > 0 && (
@@ -236,7 +293,7 @@ export default async function AdminUsuariosPage() {
           titulo={`Aguardando aprovação (${pendentes.length})`}
           vazio="Nenhuma solicitação pendente."
           pessoas={pendentes}
-          perfilId={perfil?.id}
+          perfil={perfilResumo}
         />
       )}
 
@@ -244,35 +301,35 @@ export default async function AdminUsuariosPage() {
         titulo={`Líderes (${lideres.length})`}
         vazio="Nenhum líder ativo ainda."
         pessoas={lideres}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
 
       <ListaUsuarios
         titulo={`Líder / Tesouraria (${lideresTesouraria.length})`}
         vazio="Nenhuma conta Líder / Tesouraria ainda."
         pessoas={lideresTesouraria}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
 
       <ListaUsuarios
         titulo={`Pastores (${pastores.length})`}
         vazio="Nenhum pastor ativo ainda."
         pessoas={pastores}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
 
       <ListaUsuarios
         titulo={`Mídia (${midias.length})`}
         vazio="Nenhuma pessoa de mídia ainda."
         pessoas={midias}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
 
       <ListaUsuarios
         titulo={`Acessos master (${masters.length})`}
         vazio="Nenhum acesso master ainda."
         pessoas={masters}
-        perfilId={perfil?.id}
+        perfil={perfilResumo}
       />
     </div>
   );

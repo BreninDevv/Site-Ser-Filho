@@ -149,7 +149,39 @@ export function podeConferirPlanilha(
 export function podeAdminUsuarios(
   perfilOuRole: { role: string } | string | null | undefined
 ) {
-  return eAcessoMaster(perfilOuRole);
+  const role = roleDe(perfilOuRole);
+  return eAcessoMaster(role) || role === ROLE_PASTOR;
+}
+
+export function podeExcluirUsuarios(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  const role = roleDe(perfilOuRole);
+  return (
+    role === ROLE_DEV ||
+    role === "tesouraria" ||
+    role === "apostolo" ||
+    role === ROLE_PASTOR
+  );
+}
+
+/** Espelha as regras de `excluir_usuario_painel` (migration 022). */
+export function podeExcluirEsteUsuario(
+  quemExclui: { id: string; role: string } | null | undefined,
+  alvo: { id: string; role: string }
+) {
+  if (!quemExclui || !podeExcluirUsuarios(quemExclui)) return false;
+  if (quemExclui.id === alvo.id) return false;
+  if (alvo.role === ROLE_DEV) return false;
+  if (
+    quemExclui.role === ROLE_PASTOR &&
+    (alvo.role === "tesouraria" ||
+      alvo.role === "apostolo" ||
+      alvo.role === ROLE_PASTOR)
+  ) {
+    return false;
+  }
+  return true;
 }
 
 export function podeGerenciarCelulas(
@@ -234,6 +266,16 @@ export function podeAcessarRotaPainel(
       pathname === "/painel/legado" ||
       pathname.startsWith("/painel/legado/") ||
       rotaDePlanilha(pathname)
+    );
+  }
+
+  if (role === ROLE_PASTOR) {
+    return (
+      pathname === "/painel/encontro" ||
+      pathname.startsWith("/painel/encontro/") ||
+      pathname === "/painel/legado" ||
+      pathname.startsWith("/painel/legado/") ||
+      pathname.startsWith("/painel/admin")
     );
   }
 
