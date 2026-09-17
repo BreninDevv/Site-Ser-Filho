@@ -146,26 +146,35 @@ export function podeConferirPlanilha(
   );
 }
 
+/**
+ * Admin · Usuários: Dev (sempre), Tesouraria, Apóstolo e Pastor.
+ * Regra permanente: Dev entra em toda alteração, mesmo quando a feature
+ * só cita outros papéis.
+ */
 export function podeAdminUsuarios(
   perfilOuRole: { role: string } | string | null | undefined
 ) {
+  if (eDev(perfilOuRole)) return true;
   const role = roleDe(perfilOuRole);
-  return eAcessoMaster(role) || role === ROLE_PASTOR;
+  return role === "tesouraria" || role === "apostolo" || role === ROLE_PASTOR;
 }
 
+/** Quem pode usar o botão Excluir: mesmos papéis do Admin (Dev sempre). */
 export function podeExcluirUsuarios(
   perfilOuRole: { role: string } | string | null | undefined
 ) {
+  if (eDev(perfilOuRole)) return true;
   const role = roleDe(perfilOuRole);
   return (
-    role === ROLE_DEV ||
-    role === "tesouraria" ||
-    role === "apostolo" ||
-    role === ROLE_PASTOR
+    role === "tesouraria" || role === "apostolo" || role === ROLE_PASTOR
   );
 }
 
-/** Espelha as regras de `excluir_usuario_painel` (migration 022). */
+/**
+ * Espelha `excluir_usuario_painel` (migration 022).
+ * Dev exclui qualquer um (exceto outro Dev e a si). Pastor não remove
+ * Tesouraria, Apóstolo nem outro Pastor.
+ */
 export function podeExcluirEsteUsuario(
   quemExclui: { id: string; role: string } | null | undefined,
   alvo: { id: string; role: string }
@@ -173,6 +182,7 @@ export function podeExcluirEsteUsuario(
   if (!quemExclui || !podeExcluirUsuarios(quemExclui)) return false;
   if (quemExclui.id === alvo.id) return false;
   if (alvo.role === ROLE_DEV) return false;
+  if (eDev(quemExclui)) return true;
   if (
     quemExclui.role === ROLE_PASTOR &&
     (alvo.role === "tesouraria" ||

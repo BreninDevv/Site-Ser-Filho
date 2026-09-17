@@ -180,7 +180,7 @@ export default async function AdminUsuariosPage() {
       <div>
         <h1 className="text-xl font-semibold mb-1">Admin · Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Apenas Dev, Tesouraria, Apóstolo(a) e Pastor podem gerenciar acessos.
+          Apenas Dev, Pastor, Apóstolo(a) e Tesouraria podem gerenciar acessos.
         </p>
       </div>
     );
@@ -243,8 +243,10 @@ export default async function AdminUsuariosPage() {
         <p className="text-sm text-muted-foreground">
           Quem se cadastra escolhe a função, a equipe pastoral e o tempo de
           igreja. <strong>Discípulo</strong> fica na base e não entra no painel.
-          Dev, Tesouraria, Apóstolo(a) e Pastor podem excluir contas (exceto
-          Dev; pastor não remove Tesouraria, Apóstolo nem outro Pastor).
+          Excluir conta: <strong>Pastor</strong>, <strong>Apóstolo(a)</strong>,{" "}
+          <strong>Tesouraria</strong> e <strong>Dev</strong> (Dev sempre tem
+          acesso a todas as alterações). Pastor não remove Tesouraria, Apóstolo
+          nem outro Pastor; ninguém remove conta Dev.
         </p>
         <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
           <li>

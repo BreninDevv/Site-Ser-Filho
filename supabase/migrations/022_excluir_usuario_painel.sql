@@ -1,4 +1,5 @@
--- Excluir usuário pelo painel (pastor, tesouraria, apóstolo, dev).
+-- Excluir usuário pelo painel.
+-- Quem pode: pastor, tesouraria, apostolo — e SEMPRE dev (mesmo sem ser citado na feature).
 -- Apaga perfil + conta Auth. Rode no SQL Editor. Pode rodar mais de uma vez.
 
 create or replace function public.pode_excluir_usuarios()
@@ -60,7 +61,9 @@ begin
     raise exception 'nao e permitido excluir conta Dev';
   end if;
 
-  -- Pastor nao remove acessos master
+  -- Dev: sem limite de hierarquia (exceto conta Dev acima).
+  -- Pastor nao remove acessos master / outro pastor.
+  -- Tesouraria e Apóstolo: podem excluir qualquer um que nao seja Dev.
   if meu_role = 'pastor'
      and alvo_role in ('tesouraria', 'apostolo', 'pastor') then
     raise exception 'pastor so pode excluir discipulos, lideres, midia e pendentes';
