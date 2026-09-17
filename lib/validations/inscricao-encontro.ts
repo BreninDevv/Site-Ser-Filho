@@ -8,6 +8,7 @@ export const CAMPOS_INSCRICAO = [
   "papel_encontro",
   "pastor_id",
   "autorizacao_lider",
+  "autorizacao_path",
   "sexo",
   "cidade",
   "nome_contato_emergencia",
@@ -38,6 +39,7 @@ export type DadosInscricao = {
   papel_encontro: PapelEncontro;
   pastor_id: string | null;
   autorizacao_lider: boolean;
+  autorizacao_path: string | null;
   sexo: string | null;
   cidade: string | null;
   nome_contato_emergencia: string | null;
@@ -132,7 +134,7 @@ export function lerValores(formData: FormData): ValoresInscricao {
 
 export function validarInscricao(
   valores: ValoresInscricao,
-  opcoes?: { temPastores?: boolean }
+  _opcoes?: { temPastores?: boolean }
 ): {
   erros: ErrosInscricao;
   dados: DadosInscricao;
@@ -169,9 +171,11 @@ export function validarInscricao(
       erros.data_nascimento = "A data de nascimento não pode ser no futuro.";
     } else if (nascimento.getFullYear() < 1900) {
       erros.data_nascimento = "Confira o ano de nascimento.";
-    } else if (ehMenorDeIdade(valores.data_nascimento) && valores.autorizacao_lider !== "sim") {
-      erros.autorizacao_lider =
-        "Menor de 18 anos: procure um líder para pegar a autorização.";
+    } else if (ehMenorDeIdade(valores.data_nascimento)) {
+      if (!valores.autorizacao_path) {
+        erros.autorizacao_path =
+          "Menor de 18 anos: envie a foto da autorização do líder antes de continuar.";
+      }
     }
   }
 
@@ -179,8 +183,8 @@ export function validarInscricao(
     erros.papel_encontro = "Diga se você é trabalhador ou encontrista.";
   }
 
-  if (opcoes?.temPastores !== false && !valores.pastor_id) {
-    erros.pastor_id = "Escolha o pastor.";
+  if (!valores.pastor_id) {
+    erros.pastor_id = "Escolha o pastor. É obrigatório.";
   }
 
   if (valores.sexo && !OPCOES_SEXO.includes(valores.sexo as (typeof OPCOES_SEXO)[number])) {
@@ -198,6 +202,8 @@ export function validarInscricao(
     erros.observacoes = "Texto muito longo. Resuma em até 1000 caracteres.";
   }
 
+  const temAutorizacao = Boolean(valores.autorizacao_path);
+
   return {
     erros,
     dados: {
@@ -207,7 +213,8 @@ export function validarInscricao(
       data_nascimento: valores.data_nascimento,
       papel_encontro: (valores.papel_encontro as PapelEncontro) || "encontrista",
       pastor_id: opcional(valores.pastor_id),
-      autorizacao_lider: valores.autorizacao_lider === "sim",
+      autorizacao_lider: temAutorizacao || valores.autorizacao_lider === "sim",
+      autorizacao_path: opcional(valores.autorizacao_path),
       sexo: opcional(valores.sexo),
       cidade: opcional(valores.cidade),
       nome_contato_emergencia: opcional(valores.nome_contato_emergencia),

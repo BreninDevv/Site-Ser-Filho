@@ -63,6 +63,7 @@ export default async function PainelEncontroPage() {
   const brutas = data ?? [];
   const comprovantes = new Map<string, string>();
   const comprovantesComplemento = new Map<string, string>();
+  const autorizacoes = new Map<string, string>();
 
   if (podeAprovar) {
     const comArquivo = brutas.filter((i) => i.comprovante_path);
@@ -90,6 +91,19 @@ export default async function PainelEncontroPage() {
     for (const [id, url] of urlsComplemento) {
       if (url) comprovantesComplemento.set(id, url);
     }
+
+    const comAutorizacao = brutas.filter((i) => i.autorizacao_path);
+    const urlsAuth = await Promise.all(
+      comAutorizacao.map(async (i) => {
+        const { data: assinado } = await supabase.storage
+          .from(BUCKET_COMPROVANTES)
+          .createSignedUrl(i.autorizacao_path, 60 * 30);
+        return [i.id, assinado?.signedUrl ?? ""] as const;
+      })
+    );
+    for (const [id, url] of urlsAuth) {
+      if (url) autorizacoes.set(id, url);
+    }
   }
 
   const inscricoes: InscricaoPainel[] = brutas.map((i) => {
@@ -108,6 +122,7 @@ export default async function PainelEncontroPage() {
       papel_encontro: i.papel_encontro ?? null,
       pastor_nome: i.pastor_nome ?? null,
       autorizacao_lider: Boolean(i.autorizacao_lider),
+      autorizacaoUrl: autorizacoes.get(i.id) ?? null,
       sexo: i.sexo ?? null,
       status: i.status,
       presente: i.presente,

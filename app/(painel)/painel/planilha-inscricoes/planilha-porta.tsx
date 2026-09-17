@@ -11,6 +11,7 @@ import {
 
 export type LinhaPlanilhaPorta = {
   id: string;
+  pastorNome: string | null;
   nome: string;
   sexo: string | null;
   forma: string;
@@ -44,6 +45,7 @@ function escaparCsv(valor: string) {
 
 function baixarExcel(linhas: LinhaPlanilhaPorta[], titulo: string) {
   const cabecalho = [
+    "Pastor",
     "Nome",
     "Sexo",
     "Forma de pagamento",
@@ -55,6 +57,7 @@ function baixarExcel(linhas: LinhaPlanilhaPorta[], titulo: string) {
   ];
   const corpo = linhas.map((l) =>
     [
+      l.pastorNome ?? "",
       l.nome,
       rotuloSexo(l.sexo),
       l.forma,
@@ -100,9 +103,19 @@ export function PlanilhaPorta({
         if (filtroSexo === "todos") return true;
         return l.sexo === filtroSexo;
       })
-      .filter((l) => (texto ? l.nome.toLowerCase().includes(texto) : true))
+      .filter((l) =>
+        texto
+          ? l.nome.toLowerCase().includes(texto) ||
+            (l.pastorNome ?? "").toLowerCase().includes(texto)
+          : true
+      )
       .sort((a, b) => {
         if (a.presente !== b.presente) return a.presente ? 1 : -1;
+        const pastorCmp = (a.pastorNome ?? "").localeCompare(
+          b.pastorNome ?? "",
+          "pt-BR"
+        );
+        if (pastorCmp !== 0) return pastorCmp;
         return a.nome.localeCompare(b.nome, "pt-BR");
       });
   }, [busca, filtroSexo, linhas]);
@@ -154,7 +167,7 @@ export function PlanilhaPorta({
           type="search"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar pelo nome"
+          placeholder="Buscar pelo nome ou pastor"
           className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground sm:max-w-sm"
         />
         <div className="flex flex-wrap gap-2">
@@ -191,6 +204,9 @@ export function PlanilhaPorta({
             <thead className="bg-muted/50">
               <tr>
                 <th className="border-b border-border px-3 py-2 font-semibold">
+                  Pastor
+                </th>
+                <th className="border-b border-border bg-foreground px-3 py-2 font-semibold text-background">
                   Nome
                 </th>
                 <th className="border-b border-border px-3 py-2 font-semibold">
@@ -224,6 +240,9 @@ export function PlanilhaPorta({
                       linha.presente ? "bg-muted/30" : ""
                     }`}
                   >
+                    <td className="px-3 py-2 text-muted-foreground">
+                      {linha.pastorNome || "—"}
+                    </td>
                     <td className="px-3 py-2 font-medium">
                       {linha.nome}
                       {linha.detalhe ? (

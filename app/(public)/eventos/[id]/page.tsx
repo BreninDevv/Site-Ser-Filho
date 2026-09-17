@@ -31,6 +31,14 @@ export default async function EventoPublicoPage({
   const logado = Boolean(auth.user);
   const imagem = urlPublicaDoPost(evento.imagem_path);
 
+  let pastores: { id: string; nome: string }[] = [];
+  try {
+    const { data } = await supabase.rpc("pastores_para_inscricao");
+    pastores = (data ?? []) as { id: string; nome: string }[];
+  } catch {
+    pastores = [];
+  }
+
   return (
     <div>
       <div className="relative w-full bg-[#141412]">
@@ -82,6 +90,7 @@ export default async function EventoPublicoPage({
                   eventoId={evento.id}
                   valorCentavos={evento.valor_centavos}
                   logado={logado}
+                  pastores={pastores}
                 />
               </div>
               <ConsultaPagamentoEvento eventoId={evento.id} logado={logado} />

@@ -1,10 +1,13 @@
 import type { CampoPagamentoLegado } from "./pagamento-legado";
+import { ehMenorDeIdade } from "./inscricao-encontro";
 
 export const CAMPOS_INSCRICAO_LEGADO = [
   "nome_completo",
   "email",
   "telefone",
   "data_nascimento",
+  "pastor_id",
+  "autorizacao_path",
   "sexo",
   "cidade",
   "nome_contato_emergencia",
@@ -21,6 +24,9 @@ export type DadosInscricaoLegado = {
   email: string;
   telefone: string;
   data_nascimento: string;
+  pastor_id: string | null;
+  autorizacao_lider: boolean;
+  autorizacao_path: string | null;
   sexo: string | null;
   cidade: string | null;
   nome_contato_emergencia: string | null;
@@ -104,7 +110,14 @@ export function validarInscricaoLegado(valores: ValoresInscricaoLegado): {
       erros.data_nascimento = "A data de nascimento não pode ser no futuro.";
     } else if (nascimento.getFullYear() < 1900) {
       erros.data_nascimento = "Confira o ano de nascimento.";
+    } else if (ehMenorDeIdade(valores.data_nascimento) && !valores.autorizacao_path) {
+      erros.autorizacao_path =
+        "Menor de 18 anos: envie a foto da autorização do líder antes de continuar.";
     }
+  }
+
+  if (!valores.pastor_id) {
+    erros.pastor_id = "Escolha o pastor. É obrigatório.";
   }
 
   if (
@@ -121,6 +134,8 @@ export function validarInscricaoLegado(valores: ValoresInscricaoLegado): {
     erros.telefone_contato_emergencia = "Informe o telefone com DDD.";
   }
 
+  const temAutorizacao = Boolean(valores.autorizacao_path);
+
   return {
     erros,
     dados: {
@@ -128,6 +143,9 @@ export function validarInscricaoLegado(valores: ValoresInscricaoLegado): {
       email: valores.email.toLowerCase(),
       telefone: apenasDigitos(valores.telefone),
       data_nascimento: valores.data_nascimento,
+      pastor_id: opcional(valores.pastor_id),
+      autorizacao_lider: temAutorizacao,
+      autorizacao_path: opcional(valores.autorizacao_path),
       sexo: opcional(valores.sexo),
       cidade: opcional(valores.cidade),
       nome_contato_emergencia: opcional(valores.nome_contato_emergencia),

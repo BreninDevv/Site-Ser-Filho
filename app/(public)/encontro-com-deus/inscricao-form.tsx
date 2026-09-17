@@ -181,6 +181,10 @@ export function InscricaoForm({
   const [nascimento, setNascimento] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [caminhoComprovante, setCaminhoComprovante] = useState("");
+  const [arquivoAutorizacao, setArquivoAutorizacao] = useState<File | null>(
+    null
+  );
+  const [caminhoAutorizacao, setCaminhoAutorizacao] = useState("");
   const [subindo, setSubindo] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -244,15 +248,92 @@ export function InscricaoForm({
       (!comprovanteObrigatorio || arquivo || caminhoComprovante)
   );
 
-  function irParaPagamento() {
+  async function enviarArquivoStorage(escolhido: File) {
+    const supabase = createClient();
+    const extensoes: Record<string, string> = {
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const extensao = extensoes[escolhido.type] ?? "jpg";
+    const destino = `${crypto.randomUUID()}.${extensao}`;
+    const { error } = await supabase.storage
+      .from(BUCKET_COMPROVANTES)
+      .upload(destino, escolhido, { contentType: escolhido.type });
+    if (error) return null;
+    return destino;
+  }
+
+  function validarArquivoLocal(
+    escolhido: File,
+    campoErro: "comprovante_path" | "autorizacao_path"
+  ) {
+    if (escolhido.size > TAMANHO_MAX_COMPROVANTE) {
+      setErrosLocais((atual) => ({
+        ...atual,
+        [campoErro]: "Arquivo muito grande. O limite é 5 MB.",
+      }));
+      return false;
+    }
+    if (
+      !TIPOS_COMPROVANTE.includes(
+        escolhido.type as (typeof TIPOS_COMPROVANTE)[number]
+      )
+    ) {
+      setErrosLocais((atual) => ({
+        ...atual,
+        [campoErro]: "Envie uma imagem (PNG, JPG, WebP) ou um PDF.",
+      }));
+      return false;
+    }
+    setErrosLocais((atual) => ({ ...atual, [campoErro]: undefined }));
+    return true;
+  }
+
+  async function irParaPagamento() {
     const formulario = formRef.current;
     if (!formulario) return;
 
     const valores = lerValores(new FormData(formulario));
-    const { erros: errosEtapa1 } = validarInscricao(valores, {
-      temPastores: pastores.length > 0,
-    });
+    const menor = ehMenorDeIdade(valores.data_nascimento);
 
+    if (menor) {
+      if (!arquivoAutorizacao && !caminhoAutorizacao && !valores.autorizacao_path) {
+        setDadosEtapa1(valores);
+        setErrosLocais({
+          autorizacao_path:
+            "Menor de 18 anos: envie a foto da autorização do líder.",
+        });
+        return;
+      }
+
+      if (arquivoAutorizacao && !caminhoAutorizacao) {
+        if (!validarArquivoLocal(arquivoAutorizacao, "autorizacao_path")) {
+          setDadosEtapa1(valores);
+          return;
+        }
+        setSubindo(true);
+        const caminho = await enviarArquivoStorage(arquivoAutorizacao);
+        setSubindo(false);
+        if (!caminho) {
+          setDadosEtapa1(valores);
+          setErrosLocais({
+            autorizacao_path:
+              "Não foi possível enviar a foto da autorização. Tente de novo.",
+          });
+          return;
+        }
+        setCaminhoAutorizacao(caminho);
+        valores.autorizacao_path = caminho;
+        valores.autorizacao_lider = "sim";
+      } else if (caminhoAutorizacao) {
+        valores.autorizacao_path = caminhoAutorizacao;
+        valores.autorizacao_lider = "sim";
+      }
+    }
+
+    const { erros: errosEtapa1 } = validarInscricao(valores);
     setDadosEtapa1(valores);
 
     if (Object.keys(errosEtapa1).length > 0) {
@@ -278,25 +359,21 @@ export function InscricaoForm({
       return;
     }
 
-    if (escolhido.size > TAMANHO_MAX_COMPROVANTE) {
-      setErrosLocais((atual) => ({
-        ...atual,
-        comprovante_path: "Arquivo muito grande. O limite é 5 MB.",
-      }));
+    if (!validarArquivoLocal(escolhido, "comprovante_path")) {
       setArquivo(null);
+    }
+  }
+
+  function aoEscolherAutorizacao(escolhido: File | null) {
+    setCaminhoAutorizacao("");
+    setArquivoAutorizacao(escolhido);
+    if (!escolhido) {
+      setErrosLocais((atual) => ({ ...atual, autorizacao_path: undefined }));
       return;
     }
-
-    if (!TIPOS_COMPROVANTE.includes(escolhido.type as (typeof TIPOS_COMPROVANTE)[number])) {
-      setErrosLocais((atual) => ({
-        ...atual,
-        comprovante_path: "Envie uma imagem (PNG, JPG, WebP) ou um PDF.",
-      }));
-      setArquivo(null);
-      return;
+    if (!validarArquivoLocal(escolhido, "autorizacao_path")) {
+      setArquivoAutorizacao(null);
     }
-
-    setErrosLocais((atual) => ({ ...atual, comprovante_path: undefined }));
   }
 
   async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
@@ -313,23 +390,10 @@ export function InscricaoForm({
 
     if (arquivo && !caminho) {
       setSubindo(true);
-      const supabase = createClient();
-      const extensoes: Record<string, string> = {
-        "image/png": "png",
-        "image/jpeg": "jpg",
-        "image/webp": "webp",
-        "application/pdf": "pdf",
-      };
-      const extensao = extensoes[arquivo.type] ?? "jpg";
-      const destino = `${crypto.randomUUID()}.${extensao}`;
-
-      const { error } = await supabase.storage
-        .from(BUCKET_COMPROVANTES)
-        .upload(destino, arquivo, { contentType: arquivo.type });
-
+      const enviado = await enviarArquivoStorage(arquivo);
       setSubindo(false);
 
-      if (error) {
+      if (!enviado) {
         setErrosLocais({
           comprovante_path:
             "Não foi possível enviar o comprovante. Tente novamente.",
@@ -337,13 +401,17 @@ export function InscricaoForm({
         return;
       }
 
-      caminho = destino;
-      setCaminhoComprovante(destino);
+      caminho = enviado;
+      setCaminhoComprovante(enviado);
     }
 
     // A etapa 1 está desmontada nesta altura: os valores vão por campos ocultos.
     for (const campo of CAMPOS_INSCRICAO) {
       formData.set(campo, dadosEtapa1[campo] ?? "");
+    }
+    if (caminhoAutorizacao) {
+      formData.set("autorizacao_path", caminhoAutorizacao);
+      formData.set("autorizacao_lider", "sim");
     }
     formData.delete("comprovante");
     formData.set("comprovante_path", caminho);
@@ -413,22 +481,42 @@ export function InscricaoForm({
             <div className="border border-[#4b6f36]/40 bg-[#fff8e7] p-4 text-sm leading-relaxed">
               <p className="font-semibold">Menor de 18 anos</p>
               <p className="mt-1">
-                Procure um líder para pegar a autorização antes do Encontro.
+                Antes de concluir a inscrição, envie a{" "}
+                <strong>foto da autorização</strong> assinada pelo líder.
               </p>
-              <label className="mt-3 flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  name="autorizacao_lider"
-                  value="sim"
-                  defaultChecked={valorEtapa1("autorizacao_lider") === "sim"}
-                  disabled={ocupado}
-                  className="mt-1"
-                />
-                <span>Já falei com um líder e vou levar a autorização.</span>
+              <label htmlFor="autorizacao_arquivo" className={`${CLASSE_ROTULO} mt-3`}>
+                Foto da autorização{" "}
+                <span className="font-normal text-muted-foreground">
+                  (obrigatório)
+                </span>
               </label>
-              {erros.autorizacao_lider && (
+              <input
+                id="autorizacao_arquivo"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf"
+                disabled={ocupado}
+                onChange={(e) =>
+                  aoEscolherAutorizacao(e.target.files?.[0] ?? null)
+                }
+                className={CLASSE_CAMPO}
+              />
+              <input
+                type="hidden"
+                name="autorizacao_path"
+                value={
+                  caminhoAutorizacao || valorEtapa1("autorizacao_path") || ""
+                }
+              />
+              {(arquivoAutorizacao || caminhoAutorizacao) && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {arquivoAutorizacao
+                    ? `Arquivo: ${arquivoAutorizacao.name}`
+                    : "Foto da autorização anexada."}
+                </p>
+              )}
+              {erros.autorizacao_path && (
                 <p className="mt-2 text-sm text-destructive">
-                  {erros.autorizacao_lider}
+                  {erros.autorizacao_path}
                 </p>
               )}
             </div>
@@ -460,12 +548,15 @@ export function InscricaoForm({
 
           <div>
             <label htmlFor="pastor_id" className={CLASSE_ROTULO}>
-              2. De qual pastor?
+              2. De qual pastor?{" "}
+              <span className="font-normal text-muted-foreground">
+                (obrigatório)
+              </span>
             </label>
             <select
               id="pastor_id"
               name="pastor_id"
-              required={pastores.length > 0}
+              required
               defaultValue={valorEtapa1("pastor_id")}
               disabled={ocupado || pastores.length === 0}
               className={CLASSE_CAMPO}
@@ -482,9 +573,9 @@ export function InscricaoForm({
               ))}
             </select>
             {pastores.length === 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                A lista vem do cadastro dos pastores. Quando um pastor criar
-                conta, o nome dele aparece aqui.
+              <p className="mt-1 text-xs text-destructive">
+                Sem pastor cadastrado não dá para concluir. Peça à equipe para
+                liberar a lista.
               </p>
             )}
             {erros.pastor_id && (
@@ -654,29 +745,40 @@ export function InscricaoForm({
             <MensagemErro id="erro-leva_crianca">{erros.leva_crianca}</MensagemErro>
 
             {levaCrianca === "sim" && (
-              <div className="mt-4 max-w-40">
-                <label htmlFor="qtd_criancas" className={CLASSE_ROTULO}>
-                  Quantas crianças?
-                </label>
-                <input
-                  id="qtd_criancas"
-                  name="qtd_criancas"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={MAX_CRIANCAS}
-                  value={qtdCriancas}
-                  onChange={(e) => setQtdCriancas(e.target.value)}
-                  disabled={ocupado}
-                  aria-invalid={Boolean(erros.qtd_criancas)}
-                  aria-describedby={
-                    erros.qtd_criancas ? "erro-qtd_criancas" : undefined
-                  }
-                  className={CLASSE_CAMPO}
-                />
-                <MensagemErro id="erro-qtd_criancas">
-                  {erros.qtd_criancas}
-                </MensagemErro>
+              <div className="mt-4 space-y-4">
+                <div className="max-w-40">
+                  <label htmlFor="qtd_criancas" className={CLASSE_ROTULO}>
+                    Quantas crianças?
+                  </label>
+                  <input
+                    id="qtd_criancas"
+                    name="qtd_criancas"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={MAX_CRIANCAS}
+                    value={qtdCriancas}
+                    onChange={(e) => setQtdCriancas(e.target.value)}
+                    disabled={ocupado}
+                    aria-invalid={Boolean(erros.qtd_criancas)}
+                    aria-describedby={
+                      erros.qtd_criancas ? "erro-qtd_criancas" : undefined
+                    }
+                    className={CLASSE_CAMPO}
+                  />
+                  <MensagemErro id="erro-qtd_criancas">
+                    {erros.qtd_criancas}
+                  </MensagemErro>
+                </div>
+                <div className="border border-border bg-muted/40 p-4 text-sm leading-relaxed">
+                  <p className="font-semibold">Formulário Kids</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Quem leva criança também precisa preencher o formulário
+                    Kids. Esse formulário ainda está sendo preparado — em breve
+                    ele entra aqui. Por enquanto você pode concluir a inscrição
+                    normalmente.
+                  </p>
+                </div>
               </div>
             )}
           </fieldset>

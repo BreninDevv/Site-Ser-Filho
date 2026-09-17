@@ -24,6 +24,7 @@ import {
   type EstadoInscricaoLegado,
   type ValoresInscricaoLegado,
 } from "@/lib/validations/inscricao-legado";
+import { ehMenorDeIdade } from "@/lib/validations/inscricao-encontro";
 import {
   BUCKET_COMPROVANTES_LEGADO,
   CHAVE_PIX,
@@ -146,7 +147,13 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO_LEGADO.reduce((acumulado, campo) 
   return acumulado;
 }, {} as ValoresInscricaoLegado);
 
-export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
+export function InscricaoLegadoForm({
+  logado,
+  pastores,
+}: {
+  logado: boolean;
+  pastores: { id: string; nome: string }[];
+}) {
   const [estado, setEstado] = useState<EstadoInscricaoLegado>(ESTADO_INICIAL_LEGADO);
   const [enviandoAction, setEnviandoAction] = useState(false);
 
@@ -165,8 +172,13 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
   const [parcelas, setParcelas] = useState(1);
   const [opcaoValor, setOpcaoValor] = useState<OpcaoValor | "">("");
   const [primeiroLegado, setPrimeiroLegado] = useState<"sim" | "nao" | "">("");
+  const [nascimento, setNascimento] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [caminhoComprovante, setCaminhoComprovante] = useState("");
+  const [arquivoAutorizacao, setArquivoAutorizacao] = useState<File | null>(
+    null
+  );
+  const [caminhoAutorizacao, setCaminhoAutorizacao] = useState("");
   const [subindo, setSubindo] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -224,13 +236,65 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
       (!comprovanteObrigatorio || arquivo || caminhoComprovante)
   );
 
-  function irParaPagamento() {
+  async function enviarArquivoStorage(escolhido: File) {
+    const supabase = createClient();
+    const extensoes: Record<string, string> = {
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const destino = `${crypto.randomUUID()}.${extensoes[escolhido.type] ?? "jpg"}`;
+    const { error } = await supabase.storage
+      .from(BUCKET_COMPROVANTES_LEGADO)
+      .upload(destino, escolhido, { contentType: escolhido.type });
+    if (error) return null;
+    return destino;
+  }
+
+  async function irParaPagamento() {
     const formulario = formRef.current;
     if (!formulario) return;
 
     const valores = lerValoresLegado(new FormData(formulario));
-    const { erros: errosEtapa1 } = validarInscricaoLegado(valores);
+    const menor = ehMenorDeIdade(valores.data_nascimento);
 
+    if (menor) {
+      if (!arquivoAutorizacao && !caminhoAutorizacao && !valores.autorizacao_path) {
+        setDadosEtapa1(valores);
+        setErrosLocais({
+          autorizacao_path:
+            "Menor de 18 anos: envie a foto da autorização do líder.",
+        });
+        return;
+      }
+      if (arquivoAutorizacao && !caminhoAutorizacao) {
+        if (arquivoAutorizacao.size > TAMANHO_MAX_COMPROVANTE) {
+          setDadosEtapa1(valores);
+          setErrosLocais({
+            autorizacao_path: "Arquivo muito grande. O limite é 5 MB.",
+          });
+          return;
+        }
+        setSubindo(true);
+        const caminho = await enviarArquivoStorage(arquivoAutorizacao);
+        setSubindo(false);
+        if (!caminho) {
+          setDadosEtapa1(valores);
+          setErrosLocais({
+            autorizacao_path:
+              "Não foi possível enviar a foto da autorização. Tente de novo.",
+          });
+          return;
+        }
+        setCaminhoAutorizacao(caminho);
+        valores.autorizacao_path = caminho;
+      } else if (caminhoAutorizacao) {
+        valores.autorizacao_path = caminhoAutorizacao;
+      }
+    }
+
+    const { erros: errosEtapa1 } = validarInscricaoLegado(valores);
     setDadosEtapa1(valores);
 
     if (Object.keys(errosEtapa1).length > 0) {
@@ -327,6 +391,9 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
     for (const campo of CAMPOS_INSCRICAO_LEGADO) {
       formData.set(campo, dadosEtapa1[campo] ?? "");
     }
+    if (caminhoAutorizacao) {
+      formData.set("autorizacao_path", caminhoAutorizacao);
+    }
     formData.delete("comprovante");
     formData.set("comprovante_path", caminho);
     formData.set("primeiro_legado", primeiroLegado);
@@ -387,9 +454,77 @@ export function InscricaoLegadoForm({ logado }: { logado: boolean }) {
             rotulo="Data de nascimento"
             type="date"
             erro={erros.data_nascimento}
-            defaultValue={valorEtapa1("data_nascimento")}
+            defaultValue={valorEtapa1("data_nascimento") || nascimento}
             disabled={ocupado}
+            onChange={(e) => setNascimento(e.target.value)}
           />
+
+          {ehMenorDeIdade(nascimento || valorEtapa1("data_nascimento")) && (
+            <div className="border border-border bg-muted/40 p-4 text-sm leading-relaxed">
+              <p className="font-semibold">Menor de 18 anos</p>
+              <p className="mt-1">
+                Envie a <strong>foto da autorização</strong> assinada pelo líder
+                antes de continuar.
+              </p>
+              <label htmlFor="autorizacao_arquivo" className={`${CLASSE_ROTULO} mt-3`}>
+                Foto da autorização (obrigatório)
+              </label>
+              <input
+                id="autorizacao_arquivo"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf"
+                disabled={ocupado}
+                onChange={(e) => {
+                  setCaminhoAutorizacao("");
+                  setArquivoAutorizacao(e.target.files?.[0] ?? null);
+                }}
+                className={CLASSE_CAMPO}
+              />
+              <input
+                type="hidden"
+                name="autorizacao_path"
+                value={
+                  caminhoAutorizacao || valorEtapa1("autorizacao_path") || ""
+                }
+              />
+              {erros.autorizacao_path && (
+                <p className="mt-2 text-sm text-destructive">
+                  {erros.autorizacao_path}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="pastor_id" className={CLASSE_ROTULO}>
+              De qual pastor?{" "}
+              <span className="font-normal text-muted-foreground">
+                (obrigatório)
+              </span>
+            </label>
+            <select
+              id="pastor_id"
+              name="pastor_id"
+              required
+              defaultValue={valorEtapa1("pastor_id")}
+              disabled={ocupado || pastores.length === 0}
+              className={CLASSE_CAMPO}
+            >
+              <option value="">
+                {pastores.length === 0
+                  ? "Nenhum pastor cadastrado ainda"
+                  : "Selecione o pastor"}
+              </option>
+              {pastores.map((pastor) => (
+                <option key={pastor.id} value={pastor.id}>
+                  {pastor.nome}
+                </option>
+              ))}
+            </select>
+            {erros.pastor_id && (
+              <p className="mt-1 text-sm text-destructive">{erros.pastor_id}</p>
+            )}
+          </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <CampoTexto

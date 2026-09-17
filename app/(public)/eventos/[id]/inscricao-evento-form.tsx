@@ -30,13 +30,19 @@ export function InscricaoEventoForm({
   eventoId,
   valorCentavos,
   logado,
+  pastores,
 }: {
   eventoId: string;
   valorCentavos: number;
   logado: boolean;
+  pastores: { id: string; nome: string }[];
 }) {
   const [forma, setForma] = useState<FormaPagamento | "">("");
+  const [idade, setIdade] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
+  const [arquivoAutorizacao, setArquivoAutorizacao] = useState<File | null>(
+    null
+  );
   const [subindo, setSubindo] = useState(false);
   const [erroLocal, setErroLocal] = useState<string | null>(null);
   const [estado, setEstado] = useState<EstadoInscricaoEvento>(ESTADO_INICIAL_EVENTO);
@@ -44,6 +50,7 @@ export function InscricaoEventoForm({
 
   const comprovanteObrigatorio =
     forma !== "" && exigeComprovante(forma as FormaPagamento);
+  const menor = Number(idade) > 0 && Number(idade) < 18;
 
   async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -55,40 +62,73 @@ export function InscricaoEventoForm({
       return;
     }
 
-    if (arquivo) {
-      if (arquivo.size > TAMANHO_MAX_COMPROVANTE) {
-        setErroLocal("O comprovante pode ter no máximo 5 MB.");
-        return;
-      }
-      if (!TIPOS_COMPROVANTE.includes(arquivo.type as (typeof TIPOS_COMPROVANTE)[number])) {
-        setErroLocal("Envie PNG, JPG, WebP ou PDF.");
-        return;
-      }
-
-      setSubindo(true);
-      const extensoes: Record<string, string> = {
-        "image/png": "png",
-        "image/jpeg": "jpg",
-        "image/webp": "webp",
-        "application/pdf": "pdf",
-      };
-      const destino = `${crypto.randomUUID()}.${extensoes[arquivo.type] ?? "jpg"}`;
-      const supabase = createClient();
-      const { error } = await supabase.storage
-        .from(BUCKET_COMPROVANTES_EVENTO)
-        .upload(destino, arquivo, { contentType: arquivo.type });
-      setSubindo(false);
-
-      if (error) {
-        setErroLocal(
-          "Não foi possível enviar o comprovante. Rode a migration 009 no Supabase."
-        );
-        return;
-      }
-      formData.set("comprovante_path", destino);
+    if (menor && !arquivoAutorizacao) {
+      setErroLocal("Menor de 18 anos: envie a foto da autorização do líder.");
+      return;
     }
 
+    const supabase = createClient();
+    const extensoes: Record<string, string> = {
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+
+    async function upload(file: File, bucket: string) {
+      if (file.size > TAMANHO_MAX_COMPROVANTE) {
+        setErroLocal("O arquivo pode ter no máximo 5 MB.");
+        return null;
+      }
+      if (
+        !TIPOS_COMPROVANTE.includes(
+          file.type as (typeof TIPOS_COMPROVANTE)[number]
+        )
+      ) {
+        setErroLocal("Envie PNG, JPG, WebP ou PDF.");
+        return null;
+      }
+      const destino = `${crypto.randomUUID()}.${extensoes[file.type] ?? "jpg"}`;
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(destino, file, { contentType: file.type });
+      if (error) return null;
+      return destino;
+    }
+
+    setSubindo(true);
+
+    if (arquivoAutorizacao) {
+      const pathAuth = await upload(arquivoAutorizacao, BUCKET_COMPROVANTES_EVENTO);
+      if (!pathAuth) {
+        setSubindo(false);
+        if (!erroLocal) {
+          setErroLocal(
+            "Não foi possível enviar a foto da autorização. Tente de novo."
+          );
+        }
+        return;
+      }
+      formData.set("autorizacao_path", pathAuth);
+    }
+
+    if (arquivo) {
+      const pathComp = await upload(arquivo, BUCKET_COMPROVANTES_EVENTO);
+      if (!pathComp) {
+        setSubindo(false);
+        if (!erroLocal) {
+          setErroLocal(
+            "Não foi possível enviar o comprovante. Rode a migration 009 no Supabase."
+          );
+        }
+        return;
+      }
+      formData.set("comprovante_path", pathComp);
+    }
+
+    setSubindo(false);
     formData.delete("comprovante");
+    formData.delete("autorizacao");
     formData.set("evento_id", eventoId);
     setPendente(true);
     const resultado = await enviarInscricaoJson<EstadoInscricaoEvento>(
@@ -120,9 +160,13 @@ export function InscricaoEventoForm({
   }
 
   const ocupado = pendente || subindo;
-  const erroComprovante =
+  const erroGeral =
     erroLocal ||
-    (estado.status === "erro" ? estado.erros.comprovante_path : undefined);
+    (estado.status === "erro"
+      ? estado.erros.comprovante_path ||
+        estado.erros.autorizacao_path ||
+        estado.erros.pastor_id
+      : undefined);
 
   return (
     <form onSubmit={aoEnviar} className="space-y-4">
@@ -159,10 +203,63 @@ export function InscricaoEventoForm({
           max={120}
           required
           disabled={ocupado}
+          value={idade}
+          onChange={(e) => setIdade(e.target.value)}
           className={campo}
         />
         {estado.status === "erro" && estado.erros.idade && (
           <p className="mt-1 text-sm text-destructive">{estado.erros.idade}</p>
+        )}
+      </div>
+      {menor && (
+        <div className="border border-border bg-muted/40 p-4 text-sm">
+          <p className="font-semibold">Menor de 18 anos</p>
+          <p className="mt-1 text-muted-foreground">
+            Envie a foto da autorização assinada pelo líder.
+          </p>
+          <label
+            htmlFor="autorizacao"
+            className="mb-1.5 mt-3 block text-sm font-medium"
+          >
+            Foto da autorização (obrigatório)
+          </label>
+          <input
+            id="autorizacao"
+            name="autorizacao"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,application/pdf"
+            disabled={ocupado}
+            onChange={(e) => setArquivoAutorizacao(e.target.files?.[0] ?? null)}
+            className="w-full text-sm"
+          />
+        </div>
+      )}
+      <div>
+        <label htmlFor="pastor_id" className="mb-1.5 block text-sm font-medium">
+          De qual pastor? (obrigatório)
+        </label>
+        <select
+          id="pastor_id"
+          name="pastor_id"
+          required
+          disabled={ocupado || pastores.length === 0}
+          className={campo}
+        >
+          <option value="">
+            {pastores.length === 0
+              ? "Nenhum pastor cadastrado ainda"
+              : "Selecione o pastor"}
+          </option>
+          {pastores.map((pastor) => (
+            <option key={pastor.id} value={pastor.id}>
+              {pastor.nome}
+            </option>
+          ))}
+        </select>
+        {estado.status === "erro" && estado.erros.pastor_id && (
+          <p className="mt-1 text-sm text-destructive">
+            {estado.erros.pastor_id}
+          </p>
         )}
       </div>
       <div>
@@ -237,11 +334,9 @@ export function InscricaoEventoForm({
             onChange={(e) => setArquivo(e.target.files?.[0] ?? null)}
             className="w-full text-sm"
           />
-          {erroComprovante && (
-            <p className="mt-1 text-sm text-destructive">{erroComprovante}</p>
-          )}
         </div>
       )}
+      {erroGeral && <p className="text-sm text-destructive">{erroGeral}</p>}
       {estado.status === "erro" && estado.mensagem && (
         <p className="text-sm text-destructive">{estado.mensagem}</p>
       )}

@@ -17,6 +17,14 @@ export default async function LegadoDeCristoPage() {
   } = await supabase.auth.getUser();
   const logado = Boolean(user);
 
+  let pastores: { id: string; nome: string }[] = [];
+  try {
+    const { data } = await supabase.rpc("pastores_para_inscricao");
+    pastores = (data ?? []) as { id: string; nome: string }[];
+  } catch {
+    pastores = [];
+  }
+
   return (
     <div className="pagina-legado-de-cristo">
       <div className="relative w-full bg-black">
@@ -53,7 +61,7 @@ export default async function LegadoDeCristoPage() {
             status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-white/15 bg-[#faf9f6] p-5 sm:p-7">
-            <InscricaoLegadoForm logado={logado} />
+            <InscricaoLegadoForm logado={logado} pastores={pastores} />
           </div>
           <StatusPagamentoPorEmail rpc="status_pagamento_legado" />
         </div>

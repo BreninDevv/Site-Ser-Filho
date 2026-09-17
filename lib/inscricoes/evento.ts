@@ -32,16 +32,56 @@ export async function processarInscricaoEvento(
       };
     }
 
+    const supabase = await createClient();
+    let listaPastores: { id: string; nome: string }[] = [];
+    try {
+      const { data: pastores } = await supabase.rpc("pastores_para_inscricao");
+      listaPastores = (pastores ?? []) as { id: string; nome: string }[];
+    } catch {
+      listaPastores = [];
+    }
+
+    const pastorId = String(formData.get("pastor_id") ?? "").trim();
+    const autorizacaoPath =
+      String(formData.get("autorizacao_path") ?? "").trim() || null;
+
     const validado = validarInscricaoEvento({
       nome: String(formData.get("nome") ?? ""),
       idade: String(formData.get("idade") ?? ""),
       sexo: String(formData.get("sexo") ?? ""),
+      pastor_id: pastorId,
+      autorizacao_path: autorizacaoPath,
       forma: String(formData.get("forma_pagamento") ?? ""),
       comprovante: String(formData.get("comprovante_path") ?? "") || null,
     });
 
     if (Object.keys(validado.erros).length > 0) {
       return { status: "erro", erros: validado.erros };
+    }
+
+    const pastor = listaPastores.find((p) => p.id === validado.dados.pastor_id);
+    if (!pastor) {
+      return {
+        status: "erro",
+        erros: {
+          pastor_id:
+            listaPastores.length === 0
+              ? "Ainda não há pastor cadastrado. Peça à equipe para liberar a lista."
+              : "Esse pastor não está na lista. Escolha de novo.",
+        },
+      };
+    }
+
+    if (validado.dados.idade < 18) {
+      if (!autorizacaoPath || !caminhoArquivoValido(autorizacaoPath)) {
+        return {
+          status: "erro",
+          erros: {
+            autorizacao_path:
+              "Menor de 18 anos: envie a foto da autorização antes de concluir.",
+          },
+        };
+      }
     }
 
     if (!caminhoArquivoValido(validado.dados.comprovante_path)) {
@@ -51,7 +91,6 @@ export async function processarInscricaoEvento(
       };
     }
 
-    const supabase = await createClient();
     const agora = new Date().toISOString();
     const { data: evento } = await supabase
       .from("eventos")
@@ -73,14 +112,24 @@ export async function processarInscricaoEvento(
       nome: validado.dados.nome,
       idade: validado.dados.idade,
       sexo: validado.dados.sexo,
+      pastor_id: pastor.id,
+      pastor_nome: pastor.nome,
+      autorizacao_path: validado.dados.autorizacao_path,
       forma_pagamento: validado.dados.forma_pagamento,
       comprovante_path: validado.dados.comprovante_path,
     };
 
     let { error } = await supabase.from("inscricoes_evento").insert(payload);
-    if (error && /sexo/i.test(error.message ?? "")) {
-      const { sexo: _sexo, ...semSexo } = payload;
-      ({ error } = await supabase.from("inscricoes_evento").insert(semSexo));
+    if (error && /sexo|pastor|autorizacao/i.test(error.message ?? "")) {
+      const { sexo: _sexo, pastor_id, pastor_nome, autorizacao_path, ...base } =
+        payload;
+      ({ error } = await supabase.from("inscricoes_evento").insert({
+        ...base,
+        ...(validado.dados.sexo ? { sexo: validado.dados.sexo } : {}),
+        pastor_id,
+        pastor_nome,
+        ...(autorizacao_path ? { autorizacao_path } : {}),
+      }));
     }
 
     if (error) {

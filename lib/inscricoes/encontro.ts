@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import {
+  ehMenorDeIdade,
   lerValores,
   validarInscricao,
   type EstadoInscricao,
@@ -47,11 +48,39 @@ export async function processarInscricaoEncontro(
       listaPastores = [];
     }
 
-    const pessoais = validarInscricao(valoresPessoais, {
-      temPastores: listaPastores.length > 0,
-    });
+    const pessoais = validarInscricao(valoresPessoais);
     if (Object.keys(pessoais.erros).length > 0) {
       return { status: "erro", erros: pessoais.erros, valores, etapa: 1 };
+    }
+
+    const pastor = listaPastores.find((p) => p.id === pessoais.dados.pastor_id);
+    if (!pastor) {
+      return {
+        status: "erro",
+        erros: {
+          pastor_id:
+            listaPastores.length === 0
+              ? "Ainda não há pastor cadastrado. Peça à equipe para liberar a lista."
+              : "Esse pastor não está na lista. Escolha de novo.",
+        },
+        valores,
+        etapa: 1,
+      };
+    }
+
+    if (ehMenorDeIdade(pessoais.dados.data_nascimento)) {
+      const path = pessoais.dados.autorizacao_path;
+      if (!path || !caminhoArquivoValido(path)) {
+        return {
+          status: "erro",
+          erros: {
+            autorizacao_path:
+              "Menor de 18 anos: envie a foto da autorização antes de concluir.",
+          },
+          valores,
+          etapa: 1,
+        };
+      }
     }
 
     const pagamento = validarPagamento(valoresPagamento);
@@ -68,19 +97,9 @@ export async function processarInscricaoEncontro(
       };
     }
 
-    const pastor = listaPastores.find((p) => p.id === pessoais.dados.pastor_id);
-    if (pessoais.dados.pastor_id && !pastor) {
-      return {
-        status: "erro",
-        erros: { pastor_id: "Esse pastor não está na lista. Escolha de novo." },
-        valores,
-        etapa: 1,
-      };
-    }
-
     const { error } = await supabase.from("inscricoes_encontro").insert({
       ...pessoais.dados,
-      pastor_nome: pastor?.nome ?? null,
+      pastor_nome: pastor.nome,
       ...pagamento.dados,
     });
 

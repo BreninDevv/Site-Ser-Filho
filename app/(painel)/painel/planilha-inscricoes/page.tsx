@@ -71,14 +71,37 @@ export default async function PlanilhaInscricoesPage({
       const { data, error } = await supabase
         .from("inscricoes_legado")
         .select(
-          "id, nome_completo, sexo, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente"
+          "id, nome_completo, sexo, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente, pastor_nome"
         )
         .order("nome_completo", { ascending: true });
-      if (error) {
+      if (error && /pastor_nome/i.test(error.message ?? "")) {
+        const retry = await supabase
+          .from("inscricoes_legado")
+          .select(
+            "id, nome_completo, sexo, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente"
+          )
+          .order("nome_completo", { ascending: true });
+        if (retry.error) {
+          aviso = "Não foi possível carregar as inscrições do Legado.";
+        } else {
+          linhas = (retry.data ?? []).map((i) => ({
+            id: i.id,
+            pastorNome: null,
+            nome: i.nome_completo,
+            sexo: i.sexo ?? null,
+            forma: formaSegura(i.forma_pagamento, i.parcelas),
+            pagoCentavos: i.valor_pago_centavos ?? 0,
+            devidoCentavos: i.valor_devido_centavos ?? 0,
+            status: i.status,
+            presente: Boolean(i.presente),
+          }));
+        }
+      } else if (error) {
         aviso = "Não foi possível carregar as inscrições do Legado.";
       } else {
         linhas = (data ?? []).map((i) => ({
           id: i.id,
+          pastorNome: i.pastor_nome ?? null,
           nome: i.nome_completo,
           sexo: i.sexo ?? null,
           forma: formaSegura(i.forma_pagamento, i.parcelas),
@@ -96,11 +119,11 @@ export default async function PlanilhaInscricoesPage({
       let { data, error } = await supabase
         .from("inscricoes_evento")
         .select(
-          "id, nome, sexo, forma_pagamento, valor_pago_centavos, valor_cobrado_centavos, status, presente"
+          "id, nome, sexo, forma_pagamento, valor_pago_centavos, valor_cobrado_centavos, status, presente, pastor_nome"
         )
         .eq("evento_id", eventoId)
         .order("nome", { ascending: true });
-      if (error && /presente|sexo/i.test(error.message ?? "")) {
+      if (error && /presente|sexo|pastor_nome/i.test(error.message ?? "")) {
         const retry = await supabase
           .from("inscricoes_evento")
           .select(
@@ -116,6 +139,9 @@ export default async function PlanilhaInscricoesPage({
       } else {
         linhas = (data ?? []).map((i) => ({
           id: i.id,
+          pastorNome:
+            ("pastor_nome" in i ? (i.pastor_nome as string | null) : null) ??
+            null,
           nome: i.nome,
           sexo: ("sexo" in i ? (i.sexo as string | null) : null) ?? null,
           forma: formaSegura(i.forma_pagamento as string | null),
@@ -139,6 +165,7 @@ export default async function PlanilhaInscricoesPage({
       } else {
         linhas = (data ?? []).map((i) => ({
           id: i.id,
+          pastorNome: i.pastor_nome ?? null,
           nome: i.nome_completo,
           sexo: i.sexo ?? null,
           forma: formaSegura(i.forma_pagamento, i.parcelas),
@@ -146,7 +173,6 @@ export default async function PlanilhaInscricoesPage({
           devidoCentavos: i.valor_devido_centavos ?? 0,
           status: i.status,
           presente: Boolean(i.presente),
-          detalhe: i.pastor_nome ? `Pastor ${i.pastor_nome}` : undefined,
         }));
       }
     }

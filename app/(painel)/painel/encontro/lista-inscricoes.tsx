@@ -46,6 +46,7 @@ export type InscricaoPainel = {
   papel_encontro: PapelEncontro | null;
   pastor_nome: string | null;
   autorizacao_lider: boolean;
+  autorizacaoUrl: string | null;
   sexo: string | null;
   status: StatusInscricao;
   presente: boolean;
@@ -428,14 +429,26 @@ function CartaoInscricao({
           )}
           {item.pastor_nome && <Dado rotulo="Pastor" valor={item.pastor_nome} />}
           {calcularIdade(item.data_nascimento) < 18 && (
-            <Dado
-              rotulo="Menor de 18"
-              valor={
-                item.autorizacao_lider
-                  ? "Vai levar autorização do líder"
-                  : "Precisa de autorização do líder"
-              }
-            />
+            <div className="sm:col-span-2 space-y-2">
+              <Dado
+                rotulo="Menor de 18"
+                valor={
+                  item.autorizacaoUrl || item.autorizacao_lider
+                    ? "Autorização anexada / enviada"
+                    : "Precisa de autorização do líder"
+                }
+              />
+              {item.autorizacaoUrl ? (
+                <a
+                  href={item.autorizacaoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block text-sm font-semibold underline underline-offset-4"
+                >
+                  Abrir foto da autorização
+                </a>
+              ) : null}
+            </div>
           )}
           {item.como_soube && <Dado rotulo="Como soube" valor={item.como_soube} />}
           {item.nome_contato_emergencia && (

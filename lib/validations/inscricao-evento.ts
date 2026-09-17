@@ -41,7 +41,18 @@ export type EstadoInscricaoEvento =
   | { status: "inicial" }
   | {
       status: "erro";
-      erros: Partial<Record<"nome" | "idade" | "sexo" | "forma_pagamento" | "comprovante_path", string>>;
+      erros: Partial<
+        Record<
+          | "nome"
+          | "idade"
+          | "sexo"
+          | "pastor_id"
+          | "autorizacao_path"
+          | "forma_pagamento"
+          | "comprovante_path",
+          string
+        >
+      >;
       mensagem?: string;
     }
   | { status: "sucesso"; nome: string };
@@ -52,11 +63,22 @@ export function validarInscricaoEvento(entrada: {
   nome: string;
   idade: string;
   sexo: string;
+  pastor_id: string;
+  autorizacao_path: string | null;
   forma: string;
   comprovante: string | null;
 }) {
   const erros: Partial<
-    Record<"nome" | "idade" | "sexo" | "forma_pagamento" | "comprovante_path", string>
+    Record<
+      | "nome"
+      | "idade"
+      | "sexo"
+      | "pastor_id"
+      | "autorizacao_path"
+      | "forma_pagamento"
+      | "comprovante_path",
+      string
+    >
   > = {};
 
   const nome = entrada.nome.trim().slice(0, 80);
@@ -66,12 +88,19 @@ export function validarInscricaoEvento(entrada: {
   const idade = Number(entrada.idade);
   if (!Number.isInteger(idade) || idade < 1 || idade > 120) {
     erros.idade = "Informe uma idade válida.";
+  } else if (idade < 18 && !entrada.autorizacao_path) {
+    erros.autorizacao_path =
+      "Menor de 18 anos: envie a foto da autorização do líder.";
   }
 
   const sexo = OPCOES_SEXO.includes(entrada.sexo as (typeof OPCOES_SEXO)[number])
     ? (entrada.sexo as (typeof OPCOES_SEXO)[number])
     : null;
   if (!sexo) erros.sexo = "Informe se você é homem ou mulher.";
+
+  if (!entrada.pastor_id.trim()) {
+    erros.pastor_id = "Escolha o pastor. É obrigatório.";
+  }
 
   const forma = FORMAS_PAGAMENTO.includes(entrada.forma as FormaPagamento)
     ? (entrada.forma as FormaPagamento)
@@ -88,6 +117,8 @@ export function validarInscricaoEvento(entrada: {
       nome,
       idade: Number.isInteger(idade) ? idade : 0,
       sexo,
+      pastor_id: entrada.pastor_id.trim() || null,
+      autorizacao_path: entrada.autorizacao_path,
       forma_pagamento: forma ?? "pix",
       comprovante_path: entrada.comprovante,
     },
