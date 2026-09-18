@@ -1,9 +1,11 @@
+import { ChavePixPainel } from "@/components/chave-pix-painel";
 import { createClient } from "@/lib/supabase/server";
 import {
   obterPerfilAtual,
   podeAprovarPagamento,
   podeVerInscricoes,
 } from "@/lib/auth/permissoes";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { BUCKET_COMPROVANTES_LEGADO } from "@/lib/validations/pagamento-legado";
 import { ListaInscricoes, type InscricaoLegadoPainel } from "./lista-inscricoes";
 
@@ -111,16 +113,20 @@ export default async function PainelLegadoPage() {
     };
   });
 
+  const chavePix = podeAprovar ? await obterChavePix() : null;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold mb-1">Inscrições do Legado</h1>
         <p className="text-sm text-muted-foreground">
           {podeAprovar
-            ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."
-            : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
+            ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante (ou confirmar dinheiro na mesa)."
+            : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Líder/Tesouraria, Apóstolo(a) ou Dev."}
         </p>
       </div>
+
+      {podeAprovar && chavePix ? <ChavePixPainel chaveAtual={chavePix} /> : null}
 
       <ListaInscricoes inscricoes={inscricoes} podeAprovar={podeAprovar} />
     </div>

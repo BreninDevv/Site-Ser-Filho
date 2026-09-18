@@ -30,7 +30,6 @@ import {
 } from "@/lib/validations/inscricao-encontro";
 import {
   BUCKET_COMPROVANTES,
-  CHAVE_PIX,
   DESCRICOES_FORMA,
   FORMAS_PAGAMENTO,
   MAX_CRIANCAS,
@@ -155,9 +154,11 @@ const VALORES_ETAPA1_VAZIOS = CAMPOS_INSCRICAO.reduce((acumulado, campo) => {
 export function InscricaoForm({
   logado,
   pastores,
+  chavePix,
 }: {
   logado: boolean;
   pastores: { id: string; nome: string }[];
+  chavePix: string;
 }) {
   const [estado, setEstado] = useState<EstadoInscricao>(ESTADO_INICIAL);
   const [enviandoAction, setEnviandoAction] = useState(false);
@@ -841,9 +842,9 @@ export function InscricaoForm({
 
           {forma === "pix" && (
             <div className="border border-border p-4">
-              <p className="text-sm font-semibold">Chave Pix (aleatória)</p>
-              <p className="mt-1 break-all font-mono text-sm">{CHAVE_PIX}</p>
-              <CopiarTextoButton texto={CHAVE_PIX} />
+              <p className="text-sm font-semibold">Chave Pix da igreja</p>
+              <p className="mt-1 break-all font-mono text-sm">{chavePix}</p>
+              <CopiarTextoButton texto={chavePix} />
               <p className="mt-2 text-sm text-muted-foreground">
                 Pague {formatarReais(calculo.cobrado)} e anexe o comprovante abaixo.
               </p>
@@ -883,31 +884,32 @@ export function InscricaoForm({
             </div>
           )}
 
-          <div className="border-t border-border pt-6">
-            <label htmlFor="comprovante" className={CLASSE_ROTULO}>
-              Comprovante{" "}
-              {!comprovanteObrigatorio && (
-                <span className="font-normal text-muted-foreground">(opcional)</span>
-              )}
-            </label>
-            <input
-              id="comprovante"
-              name="comprovante"
-              type="file"
-              accept={TIPOS_COMPROVANTE.join(",")}
-              onChange={(e) => aoEscolherArquivo(e.target.files?.[0] ?? null)}
-              disabled={ocupado}
-              aria-invalid={Boolean(erros.comprovante_path)}
-              aria-describedby="ajuda-comprovante"
-              className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-foreground file:px-3 file:py-1.5 file:text-background file:text-sm"
-            />
-            <p id="ajuda-comprovante" className="mt-1 text-xs text-muted-foreground">
-              Imagem ou PDF, até 5 MB. Só a equipe do De Volta ao Jardim vê esse arquivo.
-            </p>
-            <MensagemErro id="erro-comprovante_path">
-              {erros.comprovante_path}
-            </MensagemErro>
-          </div>
+          {comprovanteObrigatorio && (
+            <div className="border-t border-border pt-6">
+              <label htmlFor="comprovante" className={CLASSE_ROTULO}>
+                {forma === "pix"
+                  ? "Comprovante do Pix"
+                  : "Foto do comprovante da maquininha"}
+              </label>
+              <input
+                id="comprovante"
+                name="comprovante"
+                type="file"
+                accept={TIPOS_COMPROVANTE.join(",")}
+                onChange={(e) => aoEscolherArquivo(e.target.files?.[0] ?? null)}
+                disabled={ocupado}
+                aria-invalid={Boolean(erros.comprovante_path)}
+                aria-describedby="ajuda-comprovante"
+                className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-foreground file:px-3 file:py-1.5 file:text-background file:text-sm"
+              />
+              <p id="ajuda-comprovante" className="mt-1 text-xs text-muted-foreground">
+                Imagem ou PDF, até 5 MB. Só a equipe do De Volta ao Jardim vê esse arquivo.
+              </p>
+              <MensagemErro id="erro-comprovante_path">
+                {erros.comprovante_path}
+              </MensagemErro>
+            </div>
+          )}
 
           <div
             aria-live="polite"

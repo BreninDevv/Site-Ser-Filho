@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { StatusPagamentoPorEmail } from "@/components/status-pagamento-conta";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { createClient } from "@/lib/supabase/server";
 import { InscricaoForm } from "./inscricao-form";
 
@@ -12,9 +13,12 @@ export const metadata: Metadata = {
 
 export default async function EncontroComDeusPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    {
+      data: { user },
+    },
+    chavePix,
+  ] = await Promise.all([supabase.auth.getUser(), obterChavePix()]);
   const logado = Boolean(user);
   let pastores: { id: string; nome: string }[] = [];
   try {
@@ -60,7 +64,11 @@ export default async function EncontroComDeusPage() {
             status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-[#dcdad3] bg-[#faf9f6]/92 p-5 sm:p-7">
-            <InscricaoForm logado={logado} pastores={pastores} />
+            <InscricaoForm
+              logado={logado}
+              pastores={pastores}
+              chavePix={chavePix}
+            />
           </div>
           <StatusPagamentoPorEmail rpc="status_pagamento_encontro" />
         </div>

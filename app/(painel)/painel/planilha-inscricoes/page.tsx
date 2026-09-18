@@ -6,10 +6,12 @@ import {
   podeConferirPlanilha,
 } from "@/lib/auth/permissoes";
 import { rotuloFormaPlanilha } from "@/lib/inscricoes/rotulo-forma-planilha";
+import { TextoComSexo } from "@/components/texto-com-sexo";
 import {
   ROTULOS_FORMA,
   type FormaPagamento,
 } from "@/lib/validations/pagamento-encontro";
+import type { PapelEncontro } from "@/lib/validations/inscricao-encontro";
 import {
   PlanilhaPorta,
   type LinhaPlanilhaPorta,
@@ -18,6 +20,10 @@ import type { FontePlanilha } from "./actions";
 
 type Origem = FontePlanilha | `evento:${string}`;
 
+function papelSeguro(valor: string | null | undefined): PapelEncontro | null {
+  if (valor === "trabalhador" || valor === "encontrista") return valor;
+  return null;
+}
 function parseOrigem(bruto: string | undefined): Origem {
   if (!bruto) return "encontro";
   if (bruto === "encontro" || bruto === "legado") return bruto;
@@ -89,6 +95,7 @@ export default async function PlanilhaInscricoesPage({
             pastorNome: null,
             nome: i.nome_completo,
             sexo: i.sexo ?? null,
+            papel: null,
             forma: formaSegura(i.forma_pagamento, i.parcelas),
             pagoCentavos: i.valor_pago_centavos ?? 0,
             devidoCentavos: i.valor_devido_centavos ?? 0,
@@ -104,6 +111,7 @@ export default async function PlanilhaInscricoesPage({
           pastorNome: i.pastor_nome ?? null,
           nome: i.nome_completo,
           sexo: i.sexo ?? null,
+          papel: null,
           forma: formaSegura(i.forma_pagamento, i.parcelas),
           pagoCentavos: i.valor_pago_centavos ?? 0,
           devidoCentavos: i.valor_devido_centavos ?? 0,
@@ -144,6 +152,7 @@ export default async function PlanilhaInscricoesPage({
             null,
           nome: i.nome,
           sexo: ("sexo" in i ? (i.sexo as string | null) : null) ?? null,
+          papel: null,
           forma: formaSegura(i.forma_pagamento as string | null),
           pagoCentavos: i.valor_pago_centavos ?? 0,
           devidoCentavos: i.valor_cobrado_centavos ?? 0,
@@ -157,10 +166,33 @@ export default async function PlanilhaInscricoesPage({
       const { data, error } = await supabase
         .from("inscricoes_encontro")
         .select(
-          "id, nome_completo, sexo, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente, pastor_nome"
+          "id, nome_completo, sexo, papel_encontro, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente, pastor_nome"
         )
         .order("nome_completo", { ascending: true });
-      if (error) {
+      if (error && /papel_encontro/i.test(error.message ?? "")) {
+        const retry = await supabase
+          .from("inscricoes_encontro")
+          .select(
+            "id, nome_completo, sexo, forma_pagamento, parcelas, valor_pago_centavos, valor_devido_centavos, status, presente, pastor_nome"
+          )
+          .order("nome_completo", { ascending: true });
+        if (retry.error) {
+          aviso = "Não foi possível carregar as inscrições do Encontro.";
+        } else {
+          linhas = (retry.data ?? []).map((i) => ({
+            id: i.id,
+            pastorNome: i.pastor_nome ?? null,
+            nome: i.nome_completo,
+            sexo: i.sexo ?? null,
+            papel: null,
+            forma: formaSegura(i.forma_pagamento, i.parcelas),
+            pagoCentavos: i.valor_pago_centavos ?? 0,
+            devidoCentavos: i.valor_devido_centavos ?? 0,
+            status: i.status,
+            presente: Boolean(i.presente),
+          }));
+        }
+      } else if (error) {
         aviso = "Não foi possível carregar as inscrições do Encontro.";
       } else {
         linhas = (data ?? []).map((i) => ({
@@ -168,6 +200,7 @@ export default async function PlanilhaInscricoesPage({
           pastorNome: i.pastor_nome ?? null,
           nome: i.nome_completo,
           sexo: i.sexo ?? null,
+          papel: papelSeguro(i.papel_encontro),
           forma: formaSegura(i.forma_pagamento, i.parcelas),
           pagoCentavos: i.valor_pago_centavos ?? 0,
           devidoCentavos: i.valor_devido_centavos ?? 0,
@@ -197,8 +230,9 @@ export default async function PlanilhaInscricoesPage({
       <div>
         <h1 className="mb-1 text-xl font-semibold">Planilha de inscrições</h1>
         <p className="text-sm text-muted-foreground">
-          Escolha Encontro, Legado ou um evento com inscrição. Filtre por
-          homem/mulher, marque OK na chegada e baixe a planilha em Excel.
+          Escolha Encontro, Legado ou um evento com inscrição. Filtre por{" "}
+          <TextoComSexo>homem/mulher</TextoComSexo>, marque OK na chegada e baixe
+          a planilha em Excel.
         </p>
       </div>
 
@@ -227,7 +261,12 @@ export default async function PlanilhaInscricoesPage({
         </p>
       ) : null}
 
-      <PlanilhaPorta fonte={fonte} titulo={titulo} linhas={linhas} />
+      <PlanilhaPorta
+        key={`${fonte}-${titulo}`}
+        fonte={fonte}
+        titulo={titulo}
+        linhas={linhas}
+      />
     </div>
   );
 }

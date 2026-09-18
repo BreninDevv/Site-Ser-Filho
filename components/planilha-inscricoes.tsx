@@ -7,6 +7,7 @@ import {
 } from "@/lib/validations/inscricao-encontro";
 import { formatarReais } from "@/lib/validations/pagamento-encontro";
 import { rotuloFormaPlanilha } from "@/lib/inscricoes/rotulo-forma-planilha";
+import { TextoComSexo, RotuloSexoColorido, TituloSexo } from "@/components/texto-com-sexo";
 
 export { rotuloFormaPlanilha };
 
@@ -18,7 +19,10 @@ export type LinhaPlanilhaInscricao = {
   pagoCentavos: number;
 };
 
-function rotuloSexo(sexo: string | null) {
+function celulaSexo(sexo: string | null) {
+  if (sexo === "masculino" || sexo === "feminino") {
+    return <RotuloSexoColorido sexo={sexo} />;
+  }
   if (sexo && OPCOES_SEXO.includes(sexo as (typeof OPCOES_SEXO)[number])) {
     return ROTULOS_SEXO[sexo as (typeof OPCOES_SEXO)[number]];
   }
@@ -51,7 +55,9 @@ export function PlanilhaInscricoes({
       <div>
         <h2 className="font-heading text-lg font-semibold">Planilha</h2>
         <p className="text-sm text-muted-foreground">
-          Homens, mulheres, forma de pagamento e quanto cada um já pagou.
+          <TextoComSexo>
+            Homens, mulheres, forma de pagamento e quanto cada um já pagou.
+          </TextoComSexo>
         </p>
       </div>
 
@@ -91,7 +97,7 @@ export function PlanilhaInscricoes({
               {visiveis.map((linha) => (
                 <tr key={linha.id} className="border-b border-border last:border-0">
                   <td className="px-3 py-2 font-medium">{linha.nome}</td>
-                  <td className="px-3 py-2">{rotuloSexo(linha.sexo)}</td>
+                  <td className="px-3 py-2">{celulaSexo(linha.sexo)}</td>
                   <td className="px-3 py-2">{linha.forma}</td>
                   <td className="px-3 py-2">
                     {linha.pagoCentavos > 0
@@ -111,7 +117,9 @@ export function PlanilhaInscricoes({
 function QuadroPlanilha({ titulo, valor }: { titulo: string; valor: string }) {
   return (
     <div className="bg-background p-3">
-      <p className="text-xs text-muted-foreground">{titulo}</p>
+      <p>
+        <TituloSexo>{titulo}</TituloSexo>
+      </p>
       <p className="mt-1 text-lg font-semibold">{valor}</p>
     </div>
   );

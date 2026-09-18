@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronsRight, Home, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { corPainelNav } from "@/lib/ui/cores-marca";
 
 export type SidebarLinkItem = {
   href: string;
@@ -99,16 +100,35 @@ type OptionProps = {
 };
 
 function Option({ href, Icon, title, selected, open }: OptionProps) {
+  const { accent, textOnAccent } = corPainelNav(href);
+  const eVoltar = href === "/inicio";
+  const [hover, setHover] = React.useState(false);
+  const ativo = selected || hover;
+
+  const estiloAtivo =
+    !eVoltar && ativo
+      ? {
+          backgroundColor: `${accent}40`,
+          borderLeft: `3px solid ${accent}`,
+          color: textOnAccent === "dark" ? "#141412" : undefined,
+        }
+      : eVoltar
+        ? undefined
+        : { borderLeft: "3px solid transparent" };
+
   return (
     <Link
       href={href}
       title={title}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       className={cn(
         "relative flex h-11 w-full items-center rounded-md transition-all duration-200",
-        selected
-          ? "border-l-2 border-foreground bg-muted text-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+        selected || hover
+          ? "text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground"
       )}
+      style={estiloAtivo}
     >
       <div className="grid h-full w-12 place-content-center">
         <Icon className="h-4 w-4" />

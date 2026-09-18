@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { createClient } from "@/lib/supabase/server";
 import { formatarQuando, urlPublicaDoPost } from "@/lib/midia";
 import { uuidValido } from "@/lib/seguranca";
@@ -16,7 +17,7 @@ export default async function EventoPublicoPage({
 
   const supabase = await createClient();
   const agora = new Date().toISOString();
-  const [{ data: evento }, { data: auth }] = await Promise.all([
+  const [{ data: evento }, { data: auth }, chavePix] = await Promise.all([
     supabase
       .from("eventos")
       .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao, valor_centavos")
@@ -24,6 +25,7 @@ export default async function EventoPublicoPage({
       .lte("publicar_em", agora)
       .maybeSingle(),
     supabase.auth.getUser(),
+    obterChavePix(),
   ]);
 
   if (!evento) notFound();
@@ -91,6 +93,7 @@ export default async function EventoPublicoPage({
                   valorCentavos={evento.valor_centavos}
                   logado={logado}
                   pastores={pastores}
+                  chavePix={chavePix}
                 />
               </div>
               <ConsultaPagamentoEvento eventoId={evento.id} logado={logado} />

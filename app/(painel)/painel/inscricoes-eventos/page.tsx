@@ -1,8 +1,10 @@
+import { ChavePixPainel } from "@/components/chave-pix-painel";
 import { createClient } from "@/lib/supabase/server";
 import {
   obterPerfilAtual,
   podeAprovarPagamento,
 } from "@/lib/auth/permissoes";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { BUCKET_COMPROVANTES_EVENTO } from "@/lib/validations/inscricao-evento";
 import {
   ListaInscricoesEvento,
@@ -18,7 +20,8 @@ export default async function PainelInscricoesEventosPage() {
       <div>
         <h1 className="mb-1 text-xl font-semibold">Inscrições de eventos</h1>
         <p className="text-sm text-muted-foreground">
-          Só Dev, Tesouraria e Apóstolo(a) conferem essas inscrições.
+          Só Dev, Tesouraria, Líder/Tesouraria e Apóstolo(a) conferem essas
+          inscrições.
         </p>
       </div>
     );
@@ -91,15 +94,19 @@ export default async function PainelInscricoesEventosPage() {
     };
   });
 
+  const chavePix = await obterChavePix();
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="mb-1 text-xl font-semibold">Inscrições de eventos</h1>
         <p className="text-sm text-muted-foreground">
           Conferir comprovante e marcar o pagamento como aprovado, recusado ou
-          em análise.
+          em análise. Dinheiro na mesa também pode ser aprovado por
+          Líder/Tesouraria.
         </p>
       </div>
+      <ChavePixPainel chaveAtual={chavePix} />
       <ListaInscricoesEvento inscricoes={inscricoes} />
     </div>
   );

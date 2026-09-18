@@ -11,7 +11,6 @@ import {
 import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
 import {
-  CHAVE_PIX,
   DESCRICOES_FORMA,
   FORMAS_PAGAMENTO,
   ROTULOS_FORMA,
@@ -26,10 +25,12 @@ export function CompletarPagamentoForm({
   origem,
   faltaCentavos,
   bucket,
+  chavePix,
 }: {
   origem: "encontro" | "legado";
   faltaCentavos: number;
   bucket: string;
+  chavePix: string;
 }) {
   const router = useRouter();
   const [estado, setEstado] = useState<EstadoComplemento>(ESTADO_COMPLEMENTO_INICIAL);
@@ -163,9 +164,9 @@ export function CompletarPagamentoForm({
 
       {forma === "pix" && (
         <div className="border border-border p-4">
-          <p className="text-sm font-semibold">Chave Pix (aleatória)</p>
-          <p className="mt-1 break-all font-mono text-sm">{CHAVE_PIX}</p>
-          <CopiarTextoButton texto={CHAVE_PIX} />
+          <p className="text-sm font-semibold">Chave Pix da igreja</p>
+          <p className="mt-1 break-all font-mono text-sm">{chavePix}</p>
+          <CopiarTextoButton texto={chavePix} />
           <p className="mt-2 text-sm text-muted-foreground">
             Pague {formatarReais(faltaCentavos)} e anexe o comprovante.
           </p>
@@ -175,7 +176,9 @@ export function CompletarPagamentoForm({
       {comprovanteObrigatorio && (
         <div>
           <label htmlFor="comprovante-complemento" className="mb-1.5 block text-sm font-medium">
-            Comprovante
+            {forma === "pix"
+              ? "Comprovante do Pix"
+              : "Foto do comprovante da maquininha"}
           </label>
           <input
             id="comprovante-complemento"

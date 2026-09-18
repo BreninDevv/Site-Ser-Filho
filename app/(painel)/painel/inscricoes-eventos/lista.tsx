@@ -154,7 +154,7 @@ export function ListaInscricoesEvento({
             )
           ) : (
             <p className="mt-3 text-sm text-muted-foreground">
-              Sem comprovante — pagamento presencial.
+              Sem comprovante — pagamento em dinheiro na mesa de inscrição.
             </p>
           )}
 

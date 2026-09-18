@@ -1,3 +1,4 @@
+import { ChavePixPainel } from "@/components/chave-pix-painel";
 import { createClient } from "@/lib/supabase/server";
 import {
   obterPerfilAtual,
@@ -5,6 +6,7 @@ import {
   podeAprovarPagamento,
   podeVerInscricoes,
 } from "@/lib/auth/permissoes";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { BUCKET_COMPROVANTES } from "@/lib/validations/pagamento-encontro";
 import { ListaInscricoes, type InscricaoPainel } from "./lista-inscricoes";
 
@@ -150,20 +152,22 @@ export default async function PainelEncontroPage() {
     };
   });
 
+  const chavePix = podeAprovar ? await obterChavePix() : null;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold mb-1">Inscrições do De Volta ao Jardim</h1>
         <p className="text-sm text-muted-foreground">
           {podeAprovar
-            ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante."
+            ? "Comece pelos que estão em Para conferir. Aprove só depois de olhar o comprovante (ou confirmar dinheiro na mesa)."
             : perfil?.role === "lider"
-              ? "Você vê só as inscrições da sua equipe pastoral. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."
-              : perfil?.role === "lider_tesouraria"
-                ? "Você vê as inscrições e usa a Planilha de inscrições para marcar OK na porta. Quem aprova pagamento é Tesouraria, Apóstolo(a) ou Dev."
-                : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Apóstolo(a) ou Dev."}
+              ? "Você vê só as inscrições da sua equipe pastoral. Quem confirma pagamento é Tesouraria, Líder/Tesouraria, Apóstolo(a) ou Dev."
+              : "Você pode ver a lista. Quem confirma pagamento é Tesouraria, Líder/Tesouraria, Apóstolo(a) ou Dev."}
         </p>
       </div>
+
+      {podeAprovar && chavePix ? <ChavePixPainel chaveAtual={chavePix} /> : null}
 
       <ListaInscricoes inscricoes={inscricoes} podeAprovar={podeAprovar} />
     </div>

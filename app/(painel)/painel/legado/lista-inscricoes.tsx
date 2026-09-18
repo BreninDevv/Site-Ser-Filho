@@ -445,7 +445,7 @@ function CartaoInscricao({
               )
             ) : (
               <p className="text-sm text-muted-foreground">
-                Sem comprovante — pagamento presencial (dinheiro ou débito).
+                Sem comprovante — pagamento em dinheiro na mesa de inscrição.
               </p>
             )}
             {item.complemento_pendente && item.temComprovanteComplemento && (

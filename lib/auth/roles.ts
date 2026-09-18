@@ -33,7 +33,10 @@ export const ROLES_QUE_VEEM_INSCRICOES = [
   ROLE_PASTOR,
 ] as const;
 
-export const ROLES_QUE_APROVAM_PAGAMENTO = ROLES_MASTER;
+export const ROLES_QUE_APROVAM_PAGAMENTO = [
+  ...ROLES_MASTER,
+  ROLE_LIDER_TESOURARIA,
+] as const;
 
 export const ROLES_QUE_CONFEREM_PLANILHA = [
   ...ROLES_MASTER,
@@ -134,7 +137,10 @@ export function podeVerInscricoes(
 export function podeAprovarPagamento(
   perfilOuRole: { role: string } | string | null | undefined
 ) {
-  return eAcessoMaster(perfilOuRole);
+  const role = roleDe(perfilOuRole);
+  return ROLES_QUE_APROVAM_PAGAMENTO.includes(
+    role as (typeof ROLES_QUE_APROVAM_PAGAMENTO)[number]
+  );
 }
 
 export function podeConferirPlanilha(
@@ -275,7 +281,8 @@ export function podeAcessarRotaPainel(
       pathname.startsWith("/painel/encontro/") ||
       pathname === "/painel/legado" ||
       pathname.startsWith("/painel/legado/") ||
-      rotaDePlanilha(pathname)
+      rotaDePlanilha(pathname) ||
+      rotaDeInscricoesEvento(pathname)
     );
   }
 

@@ -18,9 +18,10 @@ export {
 
 export const DESCRICOES_FORMA: Record<FormaPagamento, string> = {
   pix: "Pague pela chave abaixo e anexe o comprovante.",
-  dinheiro: "Pagamento presencial na igreja.",
-  debito: "Pagamento presencial na máquina da igreja.",
-  credito: "Pague e anexe o comprovante.",
+  dinheiro:
+    "Dirija-se à mesa de inscrição e solicite aprovação à Líder/Tesouraria ou à Tesouraria.",
+  debito: "Pague na maquininha e anexe a foto do comprovante.",
+  credito: "Pague na maquininha e anexe a foto do comprovante.",
 };
 
 export const BUCKET_COMPROVANTES_EVENTO = "comprovantes-eventos";

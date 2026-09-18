@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { StatusPagamentoPorEmail } from "@/components/status-pagamento-conta";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { createClient } from "@/lib/supabase/server";
 import { InscricaoLegadoForm } from "./inscricao-form";
 
@@ -12,9 +13,12 @@ export const metadata: Metadata = {
 
 export default async function LegadoDeCristoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    {
+      data: { user },
+    },
+    chavePix,
+  ] = await Promise.all([supabase.auth.getUser(), obterChavePix()]);
   const logado = Boolean(user);
 
   let pastores: { id: string; nome: string }[] = [];
@@ -61,7 +65,11 @@ export default async function LegadoDeCristoPage() {
             status do pagamento só aparece para quem tem conta no site.
           </p>
           <div className="border border-white/15 bg-[#faf9f6] p-5 sm:p-7">
-            <InscricaoLegadoForm logado={logado} pastores={pastores} />
+            <InscricaoLegadoForm
+              logado={logado}
+              pastores={pastores}
+              chavePix={chavePix}
+            />
           </div>
           <StatusPagamentoPorEmail rpc="status_pagamento_legado" />
         </div>

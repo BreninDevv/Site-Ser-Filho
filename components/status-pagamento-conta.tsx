@@ -9,6 +9,7 @@ import {
 } from "@/lib/validations/inscricao-encontro";
 import { AvisoStatusRequerConta } from "@/components/aviso-status-cadastro";
 import { CompletarPagamentoForm } from "@/components/completar-pagamento-form";
+import { obterChavePix } from "@/lib/igreja/chave-pix";
 import { BUCKET_COMPROVANTES, formatarReais } from "@/lib/validations/pagamento-encontro";
 import { BUCKET_COMPROVANTES_LEGADO } from "@/lib/validations/pagamento-legado";
 
@@ -165,6 +166,7 @@ export async function StatusPagamentoPorEmail({
   const origem = rpc === "status_pagamento_encontro" ? "encontro" : "legado";
   const bucket =
     origem === "encontro" ? BUCKET_COMPROVANTES : BUCKET_COMPROVANTES_LEGADO;
+  const chavePix = await obterChavePix();
 
   return (
     <CartaoStatusPagamento>
@@ -190,6 +192,7 @@ export async function StatusPagamentoPorEmail({
                 origem={origem}
                 faltaCentavos={detalhe.falta_centavos}
                 bucket={bucket}
+                chavePix={chavePix}
               />
             )}
         </>

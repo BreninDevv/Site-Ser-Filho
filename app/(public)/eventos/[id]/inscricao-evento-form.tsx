@@ -9,7 +9,6 @@ import { enviarInscricaoJson } from "@/lib/inscricoes/http";
 import { createClient } from "@/lib/supabase/client";
 import {
   BUCKET_COMPROVANTES_EVENTO,
-  CHAVE_PIX,
   DESCRICOES_FORMA,
   ESTADO_INICIAL_EVENTO,
   FORMAS_PAGAMENTO,
@@ -31,11 +30,13 @@ export function InscricaoEventoForm({
   valorCentavos,
   logado,
   pastores,
+  chavePix,
 }: {
   eventoId: string;
   valorCentavos: number;
   logado: boolean;
   pastores: { id: string; nome: string }[];
+  chavePix: string;
 }) {
   const [forma, setForma] = useState<FormaPagamento | "">("");
   const [idade, setIdade] = useState("");
@@ -315,15 +316,17 @@ export function InscricaoEventoForm({
       <AvisoPagamentoPresencial forma={forma} />
       {forma === "pix" && (
         <div className="rounded-xl bg-muted p-4 text-sm">
-          <p className="font-medium">Chave Pix</p>
-          <p className="mt-1 break-all">{CHAVE_PIX}</p>
-          <CopiarTextoButton texto={CHAVE_PIX} />
+          <p className="font-medium">Chave Pix da igreja</p>
+          <p className="mt-1 break-all">{chavePix}</p>
+          <CopiarTextoButton texto={chavePix} />
         </div>
       )}
       {comprovanteObrigatorio && (
         <div>
           <label htmlFor="comprovante" className="mb-1.5 block text-sm font-medium">
-            Comprovante
+            {forma === "pix"
+              ? "Comprovante do Pix"
+              : "Foto do comprovante da maquininha"}
           </label>
           <input
             id="comprovante"

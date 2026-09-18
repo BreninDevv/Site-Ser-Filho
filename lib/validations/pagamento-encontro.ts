@@ -11,7 +11,12 @@ export const TAXA_CREDITO_PARCELADO = 0.09875;
 export const MAX_PARCELAS = 3;
 export const MAX_CRIANCAS = 10;
 
-export const CHAVE_PIX = "aefa7931-3830-4fc9-a99b-656b0db25d05";
+/** Fallback se o banco ainda não tiver a migration 024. */
+export const CHAVE_PIX_FALLBACK =
+  "aefa7931-3830-4fc9-a99b-656b0db25d05";
+
+/** @deprecated Prefira `obterChavePix()` / prop `chavePix`. Mantido como fallback. */
+export const CHAVE_PIX = CHAVE_PIX_FALLBACK;
 
 /** Bucket privado: o painel lê os comprovantes por URL assinada e temporária. */
 export const BUCKET_COMPROVANTES = "comprovantes-encontro";
@@ -35,14 +40,16 @@ export const ROTULOS_FORMA: Record<FormaPagamento, string> = {
 
 export const DESCRICOES_FORMA: Record<FormaPagamento, string> = {
   pix: "Pague pela chave abaixo e anexe o comprovante.",
-  dinheiro: "Pagamento presencial na igreja. O comprovante é opcional.",
-  debito: "Pagamento presencial na máquina da igreja. O comprovante é opcional.",
-  credito: "À vista sem taxa, ou em até 3x com taxa. Anexe o comprovante.",
+  dinheiro:
+    "Dirija-se à mesa de inscrição e solicite aprovação à Líder/Tesouraria ou à Tesouraria.",
+  debito: "Pague na maquininha e anexe a foto do comprovante.",
+  credito:
+    "Pague na maquininha (à vista ou parcelado) e anexe a foto do comprovante.",
 };
 
-/** Dinheiro e débito são presenciais: não existe comprovante para anexar. */
+/** Pix e cartão (débito/crédito) exigem comprovante. Dinheiro é só na mesa. */
 export function exigeComprovante(forma: FormaPagamento) {
-  return forma === "pix" || forma === "credito";
+  return forma === "pix" || forma === "credito" || forma === "debito";
 }
 
 export function aceitaParcelamento(forma: FormaPagamento) {

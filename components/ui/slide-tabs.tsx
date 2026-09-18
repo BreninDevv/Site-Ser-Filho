@@ -3,6 +3,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CORES_FLUIDO_MENU } from "@/lib/ui/cores-marca";
 import { motion } from "framer-motion";
 
 type PosicaoCursor = {
@@ -11,12 +12,19 @@ type PosicaoCursor = {
   width: number;
   height: number;
   opacity: number;
+  backgroundColor: string;
 };
 
 export type SlideTabItem = {
   label: string;
   href?: string;
+  /** Cor do fluido atrás do nome */
+  cursorColor?: string;
+  /** Texto sobre o fluido: light = branco, dark = preto */
+  cursorText?: "light" | "dark";
 };
+
+export { CORES_FLUIDO_MENU };
 
 const ABAS_PADRAO: SlideTabItem[] = [
   { label: "Home" },
@@ -32,7 +40,20 @@ const CURSOR_INICIAL: PosicaoCursor = {
   width: 0,
   height: 0,
   opacity: 0,
+  backgroundColor: "#000000",
 };
+
+function corDoItem(item: SlideTabItem) {
+  const porHref = item.href ? CORES_FLUIDO_MENU[item.href] : undefined;
+  const ePainel = item.href?.startsWith("/painel") || item.label === "Painel";
+  return {
+    cursorColor:
+      item.cursorColor ??
+      porHref?.cursorColor ??
+      (ePainel ? "#0b3d91" : "#000000"),
+    cursorText: item.cursorText ?? porHref?.cursorText ?? "light",
+  };
+}
 
 function indiceDaRota(items: SlideTabItem[], pathname: string) {
   const exato = items.findIndex((item) => item.href && item.href === pathname);
@@ -46,7 +67,7 @@ function indiceDaRota(items: SlideTabItem[], pathname: string) {
   );
 }
 
-function medirAba(node: HTMLElement): Omit<PosicaoCursor, "opacity"> {
+function medirAba(node: HTMLElement): Omit<PosicaoCursor, "opacity" | "backgroundColor"> {
   return {
     left: node.offsetLeft,
     top: node.offsetTop,
@@ -65,8 +86,11 @@ export function SlideTabs({
   const pathname = usePathname();
   const [position, setPosition] = useState<PosicaoCursor>(CURSOR_INICIAL);
   const [selected, setSelected] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
   const tabsRef = useRef<(HTMLLIElement | null)[]>([]);
   const listaRef = useRef<HTMLUListElement | null>(null);
+
+  const ativo = hovered ?? selected;
 
   useEffect(() => {
     const daRota = indiceDaRota(items, pathname);
@@ -76,26 +100,33 @@ export function SlideTabs({
   const atualizarCursor = (indice: number, opacity = 1) => {
     const selectedTab = tabsRef.current[indice];
     if (!selectedTab) return;
-    setPosition({ ...medirAba(selectedTab), opacity });
+    const item = items[indice];
+    const { cursorColor } = corDoItem(item ?? { label: "" });
+    setPosition({
+      ...medirAba(selectedTab),
+      opacity,
+      backgroundColor: cursorColor,
+    });
   };
 
   useLayoutEffect(() => {
-    atualizarCursor(selected);
+    atualizarCursor(ativo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, items, compact]);
+  }, [ativo, selected, items, compact]);
 
   useEffect(() => {
     function aoRedimensionar() {
-      atualizarCursor(selected);
+      atualizarCursor(ativo);
     }
     window.addEventListener("resize", aoRedimensionar);
     const fontes = document.fonts;
     fontes?.ready?.then(aoRedimensionar).catch(() => {});
     return () => window.removeEventListener("resize", aoRedimensionar);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, items]);
+  }, [ativo, items]);
 
   function voltarParaSelecionada() {
+    setHovered(null);
     atualizarCursor(selected);
   }
 
@@ -107,20 +138,29 @@ export function SlideTabs({
         compact ? "gap-0 p-0.5" : "p-1"
       }`}
     >
-      {items.map((tab, i) => (
-        <Tab
-          key={`${tab.label}-${tab.href ?? i}`}
-          ref={(el) => {
-            tabsRef.current[i] = el;
-          }}
-          setPosition={setPosition}
-          onClick={() => setSelected(i)}
-          href={tab.href}
-          compact={compact}
-        >
-          {tab.label}
-        </Tab>
-      ))}
+      {items.map((tab, i) => {
+        const { cursorText } = corDoItem(tab);
+        const sobFluido = i === ativo && position.opacity > 0;
+        return (
+          <Tab
+            key={`${tab.label}-${tab.href ?? i}`}
+            ref={(el) => {
+              tabsRef.current[i] = el;
+            }}
+            onClick={() => setSelected(i)}
+            onHover={() => {
+              setHovered(i);
+              atualizarCursor(i);
+            }}
+            href={tab.href}
+            compact={compact}
+            sobFluido={sobFluido}
+            textoClaro={cursorText === "light"}
+          >
+            {tab.label}
+          </Tab>
+        );
+      })}
       <Cursor position={position} />
     </ul>
   );
@@ -130,12 +170,17 @@ const Tab = React.forwardRef<
   HTMLLIElement,
   {
     children: React.ReactNode;
-    setPosition: React.Dispatch<React.SetStateAction<PosicaoCursor>>;
     onClick: () => void;
+    onHover: () => void;
     href?: string;
     compact?: boolean;
+    sobFluido: boolean;
+    textoClaro: boolean;
   }
->(function Tab({ children, setPosition, onClick, href, compact }, ref) {
+>(function Tab(
+  { children, onClick, onHover, href, compact, sobFluido, textoClaro },
+  ref
+) {
   const localRef = useRef<HTMLLIElement | null>(null);
 
   function unirRef(el: HTMLLIElement | null) {
@@ -144,18 +189,23 @@ const Tab = React.forwardRef<
     else if (ref) ref.current = el;
   }
 
-  const classe = compact
-    ? "relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold text-white mix-blend-difference"
-    : "relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase text-white mix-blend-difference md:px-5 md:py-3 md:text-base";
+  const corTexto = sobFluido
+    ? textoClaro
+      ? "text-white"
+      : "text-black"
+    : "text-black dark:text-white";
 
-  function aoEntrar() {
-    const node = localRef.current;
-    if (!node) return;
-    setPosition({ ...medirAba(node), opacity: 1 });
-  }
+  const classe = compact
+    ? `relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${corTexto}`
+    : `relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase transition-colors duration-200 md:px-5 md:py-3 md:text-base ${corTexto}`;
 
   return (
-    <li ref={unirRef} onClick={onClick} onMouseEnter={aoEntrar} className={classe}>
+    <li
+      ref={unirRef}
+      onClick={onClick}
+      onMouseEnter={onHover}
+      className={classe}
+    >
       {href ? (
         <Link
           href={href}
@@ -182,9 +232,10 @@ function Cursor({ position }: { position: PosicaoCursor }) {
         width: position.width,
         height: position.height,
         opacity: position.opacity,
+        backgroundColor: position.backgroundColor,
       }}
       transition={{ type: "spring", stiffness: 420, damping: 32 }}
-      className="pointer-events-none absolute z-0 rounded-full bg-black dark:bg-white"
+      className="pointer-events-none absolute z-0 rounded-full"
     />
   );
 }
