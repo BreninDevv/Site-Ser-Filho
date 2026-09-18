@@ -146,7 +146,7 @@ export function SlideTabs({
       }
     >
       {items.map((tab, i) => {
-        const { cursorText } = corDoItem(tab);
+        const { cursorColor, cursorText } = corDoItem(tab);
         const sobFluido = i === ativo && position.opacity > 0;
         return (
           <Tab
@@ -167,6 +167,7 @@ export function SlideTabs({
             vertical={vertical}
             sobFluido={sobFluido}
             textoClaro={cursorText === "light"}
+            corMarca={cursorColor}
           >
             {tab.label}
           </Tab>
@@ -188,9 +189,20 @@ const Tab = React.forwardRef<
     vertical?: boolean;
     sobFluido: boolean;
     textoClaro: boolean;
+    corMarca: string;
   }
 >(function Tab(
-  { children, onClick, onHover, href, compact, vertical, sobFluido, textoClaro },
+  {
+    children,
+    onClick,
+    onHover,
+    href,
+    compact,
+    vertical,
+    sobFluido,
+    textoClaro,
+    corMarca,
+  },
   ref
 ) {
   const localRef = useRef<HTMLLIElement | null>(null);
@@ -205,13 +217,23 @@ const Tab = React.forwardRef<
     ? textoClaro
       ? "text-white"
       : "text-black"
-    : "text-black dark:text-white";
+    : vertical
+      ? ""
+      : "text-black dark:text-white";
 
   const classe = vertical
     ? `relative z-10 flex w-full cursor-pointer items-center justify-start rounded-xl px-4 py-3 text-sm font-semibold transition-colors duration-200 ${corTexto}`
     : compact
       ? `relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${corTexto}`
       : `relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase transition-colors duration-200 md:px-5 md:py-3 md:text-base ${corTexto}`;
+
+  const estiloVertical =
+    vertical && !sobFluido
+      ? {
+          color: corMarca,
+          backgroundColor: `${corMarca}22`,
+        }
+      : undefined;
 
   return (
     <li
@@ -220,6 +242,7 @@ const Tab = React.forwardRef<
       onMouseEnter={onHover}
       onPointerEnter={onHover}
       className={classe}
+      style={estiloVertical}
     >
       {href ? (
         <Link
