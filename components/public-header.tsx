@@ -1,19 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { createClient } from "@/lib/supabase/server";
 import { destinoDoPainel, ROTULOS_ROLE } from "@/lib/auth/roles";
 import { logout } from "@/app/(auth)/login/actions";
 import { SlideTabs } from "@/components/ui/slide-tabs";
+import { PublicMobileMenu } from "@/components/public-mobile-menu";
 
 const publicLinks = [
   { href: "/inicio", label: "Início" },
@@ -47,6 +39,18 @@ export async function PublicHeader() {
   }
 
   const hrefPainel = destinoDoPainel(perfil?.role);
+  const navItems = [
+    ...publicLinks,
+    ...(hrefPainel ? [{ href: hrefPainel, label: "Painel" }] : []),
+  ];
+
+  const userLabel = user
+    ? `Olá, ${perfil?.nome ?? user.email}${
+        perfil?.role && perfil.role !== "pendente"
+          ? ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`
+          : ""
+      }`
+    : null;
 
   return (
     <header className="sticky top-0 z-20 min-w-0 bg-transparent px-3 pt-4 pb-2">
@@ -64,13 +68,7 @@ export async function PublicHeader() {
 
         <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center md:flex">
           <div className="pointer-events-auto">
-            <SlideTabs
-              compact
-              items={[
-                ...publicLinks,
-                ...(hrefPainel ? [{ href: hrefPainel, label: "Painel" }] : []),
-              ]}
-            />
+            <SlideTabs compact items={navItems} />
           </div>
         </nav>
 
@@ -78,16 +76,33 @@ export async function PublicHeader() {
           {user ? (
             <div className="flex items-center gap-3 text-sm">
               <span className="max-w-36 truncate text-muted-foreground">
-                Olá, <strong className="text-foreground">{perfil?.nome ?? user.email}</strong>
-                {perfil?.role && perfil.role !== "pendente" && ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
+                Olá,{" "}
+                <strong className="text-foreground">
+                  {perfil?.nome ?? user.email}
+                </strong>
+                {perfil?.role &&
+                  perfil.role !== "pendente" &&
+                  ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
               </span>
               <form action={logout}>
-                <Button size="sm" variant="outline" type="submit" className="rounded-full">Sair</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  type="submit"
+                  className="rounded-full"
+                >
+                  Sair
+                </Button>
               </form>
             </div>
           ) : (
             <>
-              <Button size="sm" variant="outline" className="rounded-full" asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                asChild
+              >
                 <Link href="/login">Entrar</Link>
               </Button>
               <Button size="sm" className="rounded-full px-4" asChild>
@@ -97,71 +112,11 @@ export async function PublicHeader() {
           )}
         </div>
 
-        {/* Botão de menu — só no celular */}
-        <div className="ml-auto md:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
-            </SheetHeader>
-
-            <div className="flex flex-col gap-1 px-4">
-              {publicLinks.map((link) => (
-                <SheetClose asChild key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="rounded-none border-b border-border py-3 text-sm font-semibold"
-                  >
-                    {link.label}
-                  </Link>
-                </SheetClose>
-              ))}
-
-              {hrefPainel && (
-                <SheetClose asChild>
-                  <Link href={hrefPainel} className="border-b border-border py-3 text-sm font-semibold">
-                    Painel
-                  </Link>
-                </SheetClose>
-              )}
-
-              <div className="mt-4 flex flex-col gap-3">
-                {user ? (
-                  <>
-                    <p className="text-sm text-muted-foreground">
-                      Olá, <strong className="text-foreground">{perfil?.nome ?? user.email}</strong>
-                      {perfil?.role && perfil.role !== "pendente" && ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
-                    </p>
-                    <form action={logout}>
-                      <Button size="sm" variant="outline" type="submit" className="w-full">
-                        Sair
-                      </Button>
-                    </form>
-                  </>
-                ) : (
-                  <>
-                    <SheetClose asChild>
-                      <Button size="sm" variant="outline" className="w-full" asChild>
-                        <Link href="/login">Entrar</Link>
-                      </Button>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Button size="sm" className="w-full rounded-full" asChild>
-                        <Link href="/cadastro">Cadastrar</Link>
-                      </Button>
-                    </SheetClose>
-                  </>
-                )}
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        </div>
+        <PublicMobileMenu
+          items={navItems}
+          logado={Boolean(user)}
+          userLabel={userLabel}
+        />
       </div>
     </header>
   );

@@ -79,16 +79,20 @@ function medirAba(node: HTMLElement): Omit<PosicaoCursor, "opacity" | "backgroun
 export function SlideTabs({
   items = ABAS_PADRAO,
   compact = false,
+  orientation = "horizontal",
+  onItemClick,
 }: {
   items?: SlideTabItem[];
   compact?: boolean;
+  orientation?: "horizontal" | "vertical";
+  onItemClick?: (item: SlideTabItem) => void;
 }) {
   const pathname = usePathname();
+  const vertical = orientation === "vertical";
   const [position, setPosition] = useState<PosicaoCursor>(CURSOR_INICIAL);
   const [selected, setSelected] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const tabsRef = useRef<(HTMLLIElement | null)[]>([]);
-  const listaRef = useRef<HTMLUListElement | null>(null);
 
   const ativo = hovered ?? selected;
 
@@ -112,7 +116,7 @@ export function SlideTabs({
   useLayoutEffect(() => {
     atualizarCursor(ativo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ativo, selected, items, compact]);
+  }, [ativo, selected, items, compact, orientation]);
 
   useEffect(() => {
     function aoRedimensionar() {
@@ -123,7 +127,7 @@ export function SlideTabs({
     fontes?.ready?.then(aoRedimensionar).catch(() => {});
     return () => window.removeEventListener("resize", aoRedimensionar);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ativo, items]);
+  }, [ativo, items, orientation]);
 
   function voltarParaSelecionada() {
     setHovered(null);
@@ -132,11 +136,14 @@ export function SlideTabs({
 
   return (
     <ul
-      ref={listaRef}
       onMouseLeave={voltarParaSelecionada}
-      className={`relative mx-auto flex w-fit items-center rounded-full border-2 border-black bg-white dark:border-white dark:bg-neutral-800 ${
-        compact ? "gap-0 p-0.5" : "p-1"
-      }`}
+      className={
+        vertical
+          ? "relative flex w-full flex-col gap-1 rounded-2xl border-2 border-black bg-white p-1.5 dark:border-white dark:bg-neutral-800"
+          : `relative mx-auto flex w-fit items-center rounded-full border-2 border-black bg-white dark:border-white dark:bg-neutral-800 ${
+              compact ? "gap-0 p-0.5" : "p-1"
+            }`
+      }
     >
       {items.map((tab, i) => {
         const { cursorText } = corDoItem(tab);
@@ -147,13 +154,17 @@ export function SlideTabs({
             ref={(el) => {
               tabsRef.current[i] = el;
             }}
-            onClick={() => setSelected(i)}
+            onClick={() => {
+              setSelected(i);
+              onItemClick?.(tab);
+            }}
             onHover={() => {
               setHovered(i);
               atualizarCursor(i);
             }}
             href={tab.href}
             compact={compact}
+            vertical={vertical}
             sobFluido={sobFluido}
             textoClaro={cursorText === "light"}
           >
@@ -161,7 +172,7 @@ export function SlideTabs({
           </Tab>
         );
       })}
-      <Cursor position={position} />
+      <Cursor position={position} vertical={vertical} />
     </ul>
   );
 }
@@ -174,11 +185,12 @@ const Tab = React.forwardRef<
     onHover: () => void;
     href?: string;
     compact?: boolean;
+    vertical?: boolean;
     sobFluido: boolean;
     textoClaro: boolean;
   }
 >(function Tab(
-  { children, onClick, onHover, href, compact, sobFluido, textoClaro },
+  { children, onClick, onHover, href, compact, vertical, sobFluido, textoClaro },
   ref
 ) {
   const localRef = useRef<HTMLLIElement | null>(null);
@@ -195,26 +207,39 @@ const Tab = React.forwardRef<
       : "text-black"
     : "text-black dark:text-white";
 
-  const classe = compact
-    ? `relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${corTexto}`
-    : `relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase transition-colors duration-200 md:px-5 md:py-3 md:text-base ${corTexto}`;
+  const classe = vertical
+    ? `relative z-10 flex w-full cursor-pointer items-center justify-start rounded-xl px-4 py-3 text-sm font-semibold transition-colors duration-200 ${corTexto}`
+    : compact
+      ? `relative z-10 flex cursor-pointer items-center justify-center px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${corTexto}`
+      : `relative z-10 flex cursor-pointer items-center justify-center px-3 py-1.5 text-xs uppercase transition-colors duration-200 md:px-5 md:py-3 md:text-base ${corTexto}`;
 
   return (
     <li
       ref={unirRef}
       onClick={onClick}
       onMouseEnter={onHover}
+      onPointerEnter={onHover}
       className={classe}
     >
       {href ? (
         <Link
           href={href}
-          className="flex items-center justify-center whitespace-nowrap"
+          className={
+            vertical
+              ? "flex w-full items-center justify-start"
+              : "flex items-center justify-center whitespace-nowrap"
+          }
         >
           {children}
         </Link>
       ) : (
-        <span className="flex items-center justify-center whitespace-nowrap">
+        <span
+          className={
+            vertical
+              ? "flex w-full items-center justify-start"
+              : "flex items-center justify-center whitespace-nowrap"
+          }
+        >
           {children}
         </span>
       )}
@@ -222,7 +247,13 @@ const Tab = React.forwardRef<
   );
 });
 
-function Cursor({ position }: { position: PosicaoCursor }) {
+function Cursor({
+  position,
+  vertical,
+}: {
+  position: PosicaoCursor;
+  vertical?: boolean;
+}) {
   return (
     <motion.li
       aria-hidden
@@ -235,7 +266,9 @@ function Cursor({ position }: { position: PosicaoCursor }) {
         backgroundColor: position.backgroundColor,
       }}
       transition={{ type: "spring", stiffness: 420, damping: 32 }}
-      className="pointer-events-none absolute z-0 rounded-full"
+      className={`pointer-events-none absolute z-0 ${
+        vertical ? "rounded-xl" : "rounded-full"
+      }`}
     />
   );
 }
