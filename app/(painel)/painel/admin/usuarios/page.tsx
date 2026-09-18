@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { ExcluirUsuarioButton } from "@/components/excluir-usuario-button";
+import { CriarPerfilFicticioDev } from "@/components/criar-perfil-ficticio-dev";
 import {
   obterPerfilAtual,
   podeAdminUsuarios,
   podeExcluirEsteUsuario,
   podeExcluirUsuarios,
+  eDev,
 } from "@/lib/auth/permissoes";
 import {
   ROLES_MASTER,
@@ -116,6 +118,7 @@ function ListaUsuarios({
     role: string;
     tempo_igreja?: string | null;
     equipe?: string | null;
+    ficticio?: boolean;
   }[];
   perfil: { id: string; role: string } | null;
 }) {
@@ -130,7 +133,7 @@ function ListaUsuarios({
         <ul className="space-y-2">
           {pessoas.map((u) => {
             const eEu = u.id === perfil?.id;
-            const eDev = u.role === "dev";
+            const eDevUser = u.role === "dev";
             const mostrarExcluir =
               podeExcluir &&
               perfil &&
@@ -143,6 +146,11 @@ function ListaUsuarios({
               >
                 <span className="text-sm">
                   {u.nome}{" "}
+                  {u.ficticio ? (
+                    <span className="mr-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                      Teste
+                    </span>
+                  ) : null}
                   <span className="text-muted-foreground">
                     ({ROTULOS_ROLE[u.role] ?? u.role})
                     {u.equipe ? ` · ${u.equipe}` : ""}
@@ -150,7 +158,7 @@ function ListaUsuarios({
                   </span>
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
-                  {eDev || eEu ? (
+                  {eDevUser || eEu ? (
                     <span className="text-xs text-muted-foreground">
                       {eEu ? "É você" : "Não se altera por aqui"}
                     </span>
@@ -190,7 +198,9 @@ export default async function AdminUsuariosPage() {
 
   const completo = await supabase
     .from("perfis")
-    .select("id, nome, role, created_at, tempo_igreja, equipes_pastorais(nome)")
+    .select(
+      "id, nome, role, created_at, tempo_igreja, ficticio, equipes_pastorais(nome)"
+    )
     .order("created_at", { ascending: false });
 
   const simples = completo.error
@@ -205,6 +215,7 @@ export default async function AdminUsuariosPage() {
   const comEquipe = usuarios.map((u) => {
     const extra = u as {
       tempo_igreja?: string | null;
+      ficticio?: boolean | null;
       equipes_pastorais?: { nome: string } | { nome: string }[] | null;
     };
     const rel = extra.equipes_pastorais;
@@ -215,6 +226,7 @@ export default async function AdminUsuariosPage() {
       role: u.role,
       tempo_igreja: extra.tempo_igreja ?? null,
       equipe: equipe ?? null,
+      ficticio: Boolean(extra.ficticio),
     };
   });
 
@@ -282,6 +294,8 @@ export default async function AdminUsuariosPage() {
           </li>
         </ul>
       </div>
+
+      {eDev(perfil) ? <CriarPerfilFicticioDev /> : null}
 
       <ListaUsuarios
         titulo={`Discípulos (${membros.length})`}
