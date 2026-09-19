@@ -27,7 +27,7 @@ export function PublicGradientNav({
       variant="site"
       activeGradient
       compact
-      className="gap-2"
+      className="gap-3"
     />
   );
 }

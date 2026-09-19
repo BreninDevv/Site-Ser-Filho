@@ -217,7 +217,8 @@ function GradientMenuItemView({
     "--gradient-to": item.gradientTo,
   } as CSSProperties;
 
-  /** Pill expandido: hover/foco CSS ou 1º toque no mobile. Ativo só pinta o gradiente. */
+  /** Pill expandido: hover/foco CSS ou 1º toque no mobile.
+   * Ativo NÃO preenche o círculo (só anel) — evita Início preto sólido. */
   const pillOpen = expanded;
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -242,21 +243,25 @@ function GradientMenuItemView({
     }
   };
 
-  const sizeIdle = compact ? "h-11 w-11" : "h-[60px] w-[60px]";
+  const sizeIdle = compact ? "h-10 w-10" : "h-[60px] w-[60px]";
   const sizeOpen = compact
-    ? "hover:w-[140px] focus-within:w-[140px]"
+    ? "hover:w-[132px] focus-within:w-[132px]"
     : "hover:w-[180px] focus-within:w-[180px]";
-  const sizeOpenForced = compact ? "w-[140px]" : "w-[180px]";
+  const sizeOpenForced = compact ? "w-[132px]" : "w-[180px]";
 
   return (
     <li
       style={style}
       className={cn(
-        "group relative mx-auto flex cursor-pointer items-center justify-center rounded-full bg-white shadow-lg transition-all duration-500",
+        "group relative mx-auto flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-white transition-all duration-500",
+        "shadow-[0_10px_28px_rgba(20,20,18,0.14)]",
         sizeIdle,
         sizeOpen,
         "hover:shadow-none focus-within:shadow-none",
         pillOpen && cn(sizeOpenForced, "shadow-none"),
+        activeLook &&
+          !pillOpen &&
+          "shadow-[0_12px_30px_rgba(20,20,18,0.22)]",
         orientation === "vertical" && "lg:mx-0"
       )}
       title={item.title}
@@ -277,30 +282,29 @@ function GradientMenuItemView({
           className={cn(
             "pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] opacity-0 transition-all duration-500",
             "group-hover:opacity-100 group-focus-within:opacity-100",
-            (activeLook || pillOpen) && "opacity-100"
+            pillOpen && "opacity-100"
           )}
         />
         <span
           className={cn(
             "pointer-events-none absolute inset-x-0 top-[8px] -z-10 h-full rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] opacity-0 blur-[15px] transition-all duration-500",
             "group-hover:opacity-50 group-focus-within:opacity-50",
-            (activeLook || pillOpen) && "opacity-50"
+            pillOpen && "opacity-50"
           )}
         />
         <span
           className={cn(
             "relative z-10 transition-all duration-500",
             "group-hover:scale-0 group-focus-within:scale-0",
-            pillOpen && "scale-0",
-            /* Ativo: ícone branco sobre o gradiente, ainda no círculo */
-            activeLook && !pillOpen && "text-white"
+            pillOpen && "scale-0"
           )}
         >
           <Icon
             className={cn(
               compact ? "text-xl" : "text-2xl",
               "text-gray-500 transition-colors duration-500",
-              (activeLook || pillOpen) && "text-white",
+              activeLook && !pillOpen && "text-gray-800",
+              pillOpen && "text-white",
               "group-hover:text-white group-focus-within:text-white"
             )}
             aria-hidden
