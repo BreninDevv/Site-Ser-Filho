@@ -1,0 +1,14 @@
+---
+description: Segurança e Auth/Supabase no Ser Filho
+globs: "{lib/auth/**,lib/supabase/**,app/api/**,supabase/**,app/(auth)/**,app/(painel)/painel/admin/**}"
+alwaysApply: false
+---
+
+# Auth, roles e SQL
+
+- Roles: só em `lib/auth/roles.ts` + migrations SQL equivalentes.
+- Quem aprova pagamento: `ROLES_QUE_APROVAM_PAGAMENTO` e `pode_aprovar_pagamento()` no SQL.
+- Nunca expor service role no browser.
+- Novas policies/RPCs: migration numerada; preferir `security definer` com checagem de role explícita.
+- Exclusão de usuário / perfil fictício: RPCs já existentes (`022`, `023`) — não reinventar.
+- Arquivos `.env*` e chaves: nunca commit.

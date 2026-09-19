@@ -1,0 +1,14 @@
+---
+description: Regras de inscrição e pagamento (Encontro, Legado, eventos)
+globs: "{lib/validations/**,lib/igreja/**,app/(public)/encontro-com-deus/**,app/(public)/legado-de-cristo/**,app/(public)/eventos/**,app/(painel)/painel/encontro/**,app/(painel)/painel/legado/**,app/(painel)/painel/inscricoes-eventos/**,components/*pagamento*,components/chave-pix*}"
+alwaysApply: false
+---
+
+# Inscrição e pagamento
+
+- Fonte de preços/formas: `lib/validations/pagamento-encontro.ts` (legado/evento reexportam).
+- `exigeComprovante`: pix + debito + credito. Dinheiro = mesa, sem forçar arquivo.
+- Chave Pix: `obterChavePix()` / painel `ChavePixPainel` — não hardcode em formulário.
+- Textos de UI: avisos em `aviso-pagamento-presencial.tsx`.
+- Mudou regra de comprovante? Atualize TS **e** SQL de complemento se existir.
+- Atualize `CONTEXTO.md` se a regra de negócio mudar.

@@ -1,64 +1,78 @@
 # Contexto do projeto — Ser Filho
 
-Site da igreja **Ser Filho**, em Next.js (App Router + TypeScript + Tailwind + shadcn/ui). Backend previsto: **Supabase** (Postgres + Auth + Storage). Neste momento **não** há autenticação, banco nem regras de permissão implementadas — só estrutura de pastas, UI base e páginas-esqueleto para navegação.
+Site da igreja **Ser Filho**. Stack: Next.js 16 (App Router) + TypeScript + Tailwind v4 + shadcn/ui + **Supabase** (Auth, Postgres, Storage, RLS). Deploy na **Vercel** a partir de `main`.
 
-## Roles (tipos de usuário)
+Este arquivo é a **memória longa** do projeto (o que mudou de verdade). Instruções curtas para a IA ficam em `AGENTS.md`. Como usar o fluxo de IA: `docs/FLUXO-IA.md`.
 
-| Role | Quem é | Acesso previsto |
+## Roles
+
+Fonte de verdade: `lib/auth/roles.ts` (precisa bater com as funções SQL).
+
+| Role | Quem é | Acesso |
 | --- | --- | --- |
-| `dev` | Desenvolvimento / admin técnico | Acesso total, inclusive `admin/` (usuários e roles) |
-| `lider` | Líderes e pastores | Cadastrar e gerir conteúdo (células, inscrições do Encontro) |
-| `visitante` | Público | Sem conta na maior parte do site; só visualiza páginas públicas e pode se inscrever no Encontro |
+| `dev` | Admin técnico | Tudo |
+| `tesouraria` | Tesouraria | Master: aprova pagamento, vê inscrições, planilha, admin |
+| `apostolo` | Apóstolo(a) | Master + mídia |
+| `lider_tesouraria` | Líder / Tesouraria | Inscrições, **aprova pagamento**, planilha da porta |
+| `lider` | Líder | Inscrições da própria equipe pastoral |
+| `pastor` | Pastor | Inscrições + admin usuários |
+| `midia` | Líder de mídia | Eventos e testemunhos |
+| `discipulo` | Discípulo | Conta sem painel |
+| `pendente` | Aguardando aprovação | Sem painel |
 
-## Funcionalidades principais
+## Funcionalidades no ar
 
-1. **Células** — Pequenos grupos em casas. Cadastradas por líderes/pastores (local, dia, horário, descrição). Visitantes só visualizam a lista pública.
-2. **Testemunhos** — Página com vídeos/gifs. Sem regra de permissão especial.
-3. **Encontro com Deus** — Evento recorrente. Inscrição pública de visitantes; painel para líder/dev controlarem inscritos (presença, status).
+1. **Células** — lista pública + gestão no painel (líder/pastor/master).
+2. **Testemunhos / Eventos** — mídia publica; inscrição em eventos com pagamento.
+3. **De Volta ao Jardim** — inscrição 2 etapas (dados + pagamento); painel de aprovação.
+4. **Legado de Cristo** — mesmo padrão de inscrição/pagamento.
+5. **Planilha de porta** — presença OK; filtros por papel/sexo.
+6. **Admin usuários** — roles, excluir (pastor/apóstolo/tesouraria/dev), perfis fictícios (dev).
+7. **Chave Pix da igreja** — editável no painel de inscrições; aparece nas páginas públicas.
 
-## Estrutura de pastas (`app/`)
+## Pagamento (regra atual)
 
-Route groups do App Router (os parênteses **não** entram na URL):
+Arquivo: `lib/validations/pagamento-encontro.ts` (+ legado/evento).
+
+- **Pix / débito / crédito:** comprovante obrigatório (cartão = foto da maquininha).
+- **Dinheiro:** ir à mesa; pedir aprovação à Líder/Tesouraria ou Tesouraria.
+- Status: `pendente` → aprovado/recusado pela equipe com `pode_aprovar_pagamento`.
+- Chave Pix: RPC `obter_chave_pix` / `salvar_chave_pix` (migration `024_pix_e_aprovacao_lider_tesouraria.sql`).
+
+## Estrutura (`app/`)
 
 ```
 app/
-  layout.tsx                          # layout raiz
-  (public)/                           # páginas públicas
-    page.tsx                          # /  (home)
-    celulas/page.tsx                  # /celulas
-    testemunhos/page.tsx              # /testemunhos
-    encontro-com-deus/page.tsx        # /encontro-com-deus  (inscrição pública)
-  (auth)/                             # autenticação (esqueleto)
-    login/page.tsx                    # /login
-    cadastro/page.tsx                 # /cadastro
-  (painel)/                           # área logada líder/dev (esqueleto)
-    painel/page.tsx                   # /painel  (dashboard)
-    painel/celulas/page.tsx           # /painel/celulas
-    painel/encontro/page.tsx          # /painel/encontro  (gestão de inscrições)
-    painel/admin/usuarios/page.tsx    # /painel/admin/usuarios  (só dev, no futuro)
+  (public)/     início, células, eventos, encontro, legado, testemunhos
+  (auth)/       login, cadastro, esqueci-senha, callback
+  (painel)/     dashboard, encontro, legado, inscricoes-eventos,
+                planilha-inscricoes, eventos, testemunhos, admin/usuarios
+  api/inscricoes/  encontro, legado, evento, complemento
 ```
 
-## Outras pastas
+## Pastas-chave
 
-- `components/` — UI compartilhada (`ui/` do shadcn, header público, nav do painel).
-- `lib/supabase/` — cliente e helpers do Supabase (vazio por enquanto).
-- `lib/auth/` — sessão, roles e guards (vazio por enquanto).
-- `lib/validations/` — schemas de formulário (vazio por enquanto).
-- `lib/utils.ts` — `cn()` do shadcn.
+- `components/` — header, menus (`slide-tabs`, mobile), painel, formulários
+- `lib/auth/` — roles e permissões
+- `lib/igreja/` — chave Pix
+- `lib/validations/` — regras de inscrição/pagamento
+- `lib/ui/cores-marca.ts` — cores do menu público e accents do painel
+- `supabase/migrations/` — `001` … `024` (rodar no SQL Editor do Supabase)
 
-## UI
+## UI / marca
 
-- **shadcn/ui** com estilo `radix-nova`, **tema base `neutral`**, CSS variables, Tailwind v4.
-- Sem identidade visual da igreja ainda (cores institucionais entram depois).
+- Menu público: `SlideTabs` com fluido colorido (desktop horizontal, mobile vertical).
+- Painel: sidebar colapsável com hover colorido por rota.
+- Homem/masculino → azul; mulher/feminino → rosa (`texto-com-sexo`).
 
-## Fora de escopo agora
+## Lições caras (não repetir)
 
-Não implementar: player de testemunhos, checagem de role nas rotas do painel.
+1. Depois de criar RPC no SQL, o PostgREST precisa recarregar schema (`notify pgrst` nas migrations).
+2. Roles no TypeScript e no SQL precisam ser a **mesma lista** — divergência quebra RLS.
+3. Comprovante: regra de negócio vive em `exigeComprovante()`; complementar no SQL do complemento.
+4. Push para `main` = site oficial; só com pedido explícito do dono do projeto.
+5. `CONTEXTO.md` desatualizado engana a IA — atualizar quando regras grandes mudarem.
 
-## Inscrições do Encontro
+## Fora de escopo deste arquivo
 
-A inscrição pública em `/encontro-com-deus` tem duas etapas: dados pessoais e pagamento. Enviar **não** confirma a vaga — o status entra como `pendente` e só uma conta `dev` aprova (função `pode_aprovar_pagamento`; no futuro basta acrescentar a role nova ali e em `lib/auth/permissoes.ts`).
-
-Preços (centavos, em `lib/validations/pagamento-encontro.ts`): encontro R$ 200, entrada mínima R$ 100, criança R$ 50. Crédito parcelado (2x ou 3x) aplica 9,875% de taxa; à vista não tem taxa. Comprovante obrigatório no Pix e no crédito; dinheiro e débito são presenciais e o anexo é opcional. Arquivos vão para o bucket privado `comprovantes-encontro` e o painel lê por URL assinada.
-
-SQL: `supabase/migrations/001_inscricoes_encontro.sql` (tabela) e `002_pagamento_encontro.sql` (colunas de pagamento, policies e bucket). Líder vê a lista; só quem aprova pagamento confirma, edita valores e vê comprovantes.
+Não documentar aqui segredos (`.env.local`), chaves anon, nem senhas de teste.

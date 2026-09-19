@@ -1,0 +1,14 @@
+---
+description: Ondas paralelas — vários agentes sem colidir arquivo nem commit
+alwaysApply: true
+---
+
+# Ondas paralelas de subagentes
+
+Quando dividir trabalho entre agentes:
+
+1. Cada tarefa lista **Files:** (caminhos) e **Depends-on:** (ids ou `none`).
+2. Na mesma onda: sem dependência entre si e **Files** totalmente disjuntos.
+3. Implementadores **não** fazem `git commit` — a sessão principal comita depois.
+4. Se dois pedaços precisam do mesmo arquivo: ondas em sequência (ou worktree).
+5. Incerteza de escopo → trate como dependente de tudo anterior (seguro = serial).

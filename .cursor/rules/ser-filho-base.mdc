@@ -1,0 +1,13 @@
+---
+description: Regras gerais do Ser Filho — simplicidade, escopo e verificação
+alwaysApply: true
+---
+
+# Ser Filho — base
+
+- Leia `AGENTS.md` e, se a tarefa tocar regra de negócio, `CONTEXTO.md`.
+- Mude só o necessário. Não refatore “de passagem”.
+- Prefira a solução mais simples que resolve de verdade (sem feature extra).
+- Antes de inventar RPC/coluna/role: confira `supabase/migrations/` e `lib/auth/roles.ts`.
+- Depois de mudança grande: `npx tsc --noEmit` e/ou `npm run build`.
+- Commit/push só se o usuário pedir. `main` = produção Vercel.

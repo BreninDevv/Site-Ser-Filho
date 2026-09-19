@@ -1,0 +1,12 @@
+---
+description: Menu e cores de marca (público + painel)
+globs: "{components/ui/slide-tabs.tsx,components/public-*.tsx,components/texto-com-sexo.tsx,lib/ui/cores-marca.ts,components/ui/dashboard-with-collapsible-sidebar.tsx}"
+alwaysApply: false
+---
+
+# Menu e cores
+
+- Cores do fluido: `lib/ui/cores-marca.ts` (`CORES_FLUIDO_MENU`, `CORES_PAINEL_NAV`).
+- Desktop: `SlideTabs` horizontal; mobile: `orientation="vertical"` em `PublicMobileMenu`.
+- Homem/Homens → azul; Mulher/Mulheres → rosa via `texto-com-sexo`.
+- Não voltar menu mobile para lista estática com `border-b`.
