@@ -6,7 +6,7 @@ import { MAX_DESCRICAO_EVENTO, paraDatetimeLocal } from "@/lib/midia";
 import { atualizarEvento, criarEvento } from "./actions";
 
 const campo =
-  "w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground";
+  "box-border w-full max-w-full min-w-0 border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground";
 
 type EventoEdicao = {
   id: string;
@@ -147,7 +147,7 @@ function CamposEvento({
           accept="image/png,image/jpeg,image/webp"
           required={imagemObrigatoria}
           disabled={pendente}
-          className="w-full border border-border bg-background px-3 py-2.5 text-sm file:mr-3 file:border-0 file:bg-foreground file:px-3 file:py-1.5 file:text-sm file:text-background"
+          className="box-border w-full max-w-full min-w-0 border border-border bg-background px-3 py-2.5 text-sm file:mr-3 file:border-0 file:bg-foreground file:px-3 file:py-1.5 file:text-sm file:text-background"
         />
         <p className="mt-1 text-xs text-muted-foreground">
           PNG, JPG ou WebP, até 5 MB.
@@ -167,7 +167,10 @@ export function FormEvento() {
   );
 
   return (
-    <form action={action} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+    <form
+      action={action}
+      className="min-w-0 space-y-4 overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5"
+    >
       <CamposEvento pendente={pendente} imagemObrigatoria />
       {estado?.erro && <p className="text-sm text-destructive">{estado.erro}</p>}
       {estado?.ok && (
@@ -189,7 +192,10 @@ export function FormEditarEvento({ evento }: { evento: EventoEdicao }) {
   );
 
   return (
-    <form action={action} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+    <form
+      action={action}
+      className="min-w-0 space-y-4 overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5"
+    >
       <CamposEvento
         pendente={pendente}
         evento={evento}

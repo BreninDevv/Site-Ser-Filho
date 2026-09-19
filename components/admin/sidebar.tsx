@@ -1,9 +1,8 @@
 "use client";
 
 /**
- * Sidebar do painel com GradientMenu vertical.
- * Gradientes = `CORES_PAINEL_NAV` (mesmas cores da sidebar atual).
- * Chrome claro (`bg-sidebar`) para não quebrar o visual do painel.
+ * Sidebar do painel com GradientMenu vertical (desktop).
+ * No celular o PainelNav usa sheet — esta sidebar fica oculta (`hidden lg:flex`).
  */
 import Image from "next/image";
 import Link from "next/link";
@@ -51,6 +50,18 @@ export type AdminSidebarLink = {
   label: string;
 };
 
+export function itensGradientPainel(
+  links: AdminSidebarLink[]
+): GradientMenuItem[] {
+  return links.map((link) => ({
+    title: link.label,
+    to: link.href,
+    icon: ICONES[link.href] ?? IoGridOutline,
+    end: link.href === "/painel",
+    ...gradientePainel(link.href),
+  }));
+}
+
 export type AdminSidebarProps = {
   titulo?: string;
   subtitulo?: string;
@@ -66,18 +77,12 @@ export function AdminSidebar({
   logoutHref = "/inicio",
   className,
 }: AdminSidebarProps) {
-  const items: GradientMenuItem[] = links.map((link) => ({
-    title: link.label,
-    to: link.href,
-    icon: ICONES[link.href] ?? IoGridOutline,
-    end: link.href === "/painel",
-    ...gradientePainel(link.href),
-  }));
+  const items = itensGradientPainel(links);
 
   return (
     <aside
       className={cn(
-        "sticky top-0 z-20 flex h-svh w-[72px] shrink-0 flex-col border-r border-border bg-sidebar p-3 text-sidebar-foreground shadow-sm transition-all lg:w-[260px]",
+        "sticky top-0 z-20 hidden h-svh w-[260px] shrink-0 flex-col border-r border-border bg-sidebar p-3 text-sidebar-foreground shadow-sm lg:flex",
         className
       )}
     >
@@ -89,20 +94,20 @@ export function AdminSidebar({
           height={36}
           className="h-9 w-9 shrink-0 rounded-full border border-border bg-white object-contain p-1"
         />
-        <div className="hidden min-w-0 lg:block">
+        <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{titulo}</p>
           <p className="truncate text-xs text-muted-foreground">{subtitulo}</p>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-visible py-1">
+      <div className="min-h-0 flex-1 overflow-y-auto py-1">
         <GradientMenu
           items={items}
           orientation="vertical"
           variant="painel"
           activeGradient
           compact
-          className="items-center gap-3 lg:items-start"
+          className="items-start gap-3"
         />
       </div>
 
@@ -111,10 +116,9 @@ export function AdminSidebar({
           href={logoutHref}
           title="Voltar ao site"
           className={cn(
-            "group relative mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-white text-muted-foreground shadow-lg transition-all duration-500",
+            "group relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-muted-foreground shadow-lg transition-all duration-500",
             "hover:w-[140px] hover:shadow-none hover:text-foreground",
-            "focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:outline-none",
-            "lg:mx-0"
+            "focus-visible:ring-2 focus-visible:ring-black/20 focus-visible:outline-none"
           )}
           aria-label="Voltar ao site"
         >
