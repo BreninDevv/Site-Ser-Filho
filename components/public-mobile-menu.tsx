@@ -63,7 +63,9 @@ export function PublicMobileMenu({
               variant="site"
               activeGradient
               compact
-              className="items-stretch gap-3"
+              instantNav
+              onNavigate={() => setAberto(false)}
+              className="w-full items-stretch gap-3"
             />
 
             <div className="flex flex-col gap-3">

@@ -42,10 +42,17 @@ export type GradientMenuProps = {
   items?: GradientMenuItem[];
   orientation?: "horizontal" | "vertical";
   variant?: "site" | "painel";
-  /** Item da rota atual mantém gradiente + glow sem hover. */
+  /** Item da rota atual mantém destaque sem hover. */
   activeGradient?: boolean;
   /** Tamanho menor para caber no header sticky atual. */
   compact?: boolean;
+  /**
+   * Em telas touch, o padrão é 1º toque expandir e 2º navegar.
+   * No menu sheet do celular, use `true` para navegar no primeiro toque.
+   */
+  instantNav?: boolean;
+  /** Chamado ao iniciar navegação (útil para fechar o Sheet). */
+  onNavigate?: (to: string) => void;
   className?: string;
 };
 
@@ -125,6 +132,8 @@ export function GradientMenu({
   variant = "site",
   activeGradient = false,
   compact = false,
+  instantNav = false,
+  onNavigate,
   className,
 }: GradientMenuProps) {
   const pathname = usePathname() || "/";
@@ -155,10 +164,10 @@ export function GradientMenu({
   );
 
   useEffect(() => {
-    if (!expandedTo) return;
+    if (!expandedTo || instantNav) return;
     document.addEventListener("pointerdown", onDocClick);
     return () => document.removeEventListener("pointerdown", onDocClick);
-  }, [expandedTo, onDocClick]);
+  }, [expandedTo, onDocClick, instantNav]);
 
   return (
     <ul
@@ -181,8 +190,10 @@ export function GradientMenu({
             active={active}
             activeLook={activeLook}
             isTouch={isTouch}
+            instantNav={instantNav}
             expanded={expandedTo === item.to}
             onExpand={() => setExpandedTo(item.to)}
+            onNavigate={onNavigate}
             orientation={orientation}
             compact={compact}
           />
@@ -197,8 +208,10 @@ function GradientMenuItemView({
   active,
   activeLook,
   isTouch,
+  instantNav,
   expanded,
   onExpand,
+  onNavigate,
   orientation,
   compact,
 }: {
@@ -206,8 +219,10 @@ function GradientMenuItemView({
   active: boolean;
   activeLook: boolean;
   isTouch: boolean;
+  instantNav: boolean;
   expanded: boolean;
   onExpand: () => void;
+  onNavigate?: (to: string) => void;
   orientation: "horizontal" | "vertical";
   compact: boolean;
 }) {
@@ -217,27 +232,28 @@ function GradientMenuItemView({
     "--gradient-to": item.gradientTo,
   } as CSSProperties;
 
-  /** Pill expandido: hover/foco CSS ou 1º toque no mobile.
-   * Ativo NÃO preenche o círculo (só anel) — evita Início preto sólido. */
   const pillOpen = expanded;
+  const gateTouch = isTouch && !instantNav;
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!isTouch) return;
-    if (!expanded) {
+    if (gateTouch && !expanded) {
       e.preventDefault();
       onExpand();
+      return;
     }
+    onNavigate?.(item.to);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLAnchorElement>) => {
     if (e.key === " " || e.key === "Enter") {
-      if (isTouch && !expanded) {
+      if (gateTouch && !expanded) {
         e.preventDefault();
         onExpand();
         return;
       }
       if (e.key === " ") {
         e.preventDefault();
+        onNavigate?.(item.to);
         e.currentTarget.click();
       }
     }
@@ -248,6 +264,54 @@ function GradientMenuItemView({
     ? "hover:w-[132px] focus-within:w-[132px]"
     : "hover:w-[180px] focus-within:w-[180px]";
   const sizeOpenForced = compact ? "w-[132px]" : "w-[180px]";
+
+  /** No sheet vertical: linha larga com ícone + texto sempre legível. */
+  const sheetRow = orientation === "vertical" && instantNav;
+
+  if (sheetRow) {
+    return (
+      <li style={style} className="w-full list-none" title={item.title}>
+        <Link
+          href={item.to}
+          aria-label={item.title}
+          aria-current={active ? "page" : undefined}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            "group relative flex w-full items-center gap-3 rounded-full bg-white px-3 py-2.5 shadow-[0_8px_20px_rgba(20,20,18,0.12)] transition-all duration-300",
+            "outline-none focus-visible:ring-2 focus-visible:ring-black/20",
+            activeLook && "shadow-[0_10px_24px_rgba(20,20,18,0.18)]"
+          )}
+        >
+          <span
+            className={cn(
+              "pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(45deg,var(--gradient-from),var(--gradient-to))] opacity-0 transition-opacity duration-300",
+              "group-hover:opacity-100 group-active:opacity-100"
+            )}
+          />
+          <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center">
+            <Icon
+              className={cn(
+                "text-xl text-gray-600 transition-colors",
+                "group-hover:text-white group-active:text-white",
+                activeLook && "text-gray-900"
+              )}
+              aria-hidden
+            />
+          </span>
+          <span
+            className={cn(
+              "relative z-10 text-sm font-medium tracking-wide text-foreground uppercase transition-colors",
+              "group-hover:text-white group-active:text-white",
+              activeLook && "text-foreground"
+            )}
+          >
+            {item.title}
+          </span>
+        </Link>
+      </li>
+    );
+  }
 
   return (
     <li
