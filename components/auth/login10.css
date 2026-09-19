@@ -1,0 +1,439 @@
+/* Login10 adaptado — Ser Filho (base: frontend-joe Login10) */
+
+.page.login-10 {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px 40px;
+  background: #f3f3f1;
+  color: #212625;
+  overflow-x: hidden;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.login-10 .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #212625;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.login-10 .brand-mark img {
+  height: 40px;
+  width: auto;
+}
+
+.login-10 .flash {
+  max-width: 660px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #e8f0f8;
+  border: 1px solid #d5dee8;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-10 .card {
+  position: relative;
+  overflow: hidden;
+  width: min(660px, 100%);
+  height: 520px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 8px solid #ffffff;
+  box-shadow: 0 12px 80px rgba(41, 30, 113, 0.12);
+}
+
+.login-10 .card-bg {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  background: url("/login-hero.jpg") center / cover no-repeat;
+  border-radius: 18px;
+  translate: 100% 0;
+  transition: 0.65s ease-in-out;
+}
+
+.login-10 .card.register .card-bg {
+  translate: 0 0;
+}
+
+.login-10 .hero,
+.login-10 .form {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.65s ease-in-out;
+}
+
+.login-10 .hero.login,
+.login-10 .form.login {
+  opacity: 1;
+  visibility: visible;
+}
+
+.login-10 .card.register :is(.hero, .form).login {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.login-10 .card.register :is(.hero, .form).register {
+  opacity: 1;
+  visibility: visible;
+}
+
+.login-10 .hero.login {
+  left: 50%;
+  translate: 0;
+}
+
+.login-10 .card.register .hero.login {
+  translate: 100% 0;
+}
+
+.login-10 .hero.register {
+  translate: -100% 0;
+}
+
+.login-10 .card.register .hero.register {
+  translate: 0;
+}
+
+.login-10 .form.login {
+  translate: 0;
+}
+
+.login-10 .card.register .form.login {
+  translate: 100% 0;
+}
+
+.login-10 .form.register {
+  left: 50%;
+  translate: -100% 0;
+}
+
+.login-10 .card.register .form.register {
+  translate: 0;
+}
+
+.login-10 .hero {
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #f9f9f9;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.login-10 .card h2 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.login-10 .hero h2 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.login-10 .hero p {
+  margin: 0 0 6px;
+  opacity: 0.85;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.login-10 .hero .switch {
+  padding: 12px 46px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: inherit;
+  border: 0;
+  background: rgb(255 255 255 / 10%);
+  backdrop-filter: blur(4px);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.login-10 .hero .switch:hover {
+  color: #212625;
+  background: #f9f9f9;
+}
+
+.login-10 .form {
+  background: #ffffff;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 14px;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.login-10 .form h2 {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.login-10 .form form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.login-10 .form label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2a2e35;
+}
+
+.login-10 .form input:not([type="checkbox"]) {
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: #eef0f5;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.login-10 .form input::placeholder {
+  color: #a6acb8;
+}
+
+.login-10 .password-field {
+  position: relative;
+  width: 100%;
+}
+
+.login-10 .password-field input {
+  padding-right: 44px;
+}
+
+.login-10 .eye {
+  position: absolute;
+  top: 23px;
+  right: 10px;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: #8b909a;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-10 .remember-forgot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 2px 0 8px;
+  font-size: 13px;
+}
+
+.login-10 .forgot {
+  color: #0d7394;
+  font-weight: 500;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.login-10 .forgot:hover {
+  text-decoration: underline;
+}
+
+.login-10 .form button[type="submit"],
+.login-10 .submit-link {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  width: 100%;
+  margin-top: 4px;
+  border: 0;
+  background: #000103;
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.login-10 .form button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.login-10 .form button[type="submit"]:hover:not(:disabled),
+.login-10 .submit-link:hover {
+  background: #1a1a1a;
+}
+
+.login-10 .or {
+  text-align: center;
+  color: #9aa0ab;
+  font-size: 13px;
+  margin: 6px 0;
+}
+
+.login-10 .ghost-link {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border-radius: 12px;
+  background: #eef0f5;
+  color: #2a2e35;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.login-10 .ghost-link:hover {
+  background: #e3e6ee;
+}
+
+.login-10 .panel-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #5b6169;
+  text-align: center;
+}
+
+.login-10 .form-error {
+  margin: 0;
+  font-size: 13px;
+  color: #b42318;
+}
+
+/* Mobile: empilha de cima para baixo (hero/imagem → formulário) */
+@media (max-width: 720px) {
+  .page.login-10 {
+    padding: 16px 14px 28px;
+    justify-content: flex-start;
+  }
+
+  .login-10 .card {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 420px);
+    height: auto;
+    min-height: 0;
+  }
+
+  .login-10 .card-bg {
+    position: relative;
+    z-index: 1;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    height: 210px;
+    flex-shrink: 0;
+    translate: none !important;
+    border-radius: 16px 16px 0 0;
+    order: 1;
+  }
+
+  .login-10 .hero,
+  .login-10 .form {
+    position: relative;
+    width: 100%;
+    height: auto;
+    left: auto !important;
+    translate: none !important;
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+    padding: 0;
+  }
+
+  .login-10 .hero.login,
+  .login-10 .hero.register {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    height: 210px;
+    padding: 20px 22px;
+    gap: 10px;
+    box-sizing: border-box;
+  }
+
+  .login-10 .hero h2 {
+    font-size: 24px;
+  }
+
+  .login-10 .hero p {
+    font-size: 13px;
+    margin: 0;
+  }
+
+  .login-10 .hero .switch {
+    padding: 10px 28px;
+    font-size: 14px;
+  }
+
+  .login-10 .form {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 24px 20px 28px;
+    border-radius: 0 0 16px 16px;
+    order: 2;
+  }
+
+  /* Estado login: hero em cima da imagem, form embaixo */
+  .login-10 .hero.login,
+  .login-10 .form.login {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .login-10 .card.register .hero.login,
+  .login-10 .card.register .form.login {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .login-10 .card.register .hero.register,
+  .login-10 .card.register .form.register {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+}

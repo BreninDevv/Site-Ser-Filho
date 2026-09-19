@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AuthBrandShell } from "@/components/auth/auth-brand-shell";
 
 function VerifiqueEmailContent() {
   const searchParams = useSearchParams();
@@ -35,25 +36,31 @@ function VerifiqueEmailContent() {
   }, [email, router]);
 
   return (
-    <div className="max-w-sm mx-auto mt-20 px-4 text-center">
-      <h1 className="text-2xl font-semibold mb-4">Quase lá!</h1>
-      <p className="text-sm text-gray-600 mb-2">
-        Enviamos um link de confirmação para <strong>{email || "o seu e-mail"}</strong>.
-      </p>
-      <p className="text-sm text-gray-600 mb-6">
-        Clique nesse link (confira o spam se não aparecer). Esta página avança
-        sozinha assim que detectar a confirmação — não precisa recarregar.
-      </p>
-      <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-        <span className="animate-pulse">●</span> Aguardando confirmação...
-      </div>
-      {erroPolling && (
-        <p className="text-sm text-red-600 mt-4">
-          Não consegui verificar automaticamente. Assim que confirmar, acesse{" "}
-          <a href="/login" className="underline">a tela de login</a> manualmente.
+    <AuthBrandShell>
+      <div className="text-center">
+        <h1 className="mb-4 text-2xl font-semibold">Quase lá!</h1>
+        <p className="mb-2 text-sm text-muted-foreground">
+          Enviamos um link de confirmação para{" "}
+          <strong className="text-foreground">{email || "o seu e-mail"}</strong>.
         </p>
-      )}
-    </div>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Clique nesse link (confira o spam se não aparecer). Esta página avança
+          sozinha assim que detectar a confirmação — não precisa recarregar.
+        </p>
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <span className="animate-pulse">●</span> Aguardando confirmação...
+        </div>
+        {erroPolling && (
+          <p className="mt-4 text-sm text-destructive">
+            Não consegui verificar automaticamente. Assim que confirmar, acesse{" "}
+            <a href="/login" className="underline">
+              a tela de login
+            </a>{" "}
+            manualmente.
+          </p>
+        )}
+      </div>
+    </AuthBrandShell>
   );
 }
 
