@@ -1,0 +1,14 @@
+{
+  "hash": "6a82274",
+  "route": "/inicio",
+  "label": "feat: role Líder/Tesouraria + planilha de chegada + Excel",
+  "full": "6a82274814603ea4dc8caac381342057e8fc085f",
+  "date": "2026-09-14",
+  "author": "Aldo Silva",
+  "subject": "cria role lider/tesouraria com planilha de chegada e download excel",
+  "stats": {
+    "files": 12,
+    "insertions": 901,
+    "deletions": 14
+  }
+}

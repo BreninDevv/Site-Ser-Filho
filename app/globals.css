@@ -238,3 +238,46 @@
     handwriting-draw 2.6s ease forwards,
     handwriting-fill 0.55s ease 2.35s forwards;
 }
+
+/* Logo / avatar do SiteHeader — usa as cores do menu (não roxo 21st.dev) */
+@keyframes logo-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.logo-gradient-text {
+  background-image: linear-gradient(
+    90deg,
+    #4a8bc2,
+    #e25555,
+    #ffb347,
+    #4b6f36,
+    #c6ff00,
+    #0b3d91,
+    #4a8bc2
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: logo-gradient-shift 6s ease infinite;
+}
+
+.avatar-gradient-ring {
+  background-image: linear-gradient(
+    45deg,
+    #4a8bc2,
+    #e25555,
+    #4b6f36,
+    #c6ff00
+  );
+  background-size: 200% 200%;
+  animation: logo-gradient-shift 6s ease infinite;
+}

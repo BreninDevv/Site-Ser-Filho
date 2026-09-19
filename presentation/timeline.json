@@ -1,0 +1,194 @@
+[
+  {
+    "ok": true,
+    "meta": {
+      "full": "216037d48382d4907e6983b29ac37ccbd4833fe5",
+      "date": "2026-08-31",
+      "author": "Breno Henrique",
+      "subject": "Initial commit from Create Next App",
+      "stats": {
+        "files": 18,
+        "insertions": 7090,
+        "deletions": 0
+      }
+    },
+    "label": "feat: início do projeto Next.js",
+    "hash": "216037d"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "00c419c43371d57346e44d1685ffe1a2af4a9eca",
+      "date": "2026-09-05",
+      "author": "Breno Henrique",
+      "subject": "projeto com celulas praticamente pronta",
+      "stats": {
+        "files": 43,
+        "insertions": 7073,
+        "deletions": 395
+      }
+    },
+    "label": "feat: células quase prontas na home pública",
+    "hash": "00c419c"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "3b6e31a2fa806f299efd58ca41d58bc58b6508a6",
+      "date": "2026-09-06",
+      "author": "Aldo Silva",
+      "subject": "inscricao publica do encontro e painel de inscritos",
+      "stats": {
+        "files": 10,
+        "insertions": 942,
+        "deletions": 12
+      }
+    },
+    "label": "feat: inscrição pública do Encontro + painel",
+    "hash": "3b6e31a"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "cab524852853b1f5b37e977f59e290cb92f2d801",
+      "date": "2026-09-06",
+      "author": "Aldo Silva",
+      "subject": "pagamento do encontro: etapa 2, comprovante e aprovacao pelo dev",
+      "stats": {
+        "files": 13,
+        "insertions": 1613,
+        "deletions": 321
+      }
+    },
+    "label": "feat: pagamento do Encontro (etapa 2, comprovante, aprovação)",
+    "hash": "cab5248"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "d49588777424408d5b7b967fb16b7e1ca725293c",
+      "date": "2026-09-06",
+      "author": "Aldo Silva",
+      "subject": "adiciona inscricao e painel do Legado de Cristo",
+      "stats": {
+        "files": 15,
+        "insertions": 1932,
+        "deletions": 2
+      }
+    },
+    "label": "feat: inscrição e painel do Legado de Cristo",
+    "hash": "d495887"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "1402a7d59c13138e0ce8442c18ae559c9a842c3b",
+      "date": "2026-09-06",
+      "author": "Aldo Silva",
+      "subject": "adiciona eventos, testemunhos, role midia e blindagem de seguranca",
+      "stats": {
+        "files": 48,
+        "insertions": 1982,
+        "deletions": 266
+      }
+    },
+    "label": "feat: eventos, testemunhos, role mídia e blindagem",
+    "hash": "1402a7d"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "e179f6ebe89e217604723213bb4c6e3d7ecbf380",
+      "date": "2026-09-07",
+      "author": "Aldo Silva",
+      "subject": "publica globo, reels de testemunho, inscricao de eventos e status de pagamento",
+      "stats": {
+        "files": 42,
+        "insertions": 3347,
+        "deletions": 235
+      }
+    },
+    "label": "feat: globo, reels, inscrição de eventos e status de pagamento",
+    "hash": "e179f6e"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "6a82274814603ea4dc8caac381342057e8fc085f",
+      "date": "2026-09-14",
+      "author": "Aldo Silva",
+      "subject": "cria role lider/tesouraria com planilha de chegada e download excel",
+      "stats": {
+        "files": 12,
+        "insertions": 901,
+        "deletions": 14
+      }
+    },
+    "label": "feat: role Líder/Tesouraria + planilha de chegada + Excel",
+    "hash": "6a82274"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "41557765946027642e617a13ca1877676cce52d1",
+      "date": "2026-09-16",
+      "author": "Aldo Silva",
+      "subject": "adiciona sidebar colapsavel no painel com rotas e permissoes reais",
+      "stats": {
+        "files": 4,
+        "insertions": 317,
+        "deletions": 81
+      }
+    },
+    "label": "design: sidebar colapsável do painel com permissões",
+    "hash": "4155776"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "fc14b52b3fd2ece81d4ff02e00fce83a392f8f27",
+      "date": "2026-09-17",
+      "author": "Aldo Silva",
+      "subject": "Chave Pix no painel, comprovante no cartão e aprovação pela Líder/Tesouraria.",
+      "stats": {
+        "files": 29,
+        "insertions": 1021,
+        "deletions": 217
+      }
+    },
+    "label": "feat: chave Pix, foto da maquininha e aprovação Líder/Tesouraria",
+    "hash": "fc14b52"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "04e689969062c6bd688cbab29038837ccd218cdb",
+      "date": "2026-09-18",
+      "author": "Aldo Silva",
+      "subject": "Menu do celular mostra a cor de cada página, como no desktop.",
+      "stats": {
+        "files": 1,
+        "insertions": 26,
+        "deletions": 3
+      }
+    },
+    "label": "design: menu do celular com cores de cada página",
+    "hash": "04e6899"
+  },
+  {
+    "ok": true,
+    "meta": {
+      "full": "a5c053fcdc0e35c8bcbd7478f23acb65830b1516",
+      "date": "2026-09-19",
+      "author": "Aldo Silva",
+      "subject": "Adota o fluxo de IA do toolkit: memória, rules, prompts e guia.",
+      "stats": {
+        "files": 18,
+        "insertions": 493,
+        "deletions": 46
+      }
+    },
+    "label": "update: fluxo de IA (memória, rules, prompts e guia)",
+    "hash": "a5c053f"
+  }
+]

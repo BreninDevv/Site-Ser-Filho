@@ -52,7 +52,7 @@ app/
 
 ## Pastas-chave
 
-- `components/` — header, menus (`slide-tabs`, mobile), painel, formulários
+- `components/` — header, `gradient-menu`, painel (`admin/sidebar`), formulários
 - `lib/auth/` — roles e permissões
 - `lib/igreja/` — chave Pix
 - `lib/validations/` — regras de inscrição/pagamento
@@ -61,9 +61,15 @@ app/
 
 ## UI / marca
 
-- Menu público: `SlideTabs` com fluido colorido (desktop horizontal, mobile vertical).
-- Painel: sidebar colapsável com hover colorido por rota.
+- Fonte de cores: `lib/ui/cores-marca.ts` (`CORES_FLUIDO_MENU`, `CORES_PAINEL_NAV`) — **não trocar** por roxos de demos.
+- Menu público e mobile: `GradientMenu` (círculo → pill com gradiente/glow no hover; item ativo mantém a cor).
+  - Desktop: `PublicGradientNav` no `PublicHeader`.
+  - Mobile: mesmo menu vertical no sheet (`PublicMobileMenu`).
+  - Touch: 1º toque expande, 2º navega.
+- Painel: `AdminSidebar` + `GradientMenu` vertical (`PainelNav`), mesmas cores de `CORES_PAINEL_NAV`.
+- Componentes base: `components/ui/gradient-menu.tsx`, `components/site-header.tsx`, `components/admin/sidebar.tsx`.
 - Homem/masculino → azul; mulher/feminino → rosa (`texto-com-sexo`).
+- Apresentações em `presentation/`: evolução Git (`site-evolution.html` / `.pdf`) e guia de usuários (`guia-usuarios.html`).
 
 ## Lições caras (não repetir)
 

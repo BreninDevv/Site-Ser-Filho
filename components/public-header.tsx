@@ -4,17 +4,8 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { destinoDoPainel, ROTULOS_ROLE } from "@/lib/auth/roles";
 import { logout } from "@/app/(auth)/login/actions";
-import { SlideTabs } from "@/components/ui/slide-tabs";
 import { PublicMobileMenu } from "@/components/public-mobile-menu";
-
-const publicLinks = [
-  { href: "/inicio", label: "Início" },
-  { href: "/celulas", label: "Células" },
-  { href: "/eventos", label: "Eventos" },
-  { href: "/inicio#testemunhos", label: "Testemunhos" },
-  { href: "/encontro-com-deus", label: "De Volta ao Jardim" },
-  { href: "/legado-de-cristo", label: "Legado de Cristo" },
-];
+import { PublicGradientNav } from "@/components/public-gradient-nav";
 
 export async function PublicHeader() {
   let user: { id: string; email?: string } | null = null;
@@ -39,10 +30,6 @@ export async function PublicHeader() {
   }
 
   const hrefPainel = destinoDoPainel(perfil?.role);
-  const navItems = [
-    ...publicLinks,
-    ...(hrefPainel ? [{ href: hrefPainel, label: "Painel" }] : []),
-  ];
 
   const userLabel = user
     ? `Olá, ${perfil?.nome ?? user.email}${
@@ -54,7 +41,7 @@ export async function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-20 min-w-0 bg-transparent px-3 pt-4 pb-2">
-      <div className="relative mx-auto flex w-full min-w-0 max-w-5xl items-center rounded-full border border-white/70 bg-white/70 px-3 py-2 shadow-[0_8px_30px_rgba(20,20,18,0.08)] backdrop-blur-xl sm:px-4 md:px-5">
+      <div className="relative mx-auto flex w-full min-w-0 max-w-6xl items-center rounded-full border border-white/70 bg-white/70 px-3 py-2 shadow-[0_8px_30px_rgba(20,20,18,0.08)] backdrop-blur-xl sm:px-4 md:px-5">
         <Link href="/inicio" className="relative z-10 flex shrink-0 items-center">
           <Image
             src="/logo-ser-filho.png"
@@ -67,8 +54,8 @@ export async function PublicHeader() {
         </Link>
 
         <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center md:flex">
-          <div className="pointer-events-auto">
-            <SlideTabs compact items={navItems} />
+          <div className="pointer-events-auto max-w-[min(100%,42rem)] overflow-x-auto px-2">
+            <PublicGradientNav hrefPainel={hrefPainel} />
           </div>
         </nav>
 
@@ -113,7 +100,7 @@ export async function PublicHeader() {
         </div>
 
         <PublicMobileMenu
-          items={navItems}
+          hrefPainel={hrefPainel}
           logado={Boolean(user)}
           userLabel={userLabel}
         />

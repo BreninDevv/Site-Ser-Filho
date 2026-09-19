@@ -1,12 +1,16 @@
 ---
 description: Menu e cores de marca (público + painel)
-globs: "{components/ui/slide-tabs.tsx,components/public-*.tsx,components/texto-com-sexo.tsx,lib/ui/cores-marca.ts,components/ui/dashboard-with-collapsible-sidebar.tsx}"
+globs: "{components/ui/gradient-menu.tsx,components/ui/slide-tabs.tsx,components/public-*.tsx,components/site-header.tsx,components/admin/sidebar.tsx,components/texto-com-sexo.tsx,lib/ui/cores-marca.ts,components/ui/dashboard-with-collapsible-sidebar.tsx,components/painel-nav.tsx}"
 alwaysApply: false
 ---
 
 # Menu e cores
 
-- Cores do fluido: `lib/ui/cores-marca.ts` (`CORES_FLUIDO_MENU`, `CORES_PAINEL_NAV`).
-- Desktop: `SlideTabs` horizontal; mobile: `orientation="vertical"` em `PublicMobileMenu`.
+- Cores: `lib/ui/cores-marca.ts` (`CORES_FLUIDO_MENU`, `CORES_PAINEL_NAV`). **Nunca** substituir pelos roxos do demo 21st.dev no menu oficial.
+- Nav oficial: `GradientMenu` (`components/ui/gradient-menu.tsx`).
+  - Site: `PublicGradientNav` / `PublicMobileMenu` com itens de `site-header.tsx`.
+  - Painel: `AdminSidebar` via `PainelNav`.
+- Item ativo: gradiente + glow fixos (`activeGradient`); hover/foco expandem o pill.
+- Touch (`hover: none`): 1º toque expande, 2º navega.
 - Homem/Homens → azul; Mulher/Mulheres → rosa via `texto-com-sexo`.
-- Não voltar menu mobile para lista estática com `border-b`.
+- `SlideTabs` ainda existe para demos/filtros pontuais — o menu principal do site/painel é o GradientMenu.

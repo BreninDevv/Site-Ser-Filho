@@ -1,22 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import {
-  CalendarDays,
-  ClipboardList,
-  Flower2,
-  LayoutDashboard,
-  MessageSquareQuote,
-  ScrollText,
-  Table2,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-
-import {
-  PainelCollapsibleShell,
-  type SidebarLinkItem,
-} from "@/components/ui/dashboard-with-collapsible-sidebar";
+import { AdminSidebar } from "@/components/admin/sidebar";
 
 export function PainelNav({
   titulo,
@@ -39,61 +23,49 @@ export function PainelNav({
   mostrarPlanilha: boolean;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   const links = (
     [
       mostrarDashboard && {
         href: "/painel",
         label: "Dashboard",
-        icon: LayoutDashboard,
       },
       mostrarPlanilha && {
         href: "/painel/planilha-inscricoes",
-        label: "Planilha de inscrições",
-        icon: Table2,
+        label: "Planilha",
       },
       mostrarEncontro && {
         href: "/painel/encontro",
-        label: "De Volta ao Jardim",
-        icon: Flower2,
+        label: "Jardim",
       },
       mostrarEncontro && {
         href: "/painel/legado",
         label: "Legado",
-        icon: ScrollText,
       },
       mostrarInscricoesEventos && {
         href: "/painel/inscricoes-eventos",
-        label: "Inscrições de eventos",
-        icon: ClipboardList,
+        label: "Inscrições",
       },
       mostrarMidia && {
         href: "/painel/eventos",
         label: "Eventos",
-        icon: CalendarDays,
       },
       mostrarMidia && {
         href: "/painel/testemunhos",
         label: "Testemunhos",
-        icon: MessageSquareQuote,
       },
       mostrarAdmin && {
         href: "/painel/admin/usuarios",
-        label: "Admin · Usuários",
-        icon: Users,
+        label: "Admin",
       },
-    ] as Array<(SidebarLinkItem & { icon: LucideIcon }) | false>
-  ).filter((link): link is SidebarLinkItem => Boolean(link));
+    ] as Array<{ href: string; label: string } | false>
+  ).filter((link): link is { href: string; label: string } => Boolean(link));
 
   return (
-    <PainelCollapsibleShell
-      titulo={titulo}
-      subtitulo={subtitulo}
-      links={links}
-      pathname={pathname}
-    >
-      {children}
-    </PainelCollapsibleShell>
+    <div className="flex min-h-full min-w-0 w-full bg-background text-foreground">
+      <AdminSidebar titulo={titulo} subtitulo={subtitulo} links={links} />
+      <main className="min-w-0 flex-1 overflow-x-clip overflow-y-auto bg-muted/30 p-4 md:p-6">
+        {children}
+      </main>
+    </div>
   );
 }

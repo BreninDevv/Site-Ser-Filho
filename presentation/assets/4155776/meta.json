@@ -1,0 +1,14 @@
+{
+  "hash": "4155776",
+  "route": "/inicio",
+  "label": "design: sidebar colapsável do painel com permissões",
+  "full": "41557765946027642e617a13ca1877676cce52d1",
+  "date": "2026-09-16",
+  "author": "Aldo Silva",
+  "subject": "adiciona sidebar colapsavel no painel com rotas e permissoes reais",
+  "stats": {
+    "files": 4,
+    "insertions": 317,
+    "deletions": 81
+  }
+}

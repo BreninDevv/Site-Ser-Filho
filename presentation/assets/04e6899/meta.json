@@ -1,0 +1,14 @@
+{
+  "hash": "04e6899",
+  "route": "/inicio",
+  "label": "design: menu do celular com cores de cada página",
+  "full": "04e689969062c6bd688cbab29038837ccd218cdb",
+  "date": "2026-09-18",
+  "author": "Aldo Silva",
+  "subject": "Menu do celular mostra a cor de cada página, como no desktop.",
+  "stats": {
+    "files": 1,
+    "insertions": 26,
+    "deletions": 3
+  }
+}

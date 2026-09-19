@@ -1,0 +1,14 @@
+{
+  "hash": "fc14b52",
+  "route": "/encontro-com-deus",
+  "label": "feat: chave Pix, foto da maquininha e aprovação Líder/Tesouraria",
+  "full": "fc14b52b3fd2ece81d4ff02e00fce83a392f8f27",
+  "date": "2026-09-17",
+  "author": "Aldo Silva",
+  "subject": "Chave Pix no painel, comprovante no cartão e aprovação pela Líder/Tesouraria.",
+  "stats": {
+    "files": 29,
+    "insertions": 1021,
+    "deletions": 217
+  }
+}

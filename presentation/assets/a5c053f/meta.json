@@ -1,0 +1,14 @@
+{
+  "hash": "a5c053f",
+  "route": "/inicio",
+  "label": "update: fluxo de IA (memória, rules, prompts e guia)",
+  "full": "a5c053fcdc0e35c8bcbd7478f23acb65830b1516",
+  "date": "2026-09-19",
+  "author": "Aldo Silva",
+  "subject": "Adota o fluxo de IA do toolkit: memória, rules, prompts e guia.",
+  "stats": {
+    "files": 18,
+    "insertions": 493,
+    "deletions": 46
+  }
+}

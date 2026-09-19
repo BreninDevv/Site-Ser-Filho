@@ -12,15 +12,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { SlideTabs, type SlideTabItem } from "@/components/ui/slide-tabs";
+import {
+  GradientMenu,
+  type GradientMenuItem,
+} from "@/components/ui/gradient-menu";
+import {
+  itemPainelGradient,
+  siteGradientNavItems,
+} from "@/components/site-header";
 import { logout } from "@/app/(auth)/login/actions";
 
 export function PublicMobileMenu({
-  items,
+  hrefPainel,
   userLabel,
   logado,
 }: {
-  items: SlideTabItem[];
+  hrefPainel?: string | null;
   userLabel?: string | null;
   logado: boolean;
 }) {
@@ -30,6 +37,11 @@ export function PublicMobileMenu({
   useEffect(() => {
     setAberto(false);
   }, [pathname]);
+
+  const items: GradientMenuItem[] = [
+    ...siteGradientNavItems,
+    ...(hrefPainel ? [itemPainelGradient(hrefPainel)] : []),
+  ];
 
   return (
     <div className="ml-auto md:hidden">
@@ -45,13 +57,13 @@ export function PublicMobileMenu({
           </SheetHeader>
 
           <div className="flex flex-col gap-5 px-4 pb-6">
-            <SlideTabs
-              orientation="vertical"
+            <GradientMenu
               items={items}
-              onItemClick={(item) => {
-                // Hash na mesma página não muda o pathname — fecha na hora.
-                if (item.href?.includes("#")) setAberto(false);
-              }}
+              orientation="vertical"
+              variant="site"
+              activeGradient
+              compact
+              className="items-stretch gap-3"
             />
 
             <div className="flex flex-col gap-3">
@@ -83,11 +95,7 @@ export function PublicMobileMenu({
                       Entrar
                     </Link>
                   </Button>
-                  <Button
-                    size="sm"
-                    className="w-full rounded-full"
-                    asChild
-                  >
+                  <Button size="sm" className="w-full rounded-full" asChild>
                     <Link href="/cadastro" onClick={() => setAberto(false)}>
                       Cadastrar
                     </Link>

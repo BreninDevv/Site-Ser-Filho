@@ -1,0 +1,14 @@
+{
+  "hash": "1402a7d",
+  "route": "/eventos",
+  "label": "feat: eventos, testemunhos, role mídia e blindagem",
+  "full": "1402a7d59c13138e0ce8442c18ae559c9a842c3b",
+  "date": "2026-09-06",
+  "author": "Aldo Silva",
+  "subject": "adiciona eventos, testemunhos, role midia e blindagem de seguranca",
+  "stats": {
+    "files": 48,
+    "insertions": 1982,
+    "deletions": 266
+  }
+}

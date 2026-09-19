@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+presentation-run.log
+supabase/.temp/
+
+
+presentation/run.log
+presentation/assets/**/error.txt

@@ -1,0 +1,14 @@
+{
+  "hash": "216037d",
+  "route": "/",
+  "label": "feat: início do projeto Next.js",
+  "full": "216037d48382d4907e6983b29ac37ccbd4833fe5",
+  "date": "2026-08-31",
+  "author": "Breno Henrique",
+  "subject": "Initial commit from Create Next App",
+  "stats": {
+    "files": 18,
+    "insertions": 7090,
+    "deletions": 0
+  }
+}

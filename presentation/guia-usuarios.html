@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guia de uso — Ser Filho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #0b1f33;
+    --navy-soft: #16324d;
+    --ink: #0b1f33;
+    --muted: #5a6b7d;
+    --line: #d5dee8;
+    --bg: #f4f7fa;
+    --white: #ffffff;
+    --accent: #2a6f97;
+    --ok: #1f6b4a;
+    --warn: #9a6b16;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--ink);
+    background: #0a1520;
+    height: 100%;
+    overflow: hidden;
+  }
+  .deck {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .stage {
+    width: min(1280px, 100%);
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.45);
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 48px 56px 72px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(28px);
+    transition: opacity .35s ease, transform .35s ease;
+    overflow: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+  .cover {
+    background: linear-gradient(145deg, #0b1f33 0%, #16324d 55%, #1e4a6e 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+  }
+  .eyebrow {
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-size: 12px;
+    opacity: .7;
+    margin: 0 0 12px;
+  }
+  h1 {
+    font-size: clamp(28px, 3.4vw, 42px);
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 16px;
+  }
+  h2 {
+    font-size: clamp(22px, 2.4vw, 28px);
+    margin: 0 0 8px;
+    font-weight: 650;
+    color: var(--navy);
+  }
+  .sub { font-size: 18px; opacity: .88; margin: 0; }
+  .meta { margin-top: 28px; font-size: 14px; opacity: .65; }
+  .role-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .role-tag .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .legend { color: var(--muted); font-size: 15px; margin: 0 0 20px; max-width: 900px; }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .steps.cols-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+  .steps li {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 12px;
+    align-items: start;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .steps .n {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .steps strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  .steps span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .callout {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #eef5fb;
+    font-size: 13px;
+    color: var(--navy-soft);
+  }
+  .callout.warn { background: #fff7e8; border-color: #f0d9a0; color: #6d4c10; }
+  .callout.ok { background: #eaf7f0; border-color: #b7e0c8; color: #1f6b4a; }
+  .grid-roles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .card-role {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--bg);
+    min-height: 140px;
+  }
+  .card-role h3 { margin: 0 0 6px; font-size: 15px; color: var(--navy); }
+  .card-role p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .table th, .table td {
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    padding: 10px 8px;
+    vertical-align: top;
+  }
+  .table th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e8f0f8;
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--bg);
+  }
+  .panel h3 { margin: 0 0 10px; font-size: 15px; }
+  .panel ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .progress {
+    position: absolute;
+    left: 56px; right: 56px; bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    z-index: 2;
+  }
+  .cover .progress { color: rgba(255,255,255,.65); }
+  .bar {
+    flex: 1;
+    height: 4px;
+    background: #e6eef6;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .cover .bar { background: rgba(255,255,255,.2); }
+  .bar > i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    transition: width .3s ease;
+  }
+  .cover .bar > i { background: #fff; }
+  .nav {
+    position: absolute;
+    right: 20px; top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 3;
+  }
+  .nav button {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.92);
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--navy);
+  }
+  .nav button:hover { background: var(--navy); color: #fff; }
+  .hint {
+    position: absolute;
+    left: 56px; bottom: 48px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .cover .hint { color: rgba(255,255,255,.5); }
+  @media (max-width: 900px) {
+    .deck { padding: 0; align-items: stretch; }
+    .stage { width: 100%; height: 100vh; aspect-ratio: auto; border-radius: 0; }
+    .slide { padding: 28px 20px 80px; }
+    .steps.cols-2, .two, .grid-roles { grid-template-columns: 1fr; }
+    .nav { right: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="stage" id="stage">
+
+    <!-- 0 -->
+    <section class="slide cover active" data-title="Capa">
+      <div>
+        <p class="eyebrow">Guia de ensinamento · Igreja Ser Filho</p>
+        <h1>Como usar o site<br/>passo a passo</h1>
+        <p class="sub">Do Discípulo ao Apóstolo(a) — cadastro, inscrições, pagamento e painel</p>
+        <p class="meta">Tudo em português · sem o papel Dev · use ← → para navegar</p>
+      </div>
+      <p class="hint">Dica: no celular, deslize ou use os botões à direita</p>
+    </section>
+
+    <!-- 1 -->
+    <section class="slide" data-title="Mapa dos papéis">
+      <p class="role-tag"><span class="dot"></span> Visão geral</p>
+      <h2>Quem é quem no site</h2>
+      <p class="legend">Cada pessoa escolhe a função no cadastro. O que aparece no <strong>Painel</strong> depende dessa função.</p>
+      <div class="grid-roles">
+        <div class="card-role"><h3>1. Discípulo</h3><p>Conta no site. Navega páginas públicas, se inscreve em encontros e eventos. Sem painel.</p></div>
+        <div class="card-role"><h3>2. Líder</h3><p>Vê inscrições da própria equipe pastoral (De Volta ao Jardim e Legado).</p></div>
+        <div class="card-role"><h3>3. Pastor</h3><p>Vê inscrições + Admin · Usuários (trocar função e excluir, com limites).</p></div>
+        <div class="card-role"><h3>4. Líder / Tesouraria</h3><p>Inscrições, <strong>aprova pagamento</strong>, planilha da porta e Excel.</p></div>
+        <div class="card-role"><h3>5. Tesouraria</h3><p>Acesso amplo: aprova pagamento, planilha, admin. Sem eventos/testemunhos.</p></div>
+        <div class="card-role"><h3>6. Líder de mídia</h3><p>Publica e edita Eventos e Testemunhos no painel.</p></div>
+        <div class="card-role"><h3>7. Apóstolo(a)</h3><p>Acesso master + mídia: quase tudo do painel (exceto papel Dev).</p></div>
+        <div class="card-role"><h3>Aguardando</h3><p>Se a conta ficar “Aguardando aprovação”, ainda não entra no painel.</p></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Criar conta">
+      <p class="role-tag"><span class="dot"></span> Para todos</p>
+      <h2>Como criar sua conta (cadastro)</h2>
+      <p class="legend">Menu → <strong>Cadastro</strong> (ou /cadastro). Pastor cadastra a equipe primeiro; depois discípulos e líderes escolhem essa equipe.</p>
+      <ol class="steps cols-2">
+        <li><span class="n">1</span><div><strong>Nome</strong><span>Digite seu nome completo.</span></div></li>
+        <li><span class="n">2</span><div><strong>1. Você é?</strong><span>Escolha: Discípulo, Líder, Líder / Tesouraria, Pastor, Apóstolo, Líder de mídia ou Tesouraria.</span></div></li>
+        <li><span class="n">3</span><div><strong>2. Equipe pastoral</strong><span>Pastor: digita o nome da equipe. Outros: escolhem a equipe na lista.</span></div></li>
+        <li><span class="n">4</span><div><strong>3. Tempo na igreja</strong><span>Ex.: “Menos de 6 meses”, “1 a 3 anos”, etc.</span></div></li>
+        <li><span class="n">5</span><div><strong>E-mail e senha</strong><span>Senha forte (mínimo exigido na tela). Confirme a senha.</span></div></li>
+        <li><span class="n">6</span><div><strong>Verifique o e-mail</strong><span>Abra o link que o sistema envia. Depois faça login.</span></div></li>
+      </ol>
+      <div class="callout">Ordem recomendada: <strong>Pastor cria a equipe</strong> → Discípulo / Líder / Líder·Tesouraria se cadastram escolhendo essa equipe.</div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Login e menu">
+      <p class="role-tag"><span class="dot"></span> Para todos</p>
+      <h2>Entrar e navegar no site</h2>
+      <div class="two">
+        <div class="panel">
+          <h3>Login</h3>
+          <ul>
+            <li>Abra <strong>Login</strong> (/login).</li>
+            <li>Informe e-mail e senha.</li>
+            <li>Depois do login você vai para <strong>Início</strong>.</li>
+            <li>Se esquecer a senha: use <strong>Esqueci a senha</strong>.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Menu público</h3>
+          <ul>
+            <li><strong>Início</strong> — página principal</li>
+            <li><strong>Células</strong> — lista de células</li>
+            <li><strong>Eventos</strong> — eventos publicados</li>
+            <li><strong>Testemunhos</strong> — reels / relatos</li>
+            <li><strong>De Volta ao Jardim</strong> — inscrição do encontro</li>
+            <li><strong>Legado de Cristo</strong> — inscrição do legado</li>
+            <li><strong>Painel</strong> — só se sua função tiver acesso</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout ok">Discípulo usa o site como visitante logado: vê o nome no topo, mas <strong>não</strong> tem link de Painel.</div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Discípulo">
+      <p class="role-tag"><span class="dot"></span> Discípulo</p>
+      <h2>O que o Discípulo faz</h2>
+      <p class="legend">Conta na base, sem painel. Foco: se inscrever e acompanhar o status do pagamento.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><div><strong>Cadastre-se como Discípulo</strong><span>Escolha a equipe do seu pastor e confirme o e-mail.</span></div></li>
+        <li><span class="n">2</span><div><strong>Faça login</strong><span>Use o menu para ir a De Volta ao Jardim, Legado ou Eventos.</span></div></li>
+        <li><span class="n">3</span><div><strong>Preencha a inscrição (etapa 1)</strong><span>Dados pessoais, pastor, papel (encontrista/trabalhador), etc.</span></div></li>
+        <li><span class="n">4</span><div><strong>Pagamento (etapa 2)</strong><span>Pix, cartão ou dinheiro — veja o próximo slide.</span></div></li>
+        <li><span class="n">5</span><div><strong>Aguarde a aprovação</strong><span>Tesouraria, Líder/Tesouraria ou Apóstolo(a) confirma o pagamento no painel.</span></div></li>
+      </ol>
+      <div class="callout warn">Se o pagamento ficar <strong>pendente</strong>, não é erro: alguém da equipe precisa aprovar no painel.</div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Inscrição — dados">
+      <p class="role-tag"><span class="dot"></span> Inscrição · Etapa 1</p>
+      <h2>De Volta ao Jardim — preencher os dados</h2>
+      <p class="legend">Página <strong>/encontro-com-deus</strong>. Legado de Cristo e Eventos seguem o mesmo espírito (dados → pagamento).</p>
+      <ol class="steps cols-2">
+        <li><span class="n">1</span><div><strong>Nome completo</strong><span>Nome e sobrenome.</span></div></li>
+        <li><span class="n">2</span><div><strong>E-mail e telefone</strong><span>Telefone com DDD, ex.: (11) 91234-5678.</span></div></li>
+        <li><span class="n">3</span><div><strong>Data de nascimento</strong><span>Menor de idade: pode pedir autorização do líder.</span></div></li>
+        <li><span class="n">4</span><div><strong>Papel no encontro</strong><span>Encontrista ou Trabalhador.</span></div></li>
+        <li><span class="n">5</span><div><strong>Pastor</strong><span>Escolha o pastor da lista (obrigatório).</span></div></li>
+        <li><span class="n">6</span><div><strong>Sexo, cidade, emergência</strong><span>Preencha o que a tela pedir; observações e “como soube” se houver.</span></div></li>
+        <li><span class="n">7</span><div><strong>Continuar</strong><span>Vai para a etapa de pagamento.</span></div></li>
+      </ol>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Inscrição — pagamento">
+      <p class="role-tag"><span class="dot"></span> Inscrição · Etapa 2</p>
+      <h2>Como pagar (Pix, cartão ou dinheiro)</h2>
+      <div class="two">
+        <div class="panel">
+          <h3>Pix / Débito / Crédito</h3>
+          <ul>
+            <li>Escolha a forma de pagamento.</li>
+            <li>No <strong>Pix</strong>: copie a chave da igreja (botão copiar na tela) e pague no app do banco.</li>
+            <li>No <strong>cartão</strong>: pague na maquininha e tire <strong>foto da maquininha</strong>.</li>
+            <li>Envie o <strong>comprovante</strong> (foto ou PDF) — é obrigatório.</li>
+            <li>Confirme valor, parcelas (se crédito) e crianças, se levar.</li>
+            <li>Envie a inscrição.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Dinheiro</h3>
+          <ul>
+            <li>Escolha <strong>Dinheiro</strong>.</li>
+            <li>Não precisa de comprovante no site.</li>
+            <li>Vá até a mesa na igreja e pague presencialmente.</li>
+            <li>Peça à <strong>Líder / Tesouraria</strong> ou <strong>Tesouraria</strong> para aprovar no painel.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">Status depois do envio: <span class="pill">pendente</span> → aprovado ou recusado pela equipe autorizada.</div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Legado e Eventos">
+      <p class="role-tag"><span class="dot"></span> Inscrições públicas</p>
+      <h2>Legado de Cristo e Eventos</h2>
+      <div class="two">
+        <div class="panel">
+          <h3>Legado de Cristo</h3>
+          <ul>
+            <li>Menu → <strong>Legado de Cristo</strong> (/legado-de-cristo).</li>
+            <li>Mesmo fluxo: dados → pagamento com comprovante (ou dinheiro).</li>
+            <li>Inscrições aparecem no painel em <strong>Legado</strong>.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Eventos</h3>
+          <ul>
+            <li>Menu → <strong>Eventos</strong> → abra o evento desejado.</li>
+            <li>Preencha a inscrição e o pagamento, se o evento cobrar.</li>
+            <li>Quem cuida da lista no painel: <strong>Inscrições de eventos</strong>.</li>
+            <li>Quem publica o evento: <strong>Líder de mídia</strong> ou Apóstolo(a).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout ok">Regra única de pagamento: Pix/cartão = comprovante; dinheiro = mesa + aprovação humana.</div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Líder">
+      <p class="role-tag"><span class="dot"></span> Líder</p>
+      <h2>Como o Líder usa o painel</h2>
+      <p class="legend">Depois do login, o link <strong>Painel</strong> leva às inscrições da <strong>sua equipe pastoral</strong>.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><div><strong>Cadastre-se como Líder</strong><span>Escolha a equipe do pastor. Sem equipe, você não vê a lista certa.</span></div></li>
+        <li><span class="n">2</span><div><strong>Abra o Painel</strong><span>Vai para De Volta ao Jardim (/painel/encontro) e Legado (/painel/legado).</span></div></li>
+        <li><span class="n">3</span><div><strong>Veja só a sua equipe</strong><span>Inscrições de outras equipes não aparecem.</span></div></li>
+        <li><span class="n">4</span><div><strong>Acompanhe status</strong><span>Pendentes, aprovados, dados do inscrito, pastor, papel.</span></div></li>
+        <li><span class="n">5</span><div><strong>Não aprova pagamento</strong><span>Quem confirma pagamento é Tesouraria, Líder/Tesouraria ou Apóstolo(a).</span></div></li>
+      </ol>
+      <div class="callout warn">Se a lista estiver vazia: peça ao pastor para te colocar na equipe pastoral correta no cadastro/admin.</div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Pastor">
+      <p class="role-tag"><span class="dot"></span> Pastor</p>
+      <h2>Como o Pastor usa o painel</h2>
+      <ol class="steps cols-2">
+        <li><span class="n">1</span><div><strong>Cadastro</strong><span>Escolha Pastor e digite o <strong>nome da equipe</strong> (ele aparece para os outros).</span></div></li>
+        <li><span class="n">2</span><div><strong>Inscrições</strong><span>Painel → De Volta ao Jardim e Legado — acompanhe os inscritos.</span></div></li>
+        <li><span class="n">3</span><div><strong>Admin · Usuários</strong><span>Altere a função de pessoas (Discípulo, Líder, etc.).</span></div></li>
+        <li><span class="n">4</span><div><strong>Excluir usuário</strong><span>Pode excluir com cuidado. Não remove Tesouraria, Apóstolo nem outro Pastor.</span></div></li>
+        <li><span class="n">5</span><div><strong>Não aprova pagamento sozinho</strong><span>Aprovação fica com quem tem poder de tesouraria / apóstolo / líder-tesouraria.</span></div></li>
+        <li><span class="n">6</span><div><strong>Sem mídia</strong><span>Pastor não edita Eventos nem Testemunhos no painel.</span></div></li>
+      </ol>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Líder / Tesouraria">
+      <p class="role-tag"><span class="dot"></span> Líder / Tesouraria</p>
+      <h2>Aprovar pagamento e planilha da porta</h2>
+      <p class="legend">Função chave no culto/evento: confirma quem pagou e marca quem chegou.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><div><strong>Abra o Painel</strong><span>Costuma abrir em <strong>Planilha de inscrições</strong>.</span></div></li>
+        <li><span class="n">2</span><div><strong>De Volta ao Jardim / Legado / Eventos</strong><span>Abra a inscrição com pagamento pendente.</span></div></li>
+        <li><span class="n">3</span><div><strong>Confira o comprovante</strong><span>Pix: veja se o valor bate. Cartão: veja a foto da maquininha. Dinheiro: confirme na mesa.</span></div></li>
+        <li><span class="n">4</span><div><strong>Aprove ou recuse</strong><span>Use os botões de aprovação no card da inscrição.</span></div></li>
+        <li><span class="n">5</span><div><strong>Planilha de inscrições</strong><span>Na porta: marque presença, filtre por papel/sexo, baixe Excel se precisar.</span></div></li>
+        <li><span class="n">6</span><div><strong>Chave Pix</strong><span>Pode atualizar a chave Pix da igreja nas telas de inscrição do painel (quando disponível).</span></div></li>
+      </ol>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Tesouraria">
+      <p class="role-tag"><span class="dot"></span> Tesouraria</p>
+      <h2>Como a Tesouraria trabalha</h2>
+      <div class="two">
+        <div class="panel">
+          <h3>O que pode</h3>
+          <ul>
+            <li>Dashboard</li>
+            <li>Planilha de inscrições + Excel</li>
+            <li>De Volta ao Jardim, Legado, Inscrições de eventos</li>
+            <li><strong>Aprovar / recusar pagamento</strong></li>
+            <li>Admin · Usuários (funções e exclusão)</li>
+            <li>Editar chave Pix da igreja</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Passo a passo típico</h3>
+          <ul>
+            <li>1. Login → Painel</li>
+            <li>2. Abra a lista (Encontro / Legado / Eventos)</li>
+            <li>3. Filtre pendentes</li>
+            <li>4. Abra comprovante</li>
+            <li>5. Aprove ou recuse</li>
+            <li>6. No culto: use a Planilha de inscrições</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn">Tesouraria <strong>não</strong> gerencia Eventos nem Testemunhos (isso é mídia / apóstolo).</div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Líder de mídia">
+      <p class="role-tag"><span class="dot"></span> Líder de mídia</p>
+      <h2>Publicar Eventos e Testemunhos</h2>
+      <ol class="steps">
+        <li><span class="n">1</span><div><strong>Cadastre-se como Líder de mídia</strong><span>Após o login, o Painel abre em Eventos.</span></div></li>
+        <li><span class="n">2</span><div><strong>Painel → Eventos</strong><span>Crie ou edite eventos (título, data, imagem, inscrição, etc.).</span></div></li>
+        <li><span class="n">3</span><div><strong>Publique</strong><span>Quando estiver pronto, o evento aparece no site público em /eventos.</span></div></li>
+        <li><span class="n">4</span><div><strong>Painel → Testemunhos</strong><span>Cadastre relatos / reels que aparecem na home.</span></div></li>
+        <li><span class="n">5</span><div><strong>Não vê listas de pagamento</strong><span>Inscrições financeiras ficam com líderes/tesouraria/apóstolo.</span></div></li>
+      </ol>
+      <div class="callout">Quem se inscreve no evento usa a página pública do evento; a mídia só publica o conteúdo.</div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Apóstolo">
+      <p class="role-tag"><span class="dot"></span> Apóstolo(a)</p>
+      <h2>Visão master + mídia</h2>
+      <p class="legend">O Apóstolo(a) enxerga o painel quase por completo (sem ser Dev).</p>
+      <ol class="steps cols-2">
+        <li><span class="n">1</span><div><strong>Dashboard</strong><span>Visão geral do painel.</span></div></li>
+        <li><span class="n">2</span><div><strong>Inscrições</strong><span>Encontro, Legado e Eventos — todas as equipes.</span></div></li>
+        <li><span class="n">3</span><div><strong>Aprovar pagamento</strong><span>Mesmo poder da Tesouraria.</span></div></li>
+        <li><span class="n">4</span><div><strong>Planilha da porta</strong><span>Presença e Excel.</span></div></li>
+        <li><span class="n">5</span><div><strong>Eventos e Testemunhos</strong><span>Pode publicar como a mídia.</span></div></li>
+        <li><span class="n">6</span><div><strong>Admin · Usuários</strong><span>Ajustar funções e excluir (respeitando regras).</span></div></li>
+      </ol>
+      <div class="callout ok">Na prática: se algo “não abre” para outro papel, o Apóstolo(a) costuma ser quem resolve no painel.</div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Quem aprova">
+      <p class="role-tag"><span class="dot"></span> Regras importantes</p>
+      <h2>Quem aprova o quê?</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Ação</th>
+            <th>Quem pode</th>
+            <th>Quem não pode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Se inscrever / pagar</td>
+            <td>Qualquer pessoa (até visitante, conforme a página)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Ver inscrições da equipe</td>
+            <td>Líder, Pastor, Líder/Tesouraria, Tesouraria, Apóstolo</td>
+            <td>Discípulo, Mídia</td>
+          </tr>
+          <tr>
+            <td>Aprovar pagamento</td>
+            <td>Líder/Tesouraria, Tesouraria, Apóstolo</td>
+            <td>Discípulo, Líder, Pastor, Mídia</td>
+          </tr>
+          <tr>
+            <td>Planilha da porta</td>
+            <td>Líder/Tesouraria, Tesouraria, Apóstolo</td>
+            <td>Líder comum, Pastor, Mídia, Discípulo</td>
+          </tr>
+          <tr>
+            <td>Eventos / Testemunhos</td>
+            <td>Líder de mídia, Apóstolo</td>
+            <td>Tesouraria, Líder, Pastor, Discípulo</td>
+          </tr>
+          <tr>
+            <td>Admin · Usuários</td>
+            <td>Pastor, Tesouraria, Apóstolo</td>
+            <td>Líder, Líder/Tesouraria, Mídia, Discípulo</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Checklist final">
+      <p class="role-tag"><span class="dot"></span> Resumo</p>
+      <h2>Checklist rápido para ensinar</h2>
+      <ol class="steps cols-2">
+        <li><span class="n">1</span><div><strong>Pastor cadastra a equipe</strong><span>Antes dos discípulos.</span></div></li>
+        <li><span class="n">2</span><div><strong>Cada um escolhe a função certa</strong><span>No campo “Você é?”.</span></div></li>
+        <li><span class="n">3</span><div><strong>Confirmar e-mail + login</strong><span>Sem isso o cadastro não completa.</span></div></li>
+        <li><span class="n">4</span><div><strong>Inscrição em 2 etapas</strong><span>Dados → pagamento com comprovante (ou dinheiro).</span></div></li>
+        <li><span class="n">5</span><div><strong>Equipe aprova no painel</strong><span>Líder/Tesouraria, Tesouraria ou Apóstolo.</span></div></li>
+        <li><span class="n">6</span><div><strong>Na porta: planilha</strong><span>Marcar chegada e baixar Excel.</span></div></li>
+        <li><span class="n">7</span><div><strong>Mídia publica conteúdo</strong><span>Eventos e testemunhos no site.</span></div></li>
+        <li><span class="n">8</span><div><strong>Dúvida de permissão</strong><span>Olhe a tabela do slide anterior.</span></div></li>
+      </ol>
+      <div class="callout">Arquivo: <code>presentation/guia-usuarios.html</code> · Evolução do site: <code>site-evolution.html</code></div>
+    </section>
+
+    <div class="progress">
+      <span id="label">Capa</span>
+      <div class="bar"><i id="fill"></i></div>
+      <span id="count">1 / 1</span>
+    </div>
+    <div class="nav">
+      <button type="button" id="prev" aria-label="Anterior">↑</button>
+      <button type="button" id="next" aria-label="Próximo">↓</button>
+    </div>
+  </div>
+</div>
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  const fill = document.getElementById("fill");
+  const label = document.getElementById("label");
+  const count = document.getElementById("count");
+  let i = 0;
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+    const t = slides[i].dataset.title || ("Slide " + (i + 1));
+    label.textContent = t;
+    count.textContent = (i + 1) + " / " + slides.length;
+    fill.style.width = ((i + 1) / slides.length * 100) + "%";
+  }
+
+  document.getElementById("prev").onclick = () => show(i - 1);
+  document.getElementById("next").onclick = () => show(i + 1);
+
+  window.addEventListener("keydown", (e) => {
+    if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) {
+      e.preventDefault();
+      show(i + 1);
+    }
+    if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) {
+      e.preventDefault();
+      show(i - 1);
+    }
+    if (e.key === "Home") show(0);
+    if (e.key === "End") show(slides.length - 1);
+  });
+
+  let touchX = null;
+  window.addEventListener("touchstart", (e) => {
+    touchX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  window.addEventListener("touchend", (e) => {
+    if (touchX == null) return;
+    const dx = e.changedTouches[0].screenX - touchX;
+    if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
+    touchX = null;
+  }, { passive: true });
+
+  show(0);
+</script>
+</body>
+</html>

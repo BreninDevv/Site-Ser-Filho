@@ -1,0 +1,14 @@
+{
+  "hash": "d495887",
+  "route": "/legado-de-cristo",
+  "label": "feat: inscrição e painel do Legado de Cristo",
+  "full": "d49588777424408d5b7b967fb16b7e1ca725293c",
+  "date": "2026-09-06",
+  "author": "Aldo Silva",
+  "subject": "adiciona inscricao e painel do Legado de Cristo",
+  "stats": {
+    "files": 15,
+    "insertions": 1932,
+    "deletions": 2
+  }
+}

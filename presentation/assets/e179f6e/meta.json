@@ -1,0 +1,14 @@
+{
+  "hash": "e179f6e",
+  "route": "/inicio",
+  "label": "feat: globo, reels, inscrição de eventos e status de pagamento",
+  "full": "e179f6ebe89e217604723213bb4c6e3d7ecbf380",
+  "date": "2026-09-07",
+  "author": "Aldo Silva",
+  "subject": "publica globo, reels de testemunho, inscricao de eventos e status de pagamento",
+  "stats": {
+    "files": 42,
+    "insertions": 3347,
+    "deletions": 235
+  }
+}

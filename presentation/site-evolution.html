@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Evolução do Site — Ser Filho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: Inter, system-ui, sans-serif; color: #0b1f33; background: #fff; }
+  .slide {
+    width: 1280px; height: 720px; padding: 48px 56px 64px;
+    page-break-after: always; break-after: page;
+    position: relative; overflow: hidden;
+    background: #ffffff;
+  }
+  .cover { display: flex; align-items: center; background: #0b1f33; color: #fff; }
+  .cover-inner { max-width: 900px; }
+  .eyebrow { letter-spacing: .12em; text-transform: uppercase; font-size: 12px; opacity: .7; }
+  .cover h1 { font-size: 42px; line-height: 1.15; font-weight: 700; margin: 16px 0; }
+  .cover .sub { font-size: 18px; opacity: .85; }
+  .cover .meta { margin-top: 32px; font-size: 14px; opacity: .6; }
+  header { display: flex; justify-content: space-between; color: #5a6b7d; font-size: 13px; margin-bottom: 8px; }
+  h2 { font-size: 26px; margin: 0 0 8px; color: #0b1f33; font-weight: 650; }
+  .legend { color: #3d4f61; font-size: 15px; margin: 0 0 8px; }
+  .before { color: #5a6b7d; font-size: 13px; margin: 0 0 16px; }
+  .shots { display: grid; gap: 16px; align-items: start; }
+  .shots.duo { grid-template-columns: 1.4fr 0.7fr; }
+  .shots.solo { grid-template-columns: 1fr; }
+  figure { margin: 0; }
+  figure img {
+    width: 100%; max-height: 420px; object-fit: cover; object-position: top;
+    border: 1px solid #d5dee8; border-radius: 8px; background: #f4f7fa;
+  }
+  figure.mobile img { max-height: 420px; object-fit: contain; background: #0b1f33; }
+  figcaption { font-size: 11px; color: #5a6b7d; margin-top: 6px; }
+  .progress {
+    position: absolute; left: 56px; right: 56px; bottom: 28px;
+    font-size: 12px; color: #5a6b7d;
+    border-top: 2px solid #e6eef6; padding-top: 10px;
+  }
+  .finale .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+  .finale .metrics div {
+    background: #f4f7fa; border: 1px solid #d5dee8; border-radius: 8px;
+    padding: 14px; text-align: center;
+  }
+  .finale .metrics strong { display: block; font-size: 22px; color: #0b1f33; }
+  .finale .metrics span { font-size: 12px; color: #5a6b7d; }
+  .note { font-size: 11px; color: #5a6b7d; }
+  .timeline { max-height: 380px; overflow: hidden; margin-top: 8px; }
+  .tl-item { display: grid; grid-template-columns: 16px 1fr; gap: 12px; margin-bottom: 10px; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #0b1f33; margin-top: 5px; }
+  .tl-body strong { font-size: 13px; }
+  .tl-body span { margin-left: 8px; color: #5a6b7d; font-size: 12px; }
+  .tl-body p { margin: 2px 0; font-size: 13px; }
+  .tl-body small { color: #5a6b7d; }
+  code { font-size: 12px; background: #f4f7fa; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+  <section class="slide cover">
+    <div class="cover-inner">
+      <p class="eyebrow">Apresentação automática · Git</p>
+      <h1>Evolução do Site da Igreja<br/>Ser Filho</h1>
+      <p class="sub">19 de setembro de 2026</p>
+      <p class="meta">12 marcos · gerado a partir do histórico</p>
+    </div>
+    <div class="progress">Capa</div>
+  </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">216037d</span>
+        <span class="date">2026-08-31</span>
+      </header>
+      <h2>feat: início do projeto Next.js</h2>
+      <p class="legend">Initial commit from Create Next App</p>
+      <p class="before">Marco inicial desta linha do tempo</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/216037d/desktop.png" alt="Desktop 216037d" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/216037d/mobile.png" alt="Mobile 216037d" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 1 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">00c419c</span>
+        <span class="date">2026-09-05</span>
+      </header>
+      <h2>feat: células quase prontas na home pública</h2>
+      <p class="legend">projeto com celulas praticamente pronta</p>
+      <p class="before">Em relação a <code>216037d</code>: +7073 / −395 em 43 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/00c419c/desktop.png" alt="Desktop 00c419c" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/00c419c/mobile.png" alt="Mobile 00c419c" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 2 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">3b6e31a</span>
+        <span class="date">2026-09-06</span>
+      </header>
+      <h2>feat: inscrição pública do Encontro + painel</h2>
+      <p class="legend">inscricao publica do encontro e painel de inscritos</p>
+      <p class="before">Em relação a <code>00c419c</code>: +942 / −12 em 10 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/3b6e31a/desktop.png" alt="Desktop 3b6e31a" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/3b6e31a/mobile.png" alt="Mobile 3b6e31a" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 3 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">cab5248</span>
+        <span class="date">2026-09-06</span>
+      </header>
+      <h2>feat: pagamento do Encontro (etapa 2, comprovante, aprovação)</h2>
+      <p class="legend">pagamento do encontro: etapa 2, comprovante e aprovacao pelo dev</p>
+      <p class="before">Em relação a <code>3b6e31a</code>: +1613 / −321 em 13 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/cab5248/desktop.png" alt="Desktop cab5248" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/cab5248/mobile.png" alt="Mobile cab5248" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 4 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">d495887</span>
+        <span class="date">2026-09-06</span>
+      </header>
+      <h2>feat: inscrição e painel do Legado de Cristo</h2>
+      <p class="legend">adiciona inscricao e painel do Legado de Cristo</p>
+      <p class="before">Em relação a <code>cab5248</code>: +1932 / −2 em 15 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/d495887/desktop.png" alt="Desktop d495887" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/d495887/mobile.png" alt="Mobile d495887" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 5 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">1402a7d</span>
+        <span class="date">2026-09-06</span>
+      </header>
+      <h2>feat: eventos, testemunhos, role mídia e blindagem</h2>
+      <p class="legend">adiciona eventos, testemunhos, role midia e blindagem de seguranca</p>
+      <p class="before">Em relação a <code>d495887</code>: +1982 / −266 em 48 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/1402a7d/desktop.png" alt="Desktop 1402a7d" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/1402a7d/mobile.png" alt="Mobile 1402a7d" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 6 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">e179f6e</span>
+        <span class="date">2026-09-07</span>
+      </header>
+      <h2>feat: globo, reels, inscrição de eventos e status de pagamento</h2>
+      <p class="legend">publica globo, reels de testemunho, inscricao de eventos e status de pagamento</p>
+      <p class="before">Em relação a <code>1402a7d</code>: +3347 / −235 em 42 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/e179f6e/desktop.png" alt="Desktop e179f6e" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/e179f6e/mobile.png" alt="Mobile e179f6e" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 7 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">6a82274</span>
+        <span class="date">2026-09-14</span>
+      </header>
+      <h2>feat: role Líder/Tesouraria + planilha de chegada + Excel</h2>
+      <p class="legend">cria role lider/tesouraria com planilha de chegada e download excel</p>
+      <p class="before">Em relação a <code>e179f6e</code>: +901 / −14 em 12 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/6a82274/desktop.png" alt="Desktop 6a82274" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/6a82274/mobile.png" alt="Mobile 6a82274" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 8 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">4155776</span>
+        <span class="date">2026-09-16</span>
+      </header>
+      <h2>design: sidebar colapsável do painel com permissões</h2>
+      <p class="legend">adiciona sidebar colapsavel no painel com rotas e permissoes reais</p>
+      <p class="before">Em relação a <code>6a82274</code>: +317 / −81 em 4 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/4155776/desktop.png" alt="Desktop 4155776" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/4155776/mobile.png" alt="Mobile 4155776" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 9 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">fc14b52</span>
+        <span class="date">2026-09-17</span>
+      </header>
+      <h2>feat: chave Pix, foto da maquininha e aprovação Líder/Tesouraria</h2>
+      <p class="legend">Chave Pix no painel, comprovante no cartão e aprovação pela Líder/Tesouraria.</p>
+      <p class="before">Em relação a <code>4155776</code>: +1021 / −217 em 29 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/fc14b52/desktop.png" alt="Desktop fc14b52" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/fc14b52/mobile.png" alt="Mobile fc14b52" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 10 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">04e6899</span>
+        <span class="date">2026-09-18</span>
+      </header>
+      <h2>design: menu do celular com cores de cada página</h2>
+      <p class="legend">Menu do celular mostra a cor de cada página, como no desktop.</p>
+      <p class="before">Em relação a <code>fc14b52</code>: +26 / −3 em 1 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/04e6899/desktop.png" alt="Desktop 04e6899" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/04e6899/mobile.png" alt="Mobile 04e6899" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 11 de 12</div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <span class="hash">a5c053f</span>
+        <span class="date">2026-09-19</span>
+      </header>
+      <h2>update: fluxo de IA (memória, rules, prompts e guia)</h2>
+      <p class="legend">Adota o fluxo de IA do toolkit: memória, rules, prompts e guia.</p>
+      <p class="before">Em relação a <code>04e6899</code>: +493 / −46 em 18 arquivos</p>
+      <div class="shots duo">
+        <figure>
+          <img src="assets/a5c053f/desktop.png" alt="Desktop a5c053f" />
+          <figcaption>Desktop 1920×1080</figcaption>
+        </figure>
+        <figure class="mobile">
+          <img src="assets/a5c053f/mobile.png" alt="Mobile a5c053f" />
+          <figcaption>Mobile 390×844</figcaption>
+        </figure>
+      </div>
+      <div class="progress">Commit 12 de 12</div>
+    </section>
+
+  <section class="slide finale">
+    <h2>Linha do tempo</h2>
+    <div class="metrics">
+      <div><strong>12</strong><span>marcos</span></div>
+      <div><strong>253</strong><span>arquivos tocados*</span></div>
+      <div><strong>+26737</strong><span>linhas adicionadas*</span></div>
+      <div><strong>−1592</strong><span>linhas removidas*</span></div>
+    </div>
+    <p class="note">*Soma dos diffs dos marcos selecionados (não do repositório inteiro).</p>
+    <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>1. 216037d</strong>
+        <span>2026-08-31</span>
+        <p>feat: início do projeto Next.js</p>
+        <small>18 arquivos · +7090 −0</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>2. 00c419c</strong>
+        <span>2026-09-05</span>
+        <p>feat: células quase prontas na home pública</p>
+        <small>43 arquivos · +7073 −395</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>3. 3b6e31a</strong>
+        <span>2026-09-06</span>
+        <p>feat: inscrição pública do Encontro + painel</p>
+        <small>10 arquivos · +942 −12</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>4. cab5248</strong>
+        <span>2026-09-06</span>
+        <p>feat: pagamento do Encontro (etapa 2, comprovante, aprovação)</p>
+        <small>13 arquivos · +1613 −321</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>5. d495887</strong>
+        <span>2026-09-06</span>
+        <p>feat: inscrição e painel do Legado de Cristo</p>
+        <small>15 arquivos · +1932 −2</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>6. 1402a7d</strong>
+        <span>2026-09-06</span>
+        <p>feat: eventos, testemunhos, role mídia e blindagem</p>
+        <small>48 arquivos · +1982 −266</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>7. e179f6e</strong>
+        <span>2026-09-07</span>
+        <p>feat: globo, reels, inscrição de eventos e status de pagamento</p>
+        <small>42 arquivos · +3347 −235</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>8. 6a82274</strong>
+        <span>2026-09-14</span>
+        <p>feat: role Líder/Tesouraria + planilha de chegada + Excel</p>
+        <small>12 arquivos · +901 −14</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>9. 4155776</strong>
+        <span>2026-09-16</span>
+        <p>design: sidebar colapsável do painel com permissões</p>
+        <small>4 arquivos · +317 −81</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>10. fc14b52</strong>
+        <span>2026-09-17</span>
+        <p>feat: chave Pix, foto da maquininha e aprovação Líder/Tesouraria</p>
+        <small>29 arquivos · +1021 −217</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>11. 04e6899</strong>
+        <span>2026-09-18</span>
+        <p>design: menu do celular com cores de cada página</p>
+        <small>1 arquivos · +26 −3</small>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <strong>12. a5c053f</strong>
+        <span>2026-09-19</span>
+        <p>update: fluxo de IA (memória, rules, prompts e guia)</p>
+        <small>18 arquivos · +493 −46</small>
+      </div>
+    </div></div>
+    <div class="progress">Fim</div>
+  </section>
+</body>
+</html>
