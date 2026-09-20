@@ -18,6 +18,40 @@
   padding: 5.5rem 1rem 5rem;
 }
 
+/* Fundo ambient que segue o post ativo */
+.events__ambiance {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.events__ambiance-layer {
+  position: absolute;
+  inset: -12%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(64px) saturate(1.35) brightness(0.55);
+  transform: scale(1.15);
+  opacity: 0;
+  transition: opacity 0.85s ease;
+}
+
+.events__ambiance-layer.is-active {
+  opacity: 1;
+}
+
+.events__ambiance::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, transparent 0%, rgba(0, 0, 0, 0.45) 70%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.72) 100%);
+}
+
 .events__inner {
   position: relative;
   z-index: 1;
@@ -138,31 +172,40 @@
   transform-style: preserve-3d;
   opacity: 0;
   transform: translate(-50%, -50%) translateY(80px) scale(0.8) rotateY(15deg);
-  filter: grayscale(1);
   pointer-events: none;
   transition:
     transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 600ms ease,
-    filter 800ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 600ms ease;
 }
 
 .events__list > li.revealed {
   pointer-events: auto;
-  filter: grayscale(0.5);
   transition:
     transform 1000ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 600ms ease,
-    filter 1000ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 600ms ease;
 }
 
-.events__list > li.is-center {
-  filter: grayscale(0);
+/* Laterais embaçados; centro nítido */
+.events__list > li.revealed .event-card__media {
+  filter: grayscale(0.35) blur(4px);
+  transform: scale(1.12);
+  transition:
+    filter 0.55s ease,
+    transform 0.55s ease;
+}
+
+.events__list > li.is-center.revealed .event-card__media {
+  filter: none;
+  transform: scale(1);
+}
+
+.events__list > li.is-center.revealed .event-card {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 .events__list > li.is-center.revealed .event-card__float {
   animation: gentle-float 4s ease-in-out infinite;
 }
-
 .events__list > li.is-hidden-mobile {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -235,9 +278,8 @@
   bottom: 0;
   z-index: 2;
   padding: 1.1rem 1.15rem 1.25rem;
-  background: var(--overlay);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.72);
+  /* sem backdrop-filter — evita “embaçar” o post em cena */
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px);
@@ -411,16 +453,24 @@
 
   .events__list > li {
     opacity: 1 !important;
-    filter: grayscale(0.5) !important;
     animation: none !important;
   }
 
-  .events__list > li.is-center {
-    filter: grayscale(0) !important;
+  .events__list > li.revealed .event-card__media {
+    filter: grayscale(0.35) !important;
+    transform: none !important;
+  }
+
+  .events__list > li.is-center.revealed .event-card__media {
+    filter: none !important;
   }
 
   .events__list > li.is-center.revealed .event-card__float {
     animation: none !important;
+  }
+
+  .events__ambiance-layer {
+    transition: none !important;
   }
 
   .events__list > li.is-center .event-card .content,

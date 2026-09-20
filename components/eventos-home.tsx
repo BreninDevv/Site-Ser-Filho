@@ -278,6 +278,20 @@ export function EventosHome({
       aria-roledescription="carrossel"
       aria-label="Próximos eventos"
     >
+      <div className="events__ambiance" aria-hidden>
+        {itens.map((evento, index) => (
+          <div
+            key={`bg-${evento.id}`}
+            className={
+              index === activeIdx
+                ? "events__ambiance-layer is-active"
+                : "events__ambiance-layer"
+            }
+            style={{ backgroundImage: `url(${evento.imagem})` }}
+          />
+        ))}
+      </div>
+
       <div className="events__inner">
         <div className="events__header">
           <div>
