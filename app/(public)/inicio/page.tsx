@@ -34,7 +34,7 @@ export default async function InicioPage() {
     .from("testemunhos")
     .select("nome, titulo, descricao, video_url, previa_path")
     .order("created_at", { ascending: false })
-    .limit(3);
+    .limit(4);
 
   const { data: testemunhosLegado } = testemunhosNovos
     ? { data: null }
@@ -42,7 +42,7 @@ export default async function InicioPage() {
         .from("testemunhos")
         .select("nome, titulo, video_url")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(4);
 
   const testemunhos = testemunhosNovos ??
     testemunhosLegado?.map((item) => ({
@@ -158,42 +158,8 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section
-        id="testemunhos"
-        className="relative w-full bg-tertiary px-4 py-24 text-white"
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                Histórias
-              </p>
-              <h2 className="font-heading text-4xl font-bold tracking-tight">
-                Testemunhos
-              </h2>
-            </div>
-            <p className="max-w-sm text-sm text-white/75">
-              Histórias reais de pessoas que encontraram algo novo dentro do Ser
-              Filho.
-            </p>
-          </div>
-          <TestemunhosHome itens={testemunhosHome} />
-          <div className="mt-10">
-            <Button
-              variant="outline"
-              className="rounded-full border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-              asChild
-            >
-              <a
-                href={INSTAGRAM_SER_FILHO}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Ver mais testemunhos
-              </a>
-            </Button>
-          </div>
-        </div>
+      <section id="testemunhos" className="testemunhos-section relative w-full text-white">
+        <TestemunhosHome itens={testemunhosHome} />
       </section>
 
       <section className="px-4 py-24">
