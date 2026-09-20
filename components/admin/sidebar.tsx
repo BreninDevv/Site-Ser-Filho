@@ -23,6 +23,7 @@ import {
   type GradientMenuItem,
 } from "@/components/ui/gradient-menu";
 import { FingerprintMenuIcon } from "@/components/ui/fingerprint-icon";
+import { MapPinLineMenuIcon } from "@/components/ui/map-pin-line-icon";
 import { CORES_PAINEL_NAV } from "@/lib/ui/cores-marca";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ const ICONES: Record<string, IconType> = {
   "/painel/eventos": IoCalendarOutline,
   "/painel/testemunhos": IoChatbubbleEllipsesOutline,
   "/painel/admin/usuarios": IoPeopleOutline,
+  "/painel/celulas": MapPinLineMenuIcon,
 };
 
 export type AdminSidebarLink = {

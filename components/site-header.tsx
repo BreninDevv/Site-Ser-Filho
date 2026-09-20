@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   IoFlowerOutline,
-  IoGridOutline,
   IoHomeOutline,
   IoCalendarOutline,
   IoChatbubbleEllipsesOutline,
@@ -20,6 +19,7 @@ import {
   type GradientMenuItem,
 } from "@/components/ui/gradient-menu";
 import { FingerprintMenuIcon } from "@/components/ui/fingerprint-icon";
+import { MapPinLineMenuIcon } from "@/components/ui/map-pin-line-icon";
 import { CORES_FLUIDO_MENU } from "@/lib/ui/cores-marca";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ export const siteGradientNavItems: GradientMenuItem[] = [
   },
   {
     title: "Células",
-    icon: IoGridOutline,
+    icon: MapPinLineMenuIcon,
     to: "/celulas",
     ...gradienteMarca("/celulas"),
   },
