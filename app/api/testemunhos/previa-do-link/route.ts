@@ -30,6 +30,5 @@ export async function POST(request: Request) {
     rotulo: resultado.rotulo,
     destino: resultado.destino,
     thumbnailUrl: resultado.thumbnailUrl,
-    titulo: resultado.titulo ?? null,
   });
 }
