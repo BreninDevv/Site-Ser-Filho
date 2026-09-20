@@ -6,8 +6,8 @@ import { ROTULOS_ROLE } from "@/lib/auth/roles";
 import {
   criarKitPerfisFicticios,
   criarPerfilFicticio,
-  type CredencialFicticia,
 } from "@/app/(painel)/painel/admin/usuarios/actions";
+import type { CredencialFicticia } from "@/app/(painel)/painel/admin/usuarios/tipos";
 
 const ROLES_FORM = [
   "discipulo",

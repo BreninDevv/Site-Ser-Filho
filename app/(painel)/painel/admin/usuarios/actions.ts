@@ -13,14 +13,7 @@ import {
   type RoleAtribuivel,
 } from "@/lib/auth/roles";
 import { emailValido, uuidValido } from "@/lib/seguranca";
-
-export type CredencialFicticia = {
-  id: string;
-  email: string;
-  senha: string;
-  nome: string;
-  role: string;
-};
+import type { CredencialFicticia } from "./tipos";
 
 const ROLES_FICTICIAS = [
   "discipulo",

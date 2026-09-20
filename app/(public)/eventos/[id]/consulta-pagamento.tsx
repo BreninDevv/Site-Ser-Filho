@@ -8,8 +8,8 @@ import {
 } from "@/lib/validations/inscricao-evento";
 import {
   consultarStatusPagamentoEvento,
-  ESTADO_INICIAL_CONSULTA,
 } from "./actions";
+import { ESTADO_INICIAL_CONSULTA } from "./consulta-estado";
 
 const campo =
   "w-full border border-[#dcdad3] bg-[#faf9f6] px-3 py-2.5 text-sm outline-none focus:border-foreground";

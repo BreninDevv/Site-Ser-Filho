@@ -4,8 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { exigeConferirPlanilha } from "@/lib/auth/permissoes";
 import { uuidValido } from "@/lib/seguranca";
-
-export type FontePlanilha = "encontro" | "legado" | "evento";
+import type { FontePlanilha } from "./tipos";
 
 export async function marcarChegadaPlanilha(
   fonte: FontePlanilha,

@@ -16,7 +16,7 @@ import {
   PlanilhaPorta,
   type LinhaPlanilhaPorta,
 } from "./planilha-porta";
-import type { FontePlanilha } from "./actions";
+import type { FontePlanilha } from "./tipos";
 
 type Origem = FontePlanilha | `evento:${string}`;
 

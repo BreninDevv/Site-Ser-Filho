@@ -13,10 +13,8 @@ import {
   type PapelEncontro,
 } from "@/lib/validations/inscricao-encontro";
 import { formatarReais } from "@/lib/validations/pagamento-encontro";
-import {
-  marcarChegadaPlanilha,
-  type FontePlanilha,
-} from "./actions";
+import { marcarChegadaPlanilha } from "./actions";
+import type { FontePlanilha } from "./tipos";
 
 export type LinhaPlanilhaPorta = {
   id: string;

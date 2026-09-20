@@ -2,22 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { processarInscricaoEvento } from "@/lib/inscricoes/evento";
+import { type EstadoInscricaoEvento } from "@/lib/validations/inscricao-evento";
 import {
-  ESTADO_INICIAL_EVENTO,
-  type EstadoInscricaoEvento,
-} from "@/lib/validations/inscricao-evento";
-import { STATUS_INSCRICAO, type StatusInscricao } from "@/lib/validations/inscricao-encontro";
+  STATUS_INSCRICAO,
+  type StatusInscricao,
+} from "@/lib/validations/inscricao-encontro";
 import { dentroDoLimite, ipDoPedido, uuidValido } from "@/lib/seguranca";
-
-export type EstadoConsultaPagamento =
-  | { status: "inicial" }
-  | { status: "vazio"; mensagem: string }
-  | { status: "erro"; mensagem: string }
-  | { status: "ok"; pagamento: StatusInscricao };
-
-export const ESTADO_INICIAL_CONSULTA: EstadoConsultaPagamento = {
-  status: "inicial",
-};
+import type { EstadoConsultaPagamento } from "./consulta-estado";
 
 export async function consultarStatusPagamentoEvento(
   eventoId: string,
@@ -87,5 +78,3 @@ export async function inscreverNoEvento(
 ): Promise<EstadoInscricaoEvento> {
   return processarInscricaoEvento(eventoId, formData);
 }
-
-export { ESTADO_INICIAL_EVENTO };
