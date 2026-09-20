@@ -139,9 +139,9 @@
 
 /* Bloco único: cápsulas encostadas (quase sem vão) */
 .testemunhos-carousel__stage {
-  --card-collapsed: 68px;
+  --card-collapsed: 110px;
   --card-expanded: 268px;
-  --card-gap: 6px;
+  --card-gap: 8px;
   --card-ease: cubic-bezier(0.33, 1, 0.32, 1);
   --card-duration: 0.9s;
 
@@ -332,9 +332,9 @@
   }
 
   .testemunhos-carousel__stage {
-    --card-collapsed: 52px;
+    --card-collapsed: 84px;
     --card-expanded: 190px;
-    --card-gap: 5px;
+    --card-gap: 6px;
     height: 390px;
   }
 
