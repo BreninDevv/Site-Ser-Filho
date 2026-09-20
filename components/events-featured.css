@@ -185,6 +185,16 @@
     opacity 600ms ease;
 }
 
+/* Laterais não capturam clique — senão roubam o botão do centro no 3D */
+.events__list > li.is-left,
+.events__list > li.is-right {
+  pointer-events: none !important;
+}
+
+.events__list > li.is-center.revealed {
+  pointer-events: auto !important;
+}
+
 .events__list > li.is-hidden-mobile {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -294,13 +304,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 2;
+  z-index: 20;
   padding: 1.1rem 1.15rem 1.25rem;
   background: rgba(0, 0, 0, 0.72);
-  /* sem backdrop-filter — evita “embaçar” o post em cena */
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px);
+  pointer-events: none;
   transition:
     opacity 300ms ease,
     visibility 300ms ease,
@@ -313,6 +323,7 @@
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .event-card .content h3 {
@@ -352,8 +363,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 5;
-  padding: 0.45rem 1rem;
+  z-index: 30;
+  padding: 0.55rem 1.15rem;
   border: 0;
   border-radius: 999px;
   background: #fff;
@@ -362,9 +373,10 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  /* sem transform no hover — scale sob o mouse causa tremor */
+  pointer-events: auto !important;
   transition: background 0.2s ease, box-shadow 0.2s ease;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .event-card .content .btn:hover {

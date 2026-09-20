@@ -112,6 +112,8 @@ export function EventosHome({
         "is-hidden-mobile",
         mobileHide && Math.abs(offset) > 1
       );
+      /* hit-test: só o centro recebe clique */
+      item.style.pointerEvents = offset === 0 ? "auto" : "none";
     });
   }, []);
 
@@ -408,12 +410,10 @@ export function EventosHome({
                         type="button"
                         className="btn"
                         tabIndex={index === activeIdx ? 0 : -1}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={() => {
+                          if (index !== activeIdxRef.current) return;
                           abrirReel(evento);
                         }}
-                        onPointerDown={(e) => e.stopPropagation()}
                       >
                         {rotuloCta(evento.exigeInscricao)}
                       </button>
