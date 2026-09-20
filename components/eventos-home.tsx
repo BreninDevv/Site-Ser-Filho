@@ -64,16 +64,20 @@ export function EventosHome({
       const rotateY = offset * rotate + (offset === 0 ? pxRy : 0);
       const rotateX = offset === 0 ? pxRx : 0;
       const translateX = offset * radius;
+      /* translateZ garante o card central na frente (z-index falha com preserve-3d) */
+      const translateZ = offset === 0 ? 140 : -Math.abs(offset) * 100;
+      /* Centro em scale(1) — scale > 1 deixa a arte “embaçada” no GPU */
       const scale =
         offset === 0
-          ? 1.05
-          : Math.max(0.6, 1 - Math.abs(offset) * 0.15);
-      const opacity = Math.max(0.3, 1 - Math.abs(offset) * 0.25);
-      const zIndex = Math.round(10 - Math.abs(offset));
+          ? 1
+          : Math.max(0.64, 1 - Math.abs(offset) * 0.14);
+      const opacity = Math.max(0.4, 1 - Math.abs(offset) * 0.2);
+      const zIndex = Math.round(100 - Math.abs(offset));
 
       item.style.transform = `
         translate(-50%, -50%)
         translateX(${translateX}px)
+        translateZ(${translateZ}px)
         rotateY(${rotateY}deg)
         rotateX(${rotateX}deg)
         scale(${scale})
@@ -82,6 +86,21 @@ export function EventosHome({
         enteredRef.current ? opacity : 0
       );
       item.style.zIndex = String(zIndex);
+
+      const media = item.querySelector<HTMLElement>(".event-card__media");
+      if (media) {
+        if (offset === 0) {
+          media.style.setProperty("filter", "none", "important");
+          media.style.transform = "none";
+        } else {
+          media.style.setProperty(
+            "filter",
+            "blur(10px) brightness(0.85)",
+            "important"
+          );
+          media.style.transform = "scale(1.2)";
+        }
+      }
 
       item.classList.toggle("is-center", offset === 0);
       item.classList.toggle("is-left", offset < 0);
