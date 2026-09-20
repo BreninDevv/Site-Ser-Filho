@@ -126,3 +126,29 @@ export function embedDoVideo(url: string): string | null {
 
   return null;
 }
+
+/** Embed mudo em loop para prévia na home (YouTube). */
+export function embedPreviaAutoplay(url: string): string | null {
+  const youtube =
+    url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/) ??
+    url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/
+    ) ??
+    url.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+  if (youtube?.[1]) {
+    const id = youtube[1];
+    const params = new URLSearchParams({
+      autoplay: "1",
+      mute: "1",
+      controls: "0",
+      playsinline: "1",
+      loop: "1",
+      playlist: id,
+      modestbranding: "1",
+      rel: "0",
+      enablejsapi: "0",
+    });
+    return `https://www.youtube.com/embed/${id}?${params.toString()}`;
+  }
+  return null;
+}

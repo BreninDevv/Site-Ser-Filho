@@ -206,22 +206,53 @@
   border-radius: inherit;
   overflow: hidden;
   display: block;
+  background: #0d1016;
+  isolation: isolate;
 }
 
-.testemunhos-carousel__card-inner img,
-.testemunhos-carousel__card-inner video,
+.testemunhos-carousel__media,
 .testemunhos-carousel__card-empty {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #0d1016;
+}
+
+.testemunhos-carousel__media img,
+.testemunhos-carousel__media video,
+.testemunhos-carousel__media iframe {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  display: block;
   border: 0;
   outline: none;
-  background: #1a1f2a;
+  display: block;
   pointer-events: none;
+  background: #0d1016;
+}
+
+.testemunhos-carousel__media img,
+.testemunhos-carousel__media video {
+  object-fit: cover;
+  object-position: center center;
+  /* Corta faixas pretas laterais de thumbs 16:9 / Shorts */
+  transform: scale(1.42);
+  transform-origin: center center;
+}
+
+.testemunhos-carousel__media--embed iframe {
+  /* Cobre letterbox do player YouTube na cápsula vertical */
+  top: 50%;
+  left: 50%;
+  width: 177.78%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 177.78%;
+  transform: translate(-50%, -50%) scale(1.2);
+  transform-origin: center center;
 }
 
 .testemunhos-carousel__card-fade {
@@ -230,12 +261,12 @@
   right: 0;
   bottom: 0;
   z-index: 1;
-  height: 45%;
+  height: 32%;
   pointer-events: none;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.35) 50%,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.25) 55%,
     rgba(0, 0, 0, 0) 100%
   );
   opacity: 0;

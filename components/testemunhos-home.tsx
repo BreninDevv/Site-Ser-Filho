@@ -1,11 +1,20 @@
 "use client";
 
 /**
- * Seção Testemunhos: cápsulas lado a lado (accordion), clique abre o link.
+ * Seção Testemunhos: cápsulas lado a lado; prévia em movimento no ativo.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { INSTAGRAM_SER_FILHO } from "@/lib/midia";
+import {
+  embedPreviaAutoplay,
+  INSTAGRAM_SER_FILHO,
+} from "@/lib/midia";
 import { TestemunhosMotion } from "@/components/testemunhos-motion";
 
 import "./testemunhos-featured.css";
@@ -21,6 +30,76 @@ export type TestemunhoHome = {
 function nomeCurto(nome: string) {
   if (nome.length <= 28) return nome;
   return `${nome.slice(0, 26).trim()}…`;
+}
+
+function PreviaMedia({
+  card,
+  ativo,
+}: {
+  card: TestemunhoHome;
+  ativo: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const embed = useMemo(
+    () => (ativo ? embedPreviaAutoplay(card.destino) : null),
+    [ativo, card.destino]
+  );
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (ativo) {
+      el.muted = true;
+      const play = el.play();
+      if (play && typeof play.catch === "function") play.catch(() => {});
+    } else {
+      el.pause();
+      el.currentTime = 0;
+    }
+  }, [ativo]);
+
+  if (ativo && embed) {
+    return (
+      <span className="testemunhos-carousel__media testemunhos-carousel__media--embed">
+        <iframe
+          key={embed}
+          src={embed}
+          title=""
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen={false}
+          loading="eager"
+          tabIndex={-1}
+        />
+      </span>
+    );
+  }
+
+  if (card.video && card.previa) {
+    return (
+      <span className="testemunhos-carousel__media">
+        <video
+          ref={videoRef}
+          src={card.previa}
+          muted
+          loop
+          playsInline
+          preload="auto"
+          autoPlay={ativo}
+        />
+      </span>
+    );
+  }
+
+  if (card.previa) {
+    return (
+      <span className="testemunhos-carousel__media">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={card.previa} alt="" draggable={false} />
+      </span>
+    );
+  }
+
+  return <span className="testemunhos-carousel__card-empty" />;
 }
 
 export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
@@ -114,21 +193,7 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                       onFocus={() => setAtivo(index)}
                     >
                       <span className="testemunhos-carousel__card-inner">
-                        {card.video && card.previa ? (
-                          <video
-                            src={card.previa}
-                            muted
-                            loop
-                            playsInline
-                            autoPlay={ativoCard}
-                            preload="metadata"
-                          />
-                        ) : card.previa ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={card.previa} alt="" draggable={false} />
-                        ) : (
-                          <span className="testemunhos-carousel__card-empty" />
-                        )}
+                        <PreviaMedia card={card} ativo={ativoCard} />
                         <span
                           className="testemunhos-carousel__card-fade"
                           aria-hidden
