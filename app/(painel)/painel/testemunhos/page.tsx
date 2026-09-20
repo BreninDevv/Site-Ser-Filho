@@ -29,8 +29,9 @@ export default async function PainelTestemunhosPage() {
       <div>
         <h1 className="mb-1 text-xl font-semibold">Testemunhos</h1>
         <p className="text-sm text-muted-foreground">
-          Só 3 Reels na home. Envie a prévia, a descrição e o link do Instagram
-          ou do YouTube. Para trocar, remova um e publique o novo.
+          Só 3 Reels na home. Cole o link do Instagram ou YouTube — a prévia vem
+          sozinha. Só envie arquivo se quiser substituir. Para trocar, remova um
+          e publique o novo.
         </p>
       </div>
 

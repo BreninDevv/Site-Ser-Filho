@@ -24,6 +24,7 @@ Fonte de verdade: `lib/auth/roles.ts` (precisa bater com as funções SQL).
 
 1. **Células** — lista pública + gestão no painel (líder/pastor/master).
 2. **Testemunhos / Eventos** — mídia publica; inscrição em eventos com pagamento.
+   - No painel: colar link Instagram/YouTube → detecta plataforma e baixa a prévia sozinho; upload de arquivo é opcional.
 3. **De Volta ao Jardim** — inscrição 2 etapas (dados + pagamento); painel de aprovação.
 4. **Legado de Cristo** — mesmo padrão de inscrição/pagamento.
 5. **Planilha de porta** — presença OK; filtros por papel/sexo.

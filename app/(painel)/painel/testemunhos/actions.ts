@@ -16,6 +16,10 @@ import {
   TAMANHO_MAX_PREVIA,
   TIPOS_PREVIA,
 } from "@/lib/midia";
+import {
+  baixarPreviaParaStorage,
+  obterPreviaDoLink,
+} from "@/lib/testemunho-previa";
 import { uuidValido } from "@/lib/seguranca";
 
 function revalidar() {
@@ -82,14 +86,12 @@ export async function criarTestemunho(formData: FormData) {
     String(formData.get("video_url") ?? "")
   );
   const arquivo = formData.get("previa");
+  const temArquivo = arquivo instanceof File && arquivo.size > 0;
 
   if (!nome) return { erro: "Escreva o nome de quem testemunha." };
   if (!descricao) return { erro: "Escreva a descrição do testemunho." };
   if (!videoUrl) {
     return { erro: "Cole o link do Instagram ou do YouTube." };
-  }
-  if (!(arquivo instanceof File) || arquivo.size === 0) {
-    return { erro: "Envie a prévia do Reel (foto ou vídeo curto)." };
   }
 
   const supabase = await createClient();
@@ -101,9 +103,19 @@ export async function criarTestemunho(formData: FormData) {
     return { erro: "Só cabem 3 vídeos. Remova um para colocar outro." };
   }
 
-  const upload = await enviarPrevia(supabase, arquivo);
-  if ("erro" in upload && upload.erro) return { erro: upload.erro };
-  const caminho = upload.caminho!;
+  let caminho: string | undefined;
+
+  if (temArquivo) {
+    const upload = await enviarPrevia(supabase, arquivo);
+    if ("erro" in upload && upload.erro) return { erro: upload.erro };
+    caminho = upload.caminho!;
+  } else {
+    const remota = await obterPreviaDoLink(videoUrl);
+    if (!remota.ok) return { erro: remota.erro };
+    const salva = await baixarPreviaParaStorage(supabase, remota.thumbnailUrl);
+    if ("erro" in salva) return { erro: salva.erro };
+    caminho = salva.caminho;
+  }
 
   const { error } = await supabase.from("testemunhos").insert({
     nome,
@@ -115,7 +127,7 @@ export async function criarTestemunho(formData: FormData) {
   });
 
   if (error) {
-    await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([caminho]);
+    await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([caminho!]);
     return { erro: mensagemErroBanco(error, "salvar") };
   }
 
