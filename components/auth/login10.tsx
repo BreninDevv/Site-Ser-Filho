@@ -85,17 +85,19 @@ function RegisterPanel() {
         Ir para o cadastro
       </Link>
       <span className="or">ou</span>
-      <Link href="/inicio" className="ghost-link">
+      <a href="/api/visitante" className="ghost-link">
         Continuar como visitante
-      </Link>
+      </a>
     </div>
   );
 }
 
 function LoginPanel({
   erroInicial,
+  destinoAposLogin,
 }: {
   erroInicial?: string;
+  destinoAposLogin: string;
 }) {
   const [erro, setErro] = useState(
     erroInicial && MENSAGENS[erroInicial] ? MENSAGENS[erroInicial] : ""
@@ -126,7 +128,7 @@ function LoginPanel({
       };
 
       if (resultado.status === "ok") {
-        window.location.assign("/inicio");
+        window.location.assign(destinoAposLogin);
         return;
       }
 
@@ -164,9 +166,9 @@ function LoginPanel({
           {enviando ? "Entrando..." : "Entrar"}
         </button>
         <span className="or">ou</span>
-        <Link href="/inicio" className="ghost-link">
+        <a href="/api/visitante" className="ghost-link">
           Continuar como visitante
-        </Link>
+        </a>
       </form>
     </div>
   );
@@ -176,20 +178,22 @@ export function Login10View({
   erroInicial,
   confirmado,
   senhaRedefinida,
+  destinoAposLogin = "/inicio",
 }: {
   erroInicial?: string;
   confirmado?: boolean;
   senhaRedefinida?: boolean;
+  destinoAposLogin?: string;
 }) {
   const [isRegister, setIsRegister] = useState(false);
 
   return (
     <section className="page login-10">
-      <a href="/inicio" className="brand-mark" aria-label="Ser Filho — início">
+      <div className="brand-mark" aria-label="Ser Filho">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-ser-filho.png" alt="" width={48} height={48} />
         <span>Ser Filho</span>
-      </a>
+      </div>
 
       {(confirmado || senhaRedefinida) && (
         <p className="flash">
@@ -218,7 +222,10 @@ export function Login10View({
           buttonLabel="Cadastrar"
           onSwitch={() => setIsRegister(true)}
         />
-        <LoginPanel erroInicial={erroInicial} />
+        <LoginPanel
+          erroInicial={erroInicial}
+          destinoAposLogin={destinoAposLogin}
+        />
       </div>
     </section>
   );

@@ -1,6 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+
+import { COOKIE_VISITANTE } from "@/lib/auth/visitante";
 import { destinoDoPainel, podeAcessarRotaPainel } from "@/lib/auth/roles";
+
+const ROTAS_PUBLICAS = [
+  "/login",
+  "/cadastro",
+  "/esqueci-senha",
+  "/redefinir-senha",
+  "/email-confirmado",
+  "/auth",
+  "/api",
+];
+
+function ehRotaPublica(pathname: string) {
+  return ROTAS_PUBLICAS.some(
+    (rota) => pathname === rota || pathname.startsWith(`${rota}/`)
+  );
+}
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -30,7 +48,25 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPainelRoute = request.nextUrl.pathname.startsWith("/painel");
+  const { pathname } = request.nextUrl;
+  const isPainelRoute = pathname.startsWith("/painel");
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/cadastro" ||
+    pathname.startsWith("/cadastro/");
+  const ehVisitante = request.cookies.get(COOKIE_VISITANTE)?.value === "1";
+
+  if (!user && !ehVisitante && !ehRotaPublica(pathname)) {
+    const loginUrl = new URL("/login", request.url);
+    if (pathname !== "/") {
+      loginUrl.searchParams.set("next", pathname);
+    }
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && isAuthPage) {
+    return NextResponse.redirect(new URL("/inicio", request.url));
+  }
 
   if (isPainelRoute) {
     if (!user) {
@@ -43,9 +79,9 @@ export async function proxy(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!podeAcessarRotaPainel(perfil?.role, request.nextUrl.pathname)) {
+    if (!podeAcessarRotaPainel(perfil?.role, pathname)) {
       return NextResponse.redirect(
-        new URL(destinoDoPainel(perfil?.role) ?? "/", request.url)
+        new URL(destinoDoPainel(perfil?.role) ?? "/inicio", request.url)
       );
     }
   }
@@ -54,5 +90,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/painel/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|html)$).*)",
+  ],
 };

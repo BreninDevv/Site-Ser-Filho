@@ -25,7 +25,7 @@ export function AuthBrandShell({ children }: { children: React.ReactNode }) {
           className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-background/10"
         />
 
-        <a href="/inicio" className="relative inline-flex items-center">
+        <div className="relative inline-flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-ser-filho.png"
@@ -34,7 +34,7 @@ export function AuthBrandShell({ children }: { children: React.ReactNode }) {
             height={140}
             className="h-12 w-auto"
           />
-        </a>
+        </div>
 
         <div className="relative max-w-sm">
           <h1 className="font-heading text-6xl uppercase leading-[0.9]">
@@ -47,7 +47,7 @@ export function AuthBrandShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <p className="relative text-xs text-background/50">
-          Visitante navega sem conta. Discípulo se cadastra e fica na base.
+          Entre ou cadastre-se para acessar o site.
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export function AuthBrandShell({ children }: { children: React.ReactNode }) {
           className="pointer-events-none absolute inset-x-0 top-0 h-[70%] lg:hidden"
           style={degradêTopo}
         />
-        <a href="/inicio" className="relative mb-8 flex items-center lg:hidden">
+        <div className="relative mb-8 flex items-center lg:hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-ser-filho.png"
@@ -66,7 +66,7 @@ export function AuthBrandShell({ children }: { children: React.ReactNode }) {
             height={140}
             className="h-12 w-auto"
           />
-        </a>
+        </div>
         <div className="auth-form-panel relative w-full max-w-sm">{children}</div>
       </div>
     </div>

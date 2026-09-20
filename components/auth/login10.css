@@ -59,14 +59,41 @@
   left: 0;
   bottom: 0;
   width: 50%;
-  background: url("/login-hero.jpg") center / cover no-repeat;
+  background-color: #0f1f4a;
+  background-image: url("/login-hero-entrar.jpg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   border-radius: 18px;
   translate: 100% 0;
-  transition: 0.65s ease-in-out;
+  transition: translate 0.65s ease-in-out, background-image 0.35s ease-in-out;
+}
+
+.login-10 .card-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgb(15 25 55 / 35%) 0%,
+    rgb(10 16 32 / 55%) 100%
+  );
+  pointer-events: none;
 }
 
 .login-10 .card.register .card-bg {
   translate: 0 0;
+  background-image: url("/login-hero-cadastrar.jpg");
+  background-color: #1a2744;
+}
+
+.login-10 .card.register .card-bg::after {
+  background: linear-gradient(
+    160deg,
+    rgb(20 28 48 / 45%) 0%,
+    rgb(12 18 36 / 62%) 100%
+  );
 }
 
 .login-10 .hero,
