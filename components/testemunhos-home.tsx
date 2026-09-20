@@ -11,10 +11,7 @@ import {
   useState,
 } from "react";
 
-import {
-  embedPreviaAutoplay,
-  INSTAGRAM_SER_FILHO,
-} from "@/lib/midia";
+import { INSTAGRAM_SER_FILHO } from "@/lib/midia";
 import { TestemunhosMotion } from "@/components/testemunhos-motion";
 
 import "./testemunhos-featured.css";
@@ -42,16 +39,8 @@ function PreviaMedia({
   const videoRef = useRef<HTMLVideoElement>(null);
   const ehArquivoVideo =
     card.video || /\.(mp4|webm)(\?|#|$)/i.test(card.previa || "");
-  const embedUrl = useMemo(
-    () => (!ehArquivoVideo ? embedPreviaAutoplay(card.destino) : null),
-    [card.destino, ehArquivoVideo]
-  );
-  const [embedCarregado, setEmbedCarregado] = useState(false);
 
-  useEffect(() => {
-    if (ativo && embedUrl) setEmbedCarregado(true);
-  }, [ativo, embedUrl]);
-
+  // Só MP4/WebM toca aqui. YouTube embed gera faixa vertical escura — não usamos.
   useEffect(() => {
     const el = videoRef.current;
     if (!el || !ehArquivoVideo) return;
@@ -61,6 +50,10 @@ function PreviaMedia({
     el.playsInline = true;
 
     const tentarPlay = () => {
+      if (!ativo) {
+        el.pause();
+        return;
+      }
       const promessa = el.play();
       if (promessa && typeof promessa.catch === "function") {
         promessa.catch(() => {});
@@ -74,7 +67,7 @@ function PreviaMedia({
       el.removeEventListener("loadeddata", tentarPlay);
       el.removeEventListener("canplay", tentarPlay);
     };
-  }, [ehArquivoVideo, card.previa]);
+  }, [ehArquivoVideo, card.previa, ativo]);
 
   if (ehArquivoVideo && card.previa) {
     return (
@@ -86,7 +79,7 @@ function PreviaMedia({
           muted
           loop
           playsInline
-          autoPlay
+          autoPlay={ativo}
           preload="auto"
           {...{ "webkit-playsinline": "true" }}
         />
@@ -94,30 +87,16 @@ function PreviaMedia({
     );
   }
 
-  if (card.previa || embedUrl) {
+  if (card.previa) {
     return (
       <span className="testemunhos-carousel__media testemunhos-carousel__media--image">
-        {card.previa ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            className="testemunhos-carousel__media-base"
-            src={card.previa}
-            alt=""
-            draggable={false}
-          />
-        ) : (
-          <span className="testemunhos-carousel__card-empty" />
-        )}
-        {embedCarregado && embedUrl ? (
-          <iframe
-            className={`testemunhos-carousel__media-live${ativo ? " is-on" : ""}`}
-            src={embedUrl}
-            title=""
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen={false}
-            tabIndex={-1}
-          />
-        ) : null}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="testemunhos-carousel__media-base"
+          src={card.previa}
+          alt=""
+          draggable={false}
+        />
       </span>
     );
   }

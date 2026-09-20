@@ -215,8 +215,7 @@
   background: #111318;
 }
 
-.testemunhos-carousel__media-base,
-.testemunhos-carousel__media-live {
+.testemunhos-carousel__media-base {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -231,7 +230,8 @@
 .testemunhos-carousel__media-base {
   object-fit: cover;
   object-position: center center;
-  transform: scale(1.08);
+  /* Zoom único e homogêneo — evita letterbox / faixa vertical */
+  transform: scale(1.12);
   transform-origin: center center;
   transition:
     transform var(--card-duration) var(--card-ease),
@@ -239,34 +239,17 @@
 }
 
 .testemunhos-carousel__card.is-active .testemunhos-carousel__media-base {
-  transform: scale(1.02);
+  transform: scale(1.06);
 }
 
 .testemunhos-carousel__media--image .testemunhos-carousel__media-base {
-  transform: scale(1.45);
+  transform: scale(1.35);
 }
 
 .testemunhos-carousel__card.is-active
   .testemunhos-carousel__media--image
   .testemunhos-carousel__media-base {
-  transform: scale(1.28);
-}
-
-/* Embed YouTube por cima, com fade — a foto base nunca some de súbito */
-.testemunhos-carousel__media-live {
-  opacity: 0;
-  transition: opacity 0.7s var(--card-ease);
-  /* cover vertical */
-  top: 50%;
-  left: 50%;
-  width: 177.78%;
-  height: 100%;
-  min-height: 177.78%;
-  transform: translate(-50%, -50%) scale(1.15);
-}
-
-.testemunhos-carousel__media-live.is-on {
-  opacity: 1;
+  transform: scale(1.22);
 }
 
 .testemunhos-carousel__card-fade {
@@ -275,13 +258,15 @@
   right: 0;
   bottom: 0;
   z-index: 1;
-  height: 38%;
+  width: 100%;
+  height: 36%;
   pointer-events: none;
+  /* Gradiente só de baixo pra cima, uniforme (sem faixa vertical) */
   background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.78) 0%,
-    rgba(0, 0, 0, 0.28) 55%,
-    rgba(0, 0, 0, 0) 100%
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.7) 100%
   );
   opacity: 0;
   transition: opacity 0.75s var(--card-ease);
@@ -368,8 +353,7 @@
   .testemunhos-carousel__card,
   .testemunhos-carousel__card-meta,
   .testemunhos-carousel__card-fade,
-  .testemunhos-carousel__media-base,
-  .testemunhos-carousel__media-live {
+  .testemunhos-carousel__media-base {
     transition: none !important;
   }
 
@@ -379,8 +363,7 @@
   }
 
   .testemunhos-carousel__card.is-active .testemunhos-carousel__card-meta,
-  .testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade,
-  .testemunhos-carousel__media-live.is-on {
+  .testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade {
     opacity: 1 !important;
     visibility: visible !important;
     translate: -50% 0 !important;
