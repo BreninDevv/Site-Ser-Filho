@@ -232,6 +232,12 @@ export function EventosHome({
     };
 
     const onMove = (e: PointerEvent) => {
+      const alvo = e.target as HTMLElement | null;
+      if (alvo?.closest(".event-card .btn, .events-reel, .btn-prev, .btn-next")) {
+        target = { rx: 0, ry: 0 };
+        pedir();
+        return;
+      }
       const rect = section.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
       const relX = (e.clientX - rect.left) / rect.width;
@@ -402,7 +408,12 @@ export function EventosHome({
                         type="button"
                         className="btn"
                         tabIndex={index === activeIdx ? 0 : -1}
-                        onClick={() => abrirReel(evento)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          abrirReel(evento);
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
                       >
                         {rotuloCta(evento.exigeInscricao)}
                       </button>

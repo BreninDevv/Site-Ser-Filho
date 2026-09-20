@@ -221,7 +221,7 @@
 
   .events__list > li.is-left.revealed:hover .event-card,
   .events__list > li.is-right.revealed:hover .event-card {
-    transform: scale(1.04);
+    transform: none;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
   }
 
@@ -258,6 +258,12 @@
 
 .events__list > li.is-center.revealed .event-card__float {
   animation: gentle-float 4s ease-in-out infinite;
+}
+
+/* Pausa float no hover — evita o botão “tremer” sob o cursor */
+.events__list > li.is-center.revealed:hover .event-card__float,
+.events__list > li.is-center.revealed:focus-within .event-card__float {
+  animation-play-state: paused;
 }
 
 .event-card__scrim {
@@ -345,6 +351,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 5;
   padding: 0.45rem 1rem;
   border: 0;
   border-radius: 999px;
@@ -354,12 +362,18 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.25s ease, background 0.25s ease;
+  /* sem transform no hover — scale sob o mouse causa tremor */
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  touch-action: manipulation;
 }
 
 .event-card .content .btn:hover {
-  transform: scale(1.03);
   background: #f3f3f3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.event-card .content .btn:active {
+  background: #e8e8e8;
 }
 
 .event-card .content .btn:focus-visible {
@@ -475,11 +489,13 @@
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.25s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  touch-action: manipulation;
 }
 
 .events-reel__panel .btn:hover {
-  transform: scale(1.03);
+  background: #f3f3f3;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .events-reel__close {
