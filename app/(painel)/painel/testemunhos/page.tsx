@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { obterPerfilAtual, podeGerenciarMidia } from "@/lib/auth/permissoes";
 import { createClient } from "@/lib/supabase/server";
-import { previaEhVideo, urlPublicaDaPrevia, MAX_TESTEMUNHOS } from "@/lib/midia";
-import { excluirTestemunho } from "./actions";
+import { MAX_TESTEMUNHOS } from "@/lib/midia";
 import { FormTestemunho } from "./form-testemunho";
+import { ItemTestemunho } from "./item-testemunho";
 
 export default async function PainelTestemunhosPage() {
   const perfil = await obterPerfilAtual();
@@ -29,9 +28,9 @@ export default async function PainelTestemunhosPage() {
       <div>
         <h1 className="mb-1 text-xl font-semibold">Testemunhos</h1>
         <p className="text-sm text-muted-foreground">
-          Até {MAX_TESTEMUNHOS} Reels na home, todos lado a lado. Cole o link do
-          Instagram ou YouTube — a prévia vem sozinha. Só envie arquivo se quiser
-          substituir. Para trocar, remova um e publique o novo.
+          Até {MAX_TESTEMUNHOS} na home. YouTube Shorts: prévia automática.
+          Instagram: envie foto ou MP4. Dá para editar ou remover os que já
+          estão no ar.
         </p>
       </div>
 
@@ -46,8 +45,7 @@ export default async function PainelTestemunhosPage() {
         <FormTestemunho />
       ) : (
         <p className="rounded-2xl border border-border p-4 text-sm text-muted-foreground">
-          Os {MAX_TESTEMUNHOS} Reels já estão no ar. Remova um abaixo para
-          publicar outro.
+          Os {MAX_TESTEMUNHOS} Reels já estão no ar. Remova ou edite um abaixo.
         </p>
       )}
 
@@ -59,56 +57,9 @@ export default async function PainelTestemunhosPage() {
           <p className="text-sm text-muted-foreground">Nenhum vídeo publicado.</p>
         ) : (
           <ul className="space-y-3">
-            {testemunhos.map((item) => {
-              const previa = item.previa_path
-                ? urlPublicaDaPrevia(item.previa_path)
-                : "";
-              return (
-                <li
-                  key={item.id}
-                  className="flex items-start justify-between gap-4 rounded-2xl border border-border p-4"
-                >
-                  <div className="flex min-w-0 gap-3">
-                    {previa ? (
-                      <div className="h-24 w-14 shrink-0 overflow-hidden rounded-md bg-black">
-                        {item.previa_path && previaEhVideo(item.previa_path) ? (
-                          <video
-                            src={previa}
-                            muted
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={previa}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        )}
-                      </div>
-                    ) : null}
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold">
-                        {item.nome || item.titulo}
-                      </p>
-                      {item.descricao ? (
-                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                          {item.descricao}
-                        </p>
-                      ) : null}
-                      <p className="mt-1 truncate text-xs text-muted-foreground">
-                        {item.video_url}
-                      </p>
-                    </div>
-                  </div>
-                  <form action={excluirTestemunho.bind(null, item.id)}>
-                    <Button size="sm" variant="destructive" type="submit">
-                      Remover
-                    </Button>
-                  </form>
-                </li>
-              );
-            })}
+            {testemunhos.map((item) => (
+              <ItemTestemunho key={item.id} item={item} />
+            ))}
           </ul>
         )}
       </section>

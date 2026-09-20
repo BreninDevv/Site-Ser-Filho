@@ -15,6 +15,14 @@ type PreviaLink = {
   destino: string;
 };
 
+function pareceInstagram(url: string) {
+  return /instagram\.com/i.test(url);
+}
+
+function pareceYoutubeShorts(url: string) {
+  return /youtube\.com\/shorts\//i.test(url);
+}
+
 export function FormTestemunho() {
   const [estado, action, pendente] = useActionState(
     async (_prev: { erro?: string; ok?: boolean } | null, formData: FormData) => {
@@ -28,8 +36,10 @@ export function FormTestemunho() {
   const [previaLink, setPreviaLink] = useState<PreviaLink | null>(null);
   const [analisando, setAnalisando] = useState(false);
   const [erroLink, setErroLink] = useState("");
+  const [dicaArquivo, setDicaArquivo] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pedidoRef = useRef(0);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     return () => {
@@ -37,6 +47,20 @@ export function FormTestemunho() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [urlPreviaArquivo]);
+
+  useEffect(() => {
+    if (!estado?.ok) return;
+    formRef.current?.reset();
+    setLinkVideo("");
+    setPreviaLink(null);
+    setErroLink("");
+    setDicaArquivo("");
+    setTipoPrevia(null);
+    setUrlPreviaArquivo((atual) => {
+      if (atual) URL.revokeObjectURL(atual);
+      return "";
+    });
+  }, [estado]);
 
   function aoEscolherPrevia(arquivo: File | undefined) {
     if (urlPreviaArquivo) URL.revokeObjectURL(urlPreviaArquivo);
@@ -54,9 +78,26 @@ export function FormTestemunho() {
     const limpo = url.trim();
     setLinkVideo(url);
     setErroLink("");
+    setDicaArquivo("");
+    setPreviaLink(null);
 
     if (!limpo) {
-      setPreviaLink(null);
+      setAnalisando(false);
+      return;
+    }
+
+    if (pareceInstagram(limpo)) {
+      setDicaArquivo(
+        "Instagram: envie a prévia (foto ou MP4). Não buscamos automática."
+      );
+      setAnalisando(false);
+      return;
+    }
+
+    if (!pareceYoutubeShorts(limpo)) {
+      setDicaArquivo(
+        "Prévia automática só em YouTube Shorts (/shorts/…). Nos outros links, envie o arquivo."
+      );
       setAnalisando(false);
       return;
     }
@@ -70,11 +111,17 @@ export function FormTestemunho() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: limpo }),
         });
-        const data = (await res.json()) as PreviaLink & { erro?: string };
+        const data = (await res.json()) as PreviaLink & {
+          erro?: string;
+          precisaArquivo?: boolean;
+        };
         if (pedido !== pedidoRef.current) return;
         if (!res.ok || data.erro) {
           setPreviaLink(null);
           setErroLink(data.erro ?? "Não deu para analisar o link.");
+          if (data.precisaArquivo) {
+            setDicaArquivo("Envie a prévia em arquivo para publicar.");
+          }
           return;
         }
         setPreviaLink({
@@ -84,10 +131,11 @@ export function FormTestemunho() {
           destino: data.destino,
         });
         setErroLink("");
+        setDicaArquivo("");
       } catch {
         if (pedido !== pedidoRef.current) return;
         setPreviaLink(null);
-        setErroLink("Falha ao analisar o link. Tente de novo.");
+        setErroLink("Falha ao analisar o Shorts. Envie a prévia em arquivo.");
       } finally {
         if (pedido === pedidoRef.current) setAnalisando(false);
       }
@@ -96,9 +144,18 @@ export function FormTestemunho() {
 
   const mostrandoArquivo = Boolean(urlPreviaArquivo);
   const mostrandoLink = !mostrandoArquivo && Boolean(previaLink?.thumbnailUrl);
+  const exigeArquivo =
+    pareceInstagram(linkVideo) ||
+    (Boolean(linkVideo.trim()) &&
+      !pareceYoutubeShorts(linkVideo) &&
+      !mostrandoArquivo);
 
   return (
-    <form action={action} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+    <form
+      ref={formRef}
+      action={action}
+      className="space-y-4 rounded-2xl border border-border bg-card p-5"
+    >
       <div>
         <label htmlFor="nome" className="mb-1.5 block text-sm font-medium">
           Nome / título
@@ -144,17 +201,24 @@ export function FormTestemunho() {
           value={linkVideo}
           onChange={(e) => analisarLink(e.target.value)}
           onBlur={(e) => analisarLink(e.target.value)}
-          placeholder="https://www.instagram.com/reel/... ou https://youtu.be/..."
+          placeholder="https://www.instagram.com/reel/... ou https://youtube.com/shorts/..."
           className={campo}
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          Ao colar o link, o site detecta a plataforma e busca a prévia sozinho.
+          Shorts: prévia automática. Instagram: envie a prévia em arquivo.
         </p>
         {analisando ? (
-          <p className="mt-2 text-xs text-muted-foreground">Analisando link…</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Buscando prévia do Shorts…
+          </p>
         ) : null}
         {erroLink && !mostrandoArquivo ? (
           <p className="mt-2 text-xs text-destructive">{erroLink}</p>
+        ) : null}
+        {dicaArquivo && !mostrandoArquivo ? (
+          <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+            {dicaArquivo}
+          </p>
         ) : null}
         {previaLink && !mostrandoArquivo ? (
           <div className="mt-3 overflow-hidden rounded-xl border border-border bg-black">
@@ -174,21 +238,28 @@ export function FormTestemunho() {
       </div>
       <div>
         <label htmlFor="previa" className="mb-1.5 block text-sm font-medium">
-          Prévia própria{" "}
-          <span className="font-normal text-muted-foreground">(opcional)</span>
+          Prévia{" "}
+          {exigeArquivo || pareceInstagram(linkVideo) ? (
+            <span className="text-destructive">(obrigatória neste link)</span>
+          ) : (
+            <span className="font-normal text-muted-foreground">
+              (opcional no Shorts)
+            </span>
+          )}
         </label>
         <input
           id="previa"
           name="previa"
           type="file"
+          required={exigeArquivo || pareceInstagram(linkVideo)}
           disabled={pendente}
           accept="image/png,image/jpeg,image/webp,video/mp4,video/webm"
           onChange={(e) => aoEscolherPrevia(e.target.files?.[0])}
           className={campo}
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          Só se quiser trocar a prévia do link. PNG, JPG, WebP, MP4 ou WebM. Até
-          12 MB.
+          PNG, JPG, WebP, MP4 ou WebM. Até 12 MB. No Instagram use MP4 para a
+          home rodar em movimento.
         </p>
         {mostrandoArquivo && (
           <div className="mt-3 overflow-hidden rounded-xl border border-border bg-black">
@@ -218,6 +289,9 @@ export function FormTestemunho() {
         ) : null}
       </div>
       {estado?.erro && <p className="text-sm text-destructive">{estado.erro}</p>}
+      {estado?.ok && (
+        <p className="text-sm text-emerald-700">Publicado com sucesso.</p>
+      )}
       <Button
         type="submit"
         disabled={pendente || analisando}

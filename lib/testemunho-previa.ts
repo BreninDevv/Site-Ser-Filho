@@ -1,6 +1,6 @@
 /**
- * Detecta plataforma do link do testemunho e resolve a prévia (thumbnail).
- * YouTube: thumbnail oficial. Instagram: oEmbed / og:image.
+ * Prévia automática só para YouTube Shorts.
+ * Instagram: a pessoa envia a prévia (foto/vídeo) manualmente.
  */
 import {
   BUCKET_TESTEMUNHOS,
@@ -14,7 +14,7 @@ export type AnaliseLinkVideo = {
   destino: string;
   plataforma: PlataformaVideo;
   youtubeId?: string;
-  instagramCode?: string;
+  ehShorts: boolean;
 };
 
 const UA =
@@ -34,23 +34,29 @@ export function analisarLinkVideo(url: string): AnaliseLinkVideo | null {
       host === "youtube.com" ||
       host === "m.youtube.com"
     ) {
-      const id =
-        host === "youtu.be"
+      const ehShorts = /\/shorts\//i.test(path);
+      const id = ehShorts
+        ? path.match(/\/shorts\/([A-Za-z0-9_-]{11})/)?.[1]
+        : host === "youtu.be"
           ? path.replace(/^\//, "").slice(0, 11)
-          : path.match(/\/(?:shorts|embed|live)\/([A-Za-z0-9_-]{11})/)?.[1] ??
+          : path.match(/\/(?:embed|live)\/([A-Za-z0-9_-]{11})/)?.[1] ??
             parsed.searchParams.get("v") ??
             undefined;
       if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return null;
-      return { destino, plataforma: "youtube", youtubeId: id };
+      return {
+        destino,
+        plataforma: "youtube",
+        youtubeId: id,
+        ehShorts,
+      };
     }
 
     if (host === "instagram.com") {
-      const code =
-        path.match(
-          /\/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_-]+)/i
-        )?.[1] ?? undefined;
+      const code = path.match(
+        /\/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_-]+)/i
+      )?.[1];
       if (!code) return null;
-      return { destino, plataforma: "instagram", instagramCode: code };
+      return { destino, plataforma: "instagram", ehShorts: false };
     }
   } catch {
     return null;
@@ -59,18 +65,17 @@ export function analisarLinkVideo(url: string): AnaliseLinkVideo | null {
   return null;
 }
 
-export function rotuloPlataforma(plataforma: PlataformaVideo) {
-  return plataforma === "youtube" ? "YouTube" : "Instagram";
+export function ehYoutubeShorts(url: string) {
+  const analise = analisarLinkVideo(url);
+  return Boolean(analise?.plataforma === "youtube" && analise.ehShorts);
 }
 
 function thumbnailYoutube(id: string) {
-  return {
-    candidatos: [
-      `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
-      `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
-    ],
-  };
+  return [
+    `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
+    `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
+  ];
 }
 
 async function urlRespondeImagem(url: string) {
@@ -83,11 +88,10 @@ async function urlRespondeImagem(url: string) {
     if (head.ok) {
       const tipo = head.headers.get("content-type") ?? "";
       if (tipo.startsWith("image/")) return true;
-      // YouTube às vezes não manda content-type no HEAD
       if (!tipo && head.status === 200) return true;
     }
   } catch {
-    /* tenta GET abaixo */
+    /* tenta GET */
   }
 
   try {
@@ -104,78 +108,44 @@ async function urlRespondeImagem(url: string) {
   }
 }
 
-async function extrairOgImage(paginaUrl: string) {
-  const res = await fetch(paginaUrl, {
-    redirect: "follow",
-    headers: {
-      "User-Agent": UA,
-      Accept: "text/html,application/xhtml+xml",
-    },
-    next: { revalidate: 0 },
-  });
-  if (!res.ok) return null;
-  const html = (await res.text()).slice(0, 200_000);
-  const og =
-    html.match(
-      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
-    ) ??
-    html.match(
-      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i
-    );
-  return og?.[1] ? og[1].replace(/&amp;/g, "&") : null;
-}
-
-async function oembedInstagram(destino: string) {
-  const endpoints = [
-    `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(destino)}`,
-    `https://api.instagram.com/oembed/?url=${encodeURIComponent(destino)}`,
-  ];
-
-  for (const endpoint of endpoints) {
-    try {
-      const res = await fetch(endpoint, {
-        headers: { "User-Agent": UA, Accept: "application/json" },
-        next: { revalidate: 0 },
-      });
-      if (!res.ok) continue;
-      const data = (await res.json()) as {
-        thumbnail_url?: string;
-        title?: string;
-      };
-      if (data.thumbnail_url) {
-        return {
-          thumbnailUrl: data.thumbnail_url,
-          titulo: data.title,
-        };
-      }
-    } catch {
-      /* próximo */
-    }
-  }
-  return null;
-}
-
 export async function obterPreviaDoLink(url: string): Promise<
   | {
       ok: true;
-      plataforma: PlataformaVideo;
+      plataforma: "youtube";
       destino: string;
       thumbnailUrl: string;
-      titulo?: string;
       rotulo: string;
     }
-  | { ok: false; erro: string }
+  | { ok: false; erro: string; precisaArquivo?: boolean }
 > {
-  const analise = analisarLinkVideo(url);
-  if (!analise) {
-    return {
-      ok: false,
-      erro: "Cole um link válido do Instagram (Reel/post) ou do YouTube.",
-    };
-  }
+  try {
+    const analise = analisarLinkVideo(url);
+    if (!analise) {
+      return {
+        ok: false,
+        erro: "Cole um link válido do Instagram (Reel/post) ou do YouTube.",
+      };
+    }
 
-  if (analise.plataforma === "youtube" && analise.youtubeId) {
-    const { candidatos } = thumbnailYoutube(analise.youtubeId);
+    if (analise.plataforma === "instagram") {
+      return {
+        ok: false,
+        precisaArquivo: true,
+        erro:
+          "No Instagram a prévia não é automática. Envie uma foto ou vídeo curto (MP4).",
+      };
+    }
+
+    if (!analise.ehShorts || !analise.youtubeId) {
+      return {
+        ok: false,
+        precisaArquivo: true,
+        erro:
+          "Prévia automática só funciona com YouTube Shorts. Envie uma foto ou vídeo, ou use um link /shorts/…",
+      };
+    }
+
+    const candidatos = thumbnailYoutube(analise.youtubeId);
     for (const candidato of candidatos) {
       if (await urlRespondeImagem(candidato)) {
         return {
@@ -183,47 +153,25 @@ export async function obterPreviaDoLink(url: string): Promise<
           plataforma: "youtube",
           destino: analise.destino,
           thumbnailUrl: candidato,
-          rotulo: rotuloPlataforma("youtube"),
+          rotulo: "YouTube Shorts",
         };
       }
     }
+
     return {
       ok: true,
       plataforma: "youtube",
       destino: analise.destino,
       thumbnailUrl: candidatos[1]!,
-      rotulo: rotuloPlataforma("youtube"),
+      rotulo: "YouTube Shorts",
     };
-  }
-
-  const oembed = await oembedInstagram(analise.destino);
-  if (oembed?.thumbnailUrl) {
+  } catch {
     return {
-      ok: true,
-      plataforma: "instagram",
-      destino: analise.destino,
-      thumbnailUrl: oembed.thumbnailUrl,
-      titulo: oembed.titulo,
-      rotulo: rotuloPlataforma("instagram"),
+      ok: false,
+      precisaArquivo: true,
+      erro: "Não deu para analisar o link. Envie a prévia em arquivo.",
     };
   }
-
-  const og = await extrairOgImage(analise.destino);
-  if (og) {
-    return {
-      ok: true,
-      plataforma: "instagram",
-      destino: analise.destino,
-      thumbnailUrl: og,
-      rotulo: rotuloPlataforma("instagram"),
-    };
-  }
-
-  return {
-    ok: false,
-    erro:
-      "Não deu para puxar a prévia desse Instagram automaticamente. Envie uma foto ou vídeo curto, ou tente de novo.",
-  };
 }
 
 export async function baixarPreviaParaStorage(
@@ -244,7 +192,9 @@ export async function baixarPreviaParaStorage(
   }
 
   if (!res.ok) {
-    return { erro: "A plataforma recusou a prévia. Envie um arquivo manualmente." };
+    return {
+      erro: "A plataforma recusou a prévia. Envie um arquivo manualmente.",
+    };
   }
 
   const buffer = Buffer.from(await res.arrayBuffer());
