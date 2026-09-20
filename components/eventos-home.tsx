@@ -4,6 +4,7 @@
  * Eventos — cover flow 3D (cápsulas), entrada staggered, float e paralaxe.
  */
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -29,6 +30,10 @@ function lerGeometria() {
   return { radius: 300, rotate: 25, mobileHide: false };
 }
 
+function rotuloCta(exigeInscricao: boolean) {
+  return exigeInscricao ? "Fazer inscrição" : "Ver evento";
+}
+
 export function EventosHome({
   itens,
   suporte = "O que está acontecendo agora no Ser Filho.",
@@ -40,6 +45,7 @@ export function EventosHome({
   tituloComo?: "h1" | "h2";
   mostrarVerTodos?: boolean;
 }) {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -48,8 +54,10 @@ export function EventosHome({
   const parallaxRef = useRef({ rx: 0, ry: 0 });
   const rafRef = useRef<number | null>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [expandidoId, setExpandidoId] = useState<string | null>(null);
 
   const total = itens.length;
+  const expandido = itens.find((e) => e.id === expandidoId) ?? null;
 
   const updateEventsCarousel = useCallback(() => {
     const items = itemRefs.current.filter(Boolean) as HTMLLIElement[];
@@ -64,14 +72,10 @@ export function EventosHome({
       const rotateY = offset * rotate + (offset === 0 ? pxRy : 0);
       const rotateX = offset === 0 ? pxRx : 0;
       const translateX = offset * radius;
-      /* translateZ garante o card central na frente (z-index falha com preserve-3d) */
       const translateZ = offset === 0 ? 140 : -Math.abs(offset) * 100;
-      /* Centro em scale(1) — scale > 1 deixa a arte “embaçada” no GPU */
       const scale =
-        offset === 0
-          ? 1
-          : Math.max(0.64, 1 - Math.abs(offset) * 0.14);
-      const opacity = Math.max(0.4, 1 - Math.abs(offset) * 0.2);
+        offset === 0 ? 1 : Math.max(0.64, 1 - Math.abs(offset) * 0.14);
+      const opacity = Math.max(0.45, 1 - Math.abs(offset) * 0.18);
       const zIndex = Math.round(100 - Math.abs(offset));
 
       item.style.transform = `
@@ -82,9 +86,7 @@ export function EventosHome({
         rotateX(${rotateX}deg)
         scale(${scale})
       `;
-      item.style.opacity = String(
-        enteredRef.current ? opacity : 0
-      );
+      item.style.opacity = String(enteredRef.current ? opacity : 0);
       item.style.zIndex = String(zIndex);
 
       const media = item.querySelector<HTMLElement>(".event-card__media");
@@ -93,12 +95,13 @@ export function EventosHome({
           media.style.setProperty("filter", "none", "important");
           media.style.transform = "none";
         } else {
+          /* ~5% — blur bem leve */
           media.style.setProperty(
             "filter",
-            "blur(10px) brightness(0.85)",
+            "blur(1.5px) saturate(0.92)",
             "important"
           );
-          media.style.transform = "scale(1.2)";
+          media.style.transform = "scale(1.04)";
         }
       }
 
@@ -114,7 +117,7 @@ export function EventosHome({
 
   const swapEvents = useCallback(
     (dir: "left" | "right") => {
-      if (total < 1) return;
+      if (total < 1 || expandidoId) return;
       const next =
         dir === "left"
           ? (activeIdxRef.current - 1 + total) % total
@@ -124,10 +127,27 @@ export function EventosHome({
       parallaxRef.current = { rx: 0, ry: 0 };
       updateEventsCarousel();
     },
-    [total, updateEventsCarousel]
+    [total, updateEventsCarousel, expandidoId]
   );
 
-  /* Índice inicial = centro */
+  const abrirReel = useCallback((evento: EventoHome) => {
+    setExpandidoId(evento.id);
+  }, []);
+
+  const fecharReel = useCallback(() => {
+    setExpandidoId(null);
+  }, []);
+
+  const irParaEvento = useCallback(
+    (evento: EventoHome) => {
+      const destino = evento.exigeInscricao
+        ? `/eventos/${evento.id}#inscricao`
+        : `/eventos/${evento.id}`;
+      router.push(destino);
+    },
+    [router]
+  );
+
   useEffect(() => {
     if (total === 0) return;
     const center = Math.floor(total / 2);
@@ -136,14 +156,12 @@ export function EventosHome({
     updateEventsCarousel();
   }, [total, updateEventsCarousel]);
 
-  /* Resize */
   useEffect(() => {
     const onResize = () => updateEventsCarousel();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [updateEventsCarousel]);
 
-  /* IntersectionObserver — entrada staggered */
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || total === 0) return;
@@ -182,10 +200,9 @@ export function EventosHome({
     };
   }, [total, updateEventsCarousel]);
 
-  /* Paralaxe desktop (sem GSAP — rAF + overwrite suave) */
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    if (!section || expandidoId) return;
 
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -238,18 +255,22 @@ export function EventosHome({
       section.removeEventListener("pointerleave", onLeave);
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
-  }, [updateEventsCarousel]);
+  }, [updateEventsCarousel, expandidoId]);
 
-  /* Teclado */
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && expandidoId) {
+        e.preventDefault();
+        fecharReel();
+        return;
+      }
       const dentro =
         section === document.activeElement ||
         section.contains(document.activeElement);
-      if (!dentro) return;
+      if (!dentro || expandidoId) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         swapEvents("left");
@@ -259,14 +280,13 @@ export function EventosHome({
       }
     };
 
-    section.addEventListener("keydown", onKey);
-    return () => section.removeEventListener("keydown", onKey);
-  }, [swapEvents]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [swapEvents, expandidoId, fecharReel]);
 
-  /* Touch swipe no mobile */
   useEffect(() => {
     const list = listRef.current;
-    if (!list || total < 2) return;
+    if (!list || total < 2 || expandidoId) return;
 
     let startX = 0;
     const onStart = (e: TouchEvent) => {
@@ -285,7 +305,16 @@ export function EventosHome({
       list.removeEventListener("touchstart", onStart);
       list.removeEventListener("touchend", onEnd);
     };
-  }, [swapEvents, total]);
+  }, [swapEvents, total, expandidoId]);
+
+  useEffect(() => {
+    if (!expandidoId) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [expandidoId]);
 
   if (total === 0) return null;
 
@@ -330,7 +359,7 @@ export function EventosHome({
             className="btn-prev"
             aria-label="Evento anterior"
             onClick={() => swapEvents("left")}
-            disabled={total < 2}
+            disabled={total < 2 || Boolean(expandidoId)}
           >
             ←
           </button>
@@ -369,13 +398,14 @@ export function EventosHome({
                       {evento.descricao ? (
                         <p className="desc">{evento.descricao}</p>
                       ) : null}
-                      <Link
+                      <button
+                        type="button"
                         className="btn"
-                        href={`/eventos/${evento.id}`}
                         tabIndex={index === activeIdx ? 0 : -1}
+                        onClick={() => abrirReel(evento)}
                       >
-                        {evento.exigeInscricao ? "Inscrever-se" : "Ver evento"}
-                      </Link>
+                        {rotuloCta(evento.exigeInscricao)}
+                      </button>
                     </div>
                   </article>
                 </div>
@@ -388,7 +418,7 @@ export function EventosHome({
             className="btn-next"
             aria-label="Próximo evento"
             onClick={() => swapEvents("right")}
-            disabled={total < 2}
+            disabled={total < 2 || Boolean(expandidoId)}
           >
             →
           </button>
@@ -400,6 +430,54 @@ export function EventosHome({
           </div>
         ) : null}
       </div>
+
+      {expandido ? (
+        <div
+          className="events-reel"
+          role="dialog"
+          aria-modal="true"
+          aria-label={expandido.nome}
+        >
+          <button
+            type="button"
+            className="events-reel__backdrop"
+            aria-label="Fechar"
+            onClick={fecharReel}
+          />
+          <div className="events-reel__stage">
+            <div className="events-reel__card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="events-reel__media"
+                src={expandido.imagem}
+                alt={expandido.nome}
+              />
+              <div className="events-reel__panel">
+                <h3>{expandido.nome}</h3>
+                {expandido.data ? <p className="date">{expandido.data}</p> : null}
+                {expandido.descricao ? (
+                  <p className="desc">{expandido.descricao}</p>
+                ) : null}
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => irParaEvento(expandido)}
+                >
+                  {rotuloCta(expandido.exigeInscricao)}
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="events-reel__close"
+              aria-label="Fechar"
+              onClick={fecharReel}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

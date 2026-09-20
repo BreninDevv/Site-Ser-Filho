@@ -16,13 +16,11 @@ export default async function EventoPublicoPage({
   if (!uuidValido(id)) notFound();
 
   const supabase = await createClient();
-  const agora = new Date().toISOString();
   const [{ data: evento }, { data: auth }, chavePix] = await Promise.all([
     supabase
       .from("eventos")
       .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao, valor_centavos")
       .eq("id", id)
-      .lte("publicar_em", agora)
       .maybeSingle(),
     supabase.auth.getUser(),
     obterChavePix(),
@@ -79,7 +77,10 @@ export default async function EventoPublicoPage({
 
           {evento.exige_inscricao ? (
             <>
-              <h2 className="font-heading mt-8 mb-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              <h2
+                id="inscricao"
+                className="font-heading mt-8 mb-3 scroll-mt-24 text-3xl font-bold tracking-tight sm:text-4xl"
+              >
                 Faça sua inscrição
               </h2>
               <p className="mb-6 text-sm leading-relaxed text-[#141412]/75">
