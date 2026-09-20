@@ -13,7 +13,6 @@ import {
   IoExitOutline,
   IoFlowerOutline,
   IoGridOutline,
-  IoLeafOutline,
   IoPeopleOutline,
   IoClipboardOutline,
   IoHomeOutline,
@@ -23,6 +22,7 @@ import {
   GradientMenu,
   type GradientMenuItem,
 } from "@/components/ui/gradient-menu";
+import { FingerprintMenuIcon } from "@/components/ui/fingerprint-icon";
 import { CORES_PAINEL_NAV } from "@/lib/ui/cores-marca";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ const ICONES: Record<string, IconType> = {
   "/painel": IoHomeOutline,
   "/painel/planilha-inscricoes": IoClipboardOutline,
   "/painel/encontro": IoFlowerOutline,
-  "/painel/legado": IoLeafOutline,
+  "/painel/legado": FingerprintMenuIcon,
   "/painel/inscricoes-eventos": IoGridOutline,
   "/painel/eventos": IoCalendarOutline,
   "/painel/testemunhos": IoChatbubbleEllipsesOutline,

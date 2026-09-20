@@ -12,7 +12,6 @@ import {
   IoHomeOutline,
   IoCalendarOutline,
   IoChatbubbleEllipsesOutline,
-  IoLeafOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
 
@@ -20,6 +19,7 @@ import {
   GradientMenu,
   type GradientMenuItem,
 } from "@/components/ui/gradient-menu";
+import { FingerprintMenuIcon } from "@/components/ui/fingerprint-icon";
 import { CORES_FLUIDO_MENU } from "@/lib/ui/cores-marca";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +66,7 @@ export const siteGradientNavItems: GradientMenuItem[] = [
   },
   {
     title: "Legado",
-    icon: IoLeafOutline,
+    icon: FingerprintMenuIcon,
     to: "/legado-de-cristo",
     ...gradienteMarca("/legado-de-cristo"),
   },
