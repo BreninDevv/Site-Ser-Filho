@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   MAX_DESCRICAO_TESTEMUNHO,
   previaEhVideo,
   urlPublicaDaPrevia,
 } from "@/lib/midia";
+import { enviarPreviaNoCliente } from "@/lib/testemunho-upload-cliente";
 import { editarTestemunho, excluirTestemunho } from "./actions";
 
 const campo =
@@ -23,9 +24,24 @@ export type ItemTestemunhoDados = {
 
 export function ItemTestemunho({ item }: { item: ItemTestemunhoDados }) {
   const [editando, setEditando] = useState(false);
+  const [excluindo, startExcluir] = useTransition();
   const [estado, action, pendente] = useActionState(
-    async (_prev: { erro?: string; ok?: boolean } | null, formData: FormData) => {
-      return editarTestemunho(formData);
+    async (
+      _prev: { erro?: string; ok?: boolean } | null,
+      formData: FormData
+    ) => {
+      try {
+        const arquivo = formData.get("previa");
+        if (arquivo instanceof File && arquivo.size > 0) {
+          const up = await enviarPreviaNoCliente(arquivo);
+          if ("erro" in up) return { erro: up.erro };
+          formData.set("previa_path", up.caminho);
+          formData.delete("previa");
+        }
+        return await editarTestemunho(formData);
+      } catch {
+        return { erro: "Falha ao salvar. Tente de novo." };
+      }
     },
     null
   );
@@ -89,16 +105,17 @@ export function ItemTestemunho({ item }: { item: ItemTestemunhoDados }) {
               accept="image/png,image/jpeg,image/webp,video/mp4,video/webm"
               className={campo}
             />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Instagram: se trocar o link, envie uma prévia nova. Shorts: pode
-              deixar em branco.
-            </p>
           </div>
           {estado?.erro ? (
             <p className="text-sm text-destructive">{estado.erro}</p>
           ) : null}
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" size="sm" disabled={pendente} className="rounded-full">
+            <Button
+              type="submit"
+              size="sm"
+              disabled={pendente}
+              className="rounded-full"
+            >
               {pendente ? "Salvando..." : "Salvar"}
             </Button>
             <Button
@@ -152,11 +169,21 @@ export function ItemTestemunho({ item }: { item: ItemTestemunhoDados }) {
         >
           Editar
         </Button>
-        <form action={excluirTestemunho.bind(null, item.id)}>
-          <Button size="sm" variant="destructive" type="submit" className="rounded-full">
-            Remover
-          </Button>
-        </form>
+        <Button
+          size="sm"
+          variant="destructive"
+          type="button"
+          className="rounded-full"
+          disabled={excluindo}
+          onClick={() => {
+            if (!confirm("Remover este testemunho?")) return;
+            startExcluir(() => {
+              void excluirTestemunho(item.id);
+            });
+          }}
+        >
+          {excluindo ? "..." : "Remover"}
+        </Button>
       </div>
     </li>
   );

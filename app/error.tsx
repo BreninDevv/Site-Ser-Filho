@@ -1,6 +1,7 @@
 "use client";
 
 export default function Error({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -15,6 +16,11 @@ export default function Error({
         Tente de novo. Se o erro continuar, feche a aba e abra o site outra
         vez.
       </p>
+      {error?.digest ? (
+        <p className="mt-2 font-mono text-xs text-muted-foreground">
+          Código: {error.digest}
+        </p>
+      ) : null}
       <button
         type="button"
         onClick={() => reset()}

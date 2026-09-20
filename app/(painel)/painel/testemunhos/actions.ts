@@ -13,8 +13,6 @@ import {
   destinoDoTestemunho,
   MAX_DESCRICAO_TESTEMUNHO,
   MAX_TESTEMUNHOS,
-  TAMANHO_MAX_PREVIA,
-  TIPOS_PREVIA,
 } from "@/lib/midia";
 import {
   analisarLinkVideo,
@@ -48,46 +46,22 @@ function mensagemErroBanco(
   return `Não foi possível ${acao}. ${msg}`;
 }
 
-async function enviarPrevia(supabase: SupabaseClient, arquivo: File) {
-  if (arquivo.size > TAMANHO_MAX_PREVIA) {
-    return { erro: "A prévia pode ter no máximo 12 MB." };
+function caminhoPreviaSeguro(path: string | null | undefined) {
+  const limpo = String(path ?? "").trim();
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(png|jpe?g|webp|mp4|webm)$/i.test(
+      limpo
+    )
+  ) {
+    return null;
   }
-  if (!TIPOS_PREVIA.includes(arquivo.type as (typeof TIPOS_PREVIA)[number])) {
-    return { erro: "Use PNG, JPG, WebP, MP4 ou WebM." };
-  }
-
-  const extensoes: Record<string, string> = {
-    "image/png": "png",
-    "image/jpeg": "jpg",
-    "image/webp": "webp",
-    "video/mp4": "mp4",
-    "video/webm": "webm",
-  };
-  const extensao = extensoes[arquivo.type];
-  if (!extensao) return { erro: "Use PNG, JPG, WebP, MP4 ou WebM." };
-  const caminho = `${crypto.randomUUID()}.${extensao}`;
-
-  const { error } = await supabase.storage
-    .from(BUCKET_TESTEMUNHOS)
-    .upload(caminho, arquivo, { contentType: arquivo.type });
-
-  if (error) {
-    return { erro: mensagemErroBanco(error, "enviar a prévia") };
-  }
-
-  return { caminho };
+  return limpo;
 }
 
-async function resolverPrevia(
+async function resolverPreviaSemArquivo(
   supabase: SupabaseClient,
-  videoUrl: string,
-  arquivo: FormDataEntryValue | null
+  videoUrl: string
 ): Promise<{ caminho: string } | { erro: string }> {
-  const temArquivo = arquivo instanceof File && arquivo.size > 0;
-  if (temArquivo) {
-    return enviarPrevia(supabase, arquivo);
-  }
-
   const analise = analisarLinkVideo(videoUrl);
   if (analise?.plataforma === "instagram") {
     return {
@@ -115,6 +89,9 @@ export async function criarTestemunho(formData: FormData) {
     const videoUrl = destinoDoTestemunho(
       String(formData.get("video_url") ?? "")
     );
+    const previaPath = caminhoPreviaSeguro(
+      String(formData.get("previa_path") ?? "")
+    );
 
     if (!nome) return { erro: "Escreva o nome de quem testemunha." };
     if (!descricao) return { erro: "Escreva a descrição do testemunho." };
@@ -133,13 +110,12 @@ export async function criarTestemunho(formData: FormData) {
       };
     }
 
-    const previa = await resolverPrevia(
-      supabase,
-      videoUrl,
-      formData.get("previa")
-    );
-    if ("erro" in previa) return { erro: previa.erro };
-    const caminho = previa.caminho;
+    let caminho = previaPath;
+    if (!caminho) {
+      const resolvida = await resolverPreviaSemArquivo(supabase, videoUrl);
+      if ("erro" in resolvida) return { erro: resolvida.erro };
+      caminho = resolvida.caminho;
+    }
 
     const { error } = await supabase.from("testemunhos").insert({
       nome,
@@ -151,7 +127,11 @@ export async function criarTestemunho(formData: FormData) {
     });
 
     if (error) {
-      await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([caminho]);
+      // Não apaga upload do cliente em falha de insert — pode reusar na edição;
+      // só remove se foi thumbnail baixada no servidor e insert falhou.
+      if (!previaPath) {
+        await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([caminho]);
+      }
       return { erro: mensagemErroBanco(error, "salvar") };
     }
 
@@ -161,7 +141,7 @@ export async function criarTestemunho(formData: FormData) {
     console.error("criarTestemunho", erro);
     return {
       erro:
-        "Deu erro ao publicar. Confira o link e a prévia e tente de novo.",
+        "Deu erro ao publicar. Se o vídeo for grande, espere o envio terminar e tente de novo.",
     };
   }
 }
@@ -183,8 +163,9 @@ export async function editarTestemunho(formData: FormData) {
     const videoUrl = destinoDoTestemunho(
       String(formData.get("video_url") ?? "")
     );
-    const arquivo = formData.get("previa");
-    const temArquivo = arquivo instanceof File && arquivo.size > 0;
+    const previaPathNova = caminhoPreviaSeguro(
+      String(formData.get("previa_path") ?? "")
+    );
 
     if (!nome) return { erro: "Escreva o nome de quem testemunha." };
     if (!descricao) return { erro: "Escreva a descrição do testemunho." };
@@ -203,17 +184,14 @@ export async function editarTestemunho(formData: FormData) {
       return { erro: "Não achei esse testemunho." };
     }
 
-    let caminho = atual.previa_path as string | null;
+    let caminho = (atual.previa_path as string | null) ?? null;
     let caminhoNovo: string | undefined;
 
-    if (temArquivo) {
-      const upload = await enviarPrevia(supabase, arquivo);
-      if ("erro" in upload && upload.erro) return { erro: upload.erro };
-      caminhoNovo = upload.caminho!;
-      caminho = caminhoNovo;
+    if (previaPathNova) {
+      caminhoNovo = previaPathNova;
+      caminho = previaPathNova;
     } else if (!caminho) {
-      // Sem prévia antiga e sem arquivo: tenta Shorts; Instagram exige arquivo
-      const resolvida = await resolverPrevia(supabase, videoUrl, null);
+      const resolvida = await resolverPreviaSemArquivo(supabase, videoUrl);
       if ("erro" in resolvida) return { erro: resolvida.erro };
       caminhoNovo = resolvida.caminho;
       caminho = caminhoNovo;
@@ -231,13 +209,14 @@ export async function editarTestemunho(formData: FormData) {
       .eq("id", id);
 
     if (error) {
-      if (caminhoNovo) {
-        await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([caminhoNovo]);
-      }
       return { erro: mensagemErroBanco(error, "atualizar") };
     }
 
-    if (caminhoNovo && atual.previa_path && atual.previa_path !== caminhoNovo) {
+    if (
+      caminhoNovo &&
+      atual.previa_path &&
+      atual.previa_path !== caminhoNovo
+    ) {
       await supabase.storage
         .from(BUCKET_TESTEMUNHOS)
         .remove([atual.previa_path]);
@@ -254,20 +233,24 @@ export async function editarTestemunho(formData: FormData) {
 }
 
 export async function excluirTestemunho(id: string) {
-  if (!uuidValido(id)) return;
-  if (!(await exigeEquipeMidia())) return;
+  try {
+    if (!uuidValido(id)) return;
+    if (!(await exigeEquipeMidia())) return;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("testemunhos")
-    .select("previa_path")
-    .eq("id", id)
-    .single();
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("testemunhos")
+      .select("previa_path")
+      .eq("id", id)
+      .single();
 
-  await supabase.from("testemunhos").delete().eq("id", id);
-  if (data?.previa_path) {
-    await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([data.previa_path]);
+    await supabase.from("testemunhos").delete().eq("id", id);
+    if (data?.previa_path) {
+      await supabase.storage.from(BUCKET_TESTEMUNHOS).remove([data.previa_path]);
+    }
+
+    revalidar();
+  } catch (erro) {
+    console.error("excluirTestemunho", erro);
   }
-
-  revalidar();
 }

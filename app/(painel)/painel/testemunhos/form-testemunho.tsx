@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MAX_DESCRICAO_TESTEMUNHO } from "@/lib/midia";
+import { enviarPreviaNoCliente } from "@/lib/testemunho-upload-cliente";
 import { criarTestemunho } from "./actions";
 
 const campo =
@@ -25,8 +26,25 @@ function pareceYoutubeShorts(url: string) {
 
 export function FormTestemunho() {
   const [estado, action, pendente] = useActionState(
-    async (_prev: { erro?: string; ok?: boolean } | null, formData: FormData) => {
-      return criarTestemunho(formData);
+    async (
+      _prev: { erro?: string; ok?: boolean } | null,
+      formData: FormData
+    ) => {
+      try {
+        const arquivo = formData.get("previa");
+        if (arquivo instanceof File && arquivo.size > 0) {
+          const up = await enviarPreviaNoCliente(arquivo);
+          if ("erro" in up) return { erro: up.erro };
+          formData.set("previa_path", up.caminho);
+          formData.delete("previa");
+        }
+        return await criarTestemunho(formData);
+      } catch {
+        return {
+          erro:
+            "Falha ao publicar. Se o vídeo for grande, aguarde o envio e tente de novo.",
+        };
+      }
     },
     null
   );
@@ -222,10 +240,8 @@ export function FormTestemunho() {
         ) : null}
         {previaLink && !mostrandoArquivo ? (
           <div className="mt-3 overflow-hidden rounded-xl border border-border bg-black">
-            <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-white/80">
-              <span>
-                Prévia automática · <strong>{previaLink.rotulo}</strong>
-              </span>
+            <div className="px-3 py-2 text-xs text-white/80">
+              Prévia automática · <strong>{previaLink.rotulo}</strong>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -258,8 +274,8 @@ export function FormTestemunho() {
           className={campo}
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          PNG, JPG, WebP, MP4 ou WebM. Até 12 MB. No Instagram use MP4 para a
-          home rodar em movimento.
+          PNG, JPG, WebP, MP4 ou WebM. Até 12 MB. O arquivo sobe direto pro
+          storage (não passa pelo limite da Vercel).
         </p>
         {mostrandoArquivo && (
           <div className="mt-3 overflow-hidden rounded-xl border border-border bg-black">
