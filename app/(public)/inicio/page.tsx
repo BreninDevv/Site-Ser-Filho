@@ -3,16 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/typewriter";
 import { createClient } from "@/lib/supabase/server";
 import { TestemunhosHome } from "@/components/testemunhos-home";
-import { EventosHome } from "@/components/eventos-home";
 import { HandwritingText } from "@/components/ui/handwriting-text";
 import GlobeStudy from "@/components/ui/globe-study";
 import {
   destinoDoTestemunho,
-  formatarQuando,
   INSTAGRAM_SER_FILHO,
   previaEhVideo,
   urlPublicaDaPrevia,
-  urlPublicaDoPost,
 } from "@/lib/midia";
 
 export default async function InicioPage() {
@@ -23,24 +20,6 @@ export default async function InicioPage() {
     .select("id, nome, dia, horario, foto_url")
     .order("created_at", { ascending: false })
     .limit(3);
-
-  const agora = new Date().toISOString();
-  const { data: eventos } = await supabase
-    .from("eventos")
-    .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao")
-    .lte("publicar_em", agora)
-    .order("publicar_em", { ascending: false })
-    .limit(7);
-
-  const eventosHome =
-    eventos?.map((evento) => ({
-      id: evento.id,
-      nome: evento.nome,
-      descricao: evento.descricao ?? "",
-      data: formatarQuando(evento.publicar_em),
-      imagem: urlPublicaDoPost(evento.imagem_path),
-      exigeInscricao: Boolean(evento.exige_inscricao),
-    })) ?? [];
 
   const { data: testemunhosNovos } = await supabase
     .from("testemunhos")
@@ -241,8 +220,6 @@ export default async function InicioPage() {
           </div>
         </div>
       </section>
-
-      {eventosHome.length > 0 && <EventosHome itens={eventosHome} />}
 
       <section className="relative overflow-hidden bg-[#1f3d1f] px-4 py-32 text-center text-[#faf9f6]">
         <div

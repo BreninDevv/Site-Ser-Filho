@@ -10,12 +10,11 @@ export const metadata: Metadata = {
 
 export default async function EventosPage() {
   const supabase = await createClient();
-  const agora = new Date().toISOString();
+  /* Lista todos os posts (no ar + programados) — a data é a agenda do evento */
   const { data: eventos, error } = await supabase
     .from("eventos")
     .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao")
-    .lte("publicar_em", agora)
-    .order("publicar_em", { ascending: false });
+    .order("publicar_em", { ascending: true });
 
   const itens =
     eventos?.map((evento) => ({
@@ -48,8 +47,7 @@ export default async function EventosPage() {
           Eventos
         </h1>
         <p className="mt-12 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          Nenhum evento no ar neste momento. Confira se a data de publicação já
-          passou.
+          Nenhum evento cadastrado neste momento.
         </p>
       </div>
     );
