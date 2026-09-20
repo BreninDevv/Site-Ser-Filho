@@ -125,10 +125,17 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
     [itens]
   );
   const [ativo, setAtivo] = useState(0);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (ativo >= lista.length) setAtivo(0);
   }, [ativo, lista.length]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    };
+  }, []);
 
   const irPara = useCallback(
     (indice: number) => {
@@ -137,6 +144,13 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
     },
     [lista.length]
   );
+
+  const destacarComSuavidade = useCallback((indice: number) => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => {
+      setAtivo(indice);
+    }, 90);
+  }, []);
 
   const anterior = useCallback(() => irPara(ativo - 1), [ativo, irPara]);
   const proximo = useCallback(() => irPara(ativo + 1), [ativo, irPara]);
@@ -206,8 +220,8 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                       className={`testemunhos-carousel__card${ativoCard ? " is-active" : ""}`}
                       aria-current={ativoCard ? "true" : undefined}
                       aria-label={`Abrir testemunho: ${nomeCurto(card.nome)}`}
-                      onMouseEnter={() => setAtivo(index)}
-                      onFocus={() => setAtivo(index)}
+                      onMouseEnter={() => destacarComSuavidade(index)}
+                      onFocus={() => irPara(index)}
                     >
                       <span className="testemunhos-carousel__card-inner">
                         <PreviaMedia card={card} ativo={ativoCard} />
