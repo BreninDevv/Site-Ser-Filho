@@ -1,4 +1,4 @@
-/* Testemunhos: cápsulas lado a lado (accordion) */
+/* Testemunhos: accordion cápsula (como referência Kelly Cox) */
 
 .testemunhos-section {
   position: relative;
@@ -12,8 +12,8 @@
   opacity: 0;
   transform: translateY(18px);
   transition:
-    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .testemunhos-section .testemunhos-reveal[data-reveal="label"] {
@@ -89,9 +89,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   max-width: 1100px;
-  min-height: 480px;
+  min-height: 500px;
   margin: 0 auto;
   user-select: none;
 }
@@ -109,7 +109,7 @@
   color: #111;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
 .testemunhos-carousel__arrow:hover:not(:disabled) {
@@ -137,68 +137,53 @@
   stroke-linejoin: round;
 }
 
+/* Bloco único: cápsulas encostadas (quase sem vão) */
 .testemunhos-carousel__stage {
+  --card-collapsed: 68px;
+  --card-expanded: 268px;
+  --card-gap: 6px;
+  --card-ease: cubic-bezier(0.33, 1, 0.32, 1);
+  --card-duration: 0.9s;
+
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   align-items: stretch;
   justify-content: center;
-  gap: 12px;
-  height: 440px;
-  max-width: 920px;
+  gap: var(--card-gap);
+  height: 460px;
   margin: 0 auto;
-  padding: 8px 4px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.testemunhos-carousel__stage::-webkit-scrollbar {
-  display: none;
+  padding: 4px 0;
+  overflow: visible;
 }
 
 .testemunhos-carousel__card {
   position: relative;
-  flex: 1 1 0;
-  min-width: 64px;
-  max-width: 78px;
-  width: auto;
+  flex: 0 0 auto;
+  width: var(--card-collapsed);
   height: 100%;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;
   overflow: hidden;
-  background: #0d1016;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+  background: #111318;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  will-change: max-width, flex-grow, border-radius, box-shadow;
-  transition:
-    max-width 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    flex-grow 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    min-width 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    border-radius 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.55s ease;
   -webkit-tap-highlight-color: transparent;
-}
-
-.testemunhos-carousel__card:not(.is-active) {
-  filter: brightness(0.88) saturate(0.92);
+  transition:
+    width var(--card-duration) var(--card-ease),
+    border-radius var(--card-duration) var(--card-ease),
+    box-shadow var(--card-duration) var(--card-ease);
 }
 
 .testemunhos-carousel__card.is-active {
-  flex-grow: 3.4;
-  min-width: 200px;
-  max-width: 260px;
-  border-radius: 48px;
-  filter: none;
+  width: var(--card-expanded);
+  border-radius: 999px;
   box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.22);
+    0 20px 44px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
   z-index: 2;
 }
 
@@ -217,8 +202,7 @@
   border-radius: inherit;
   overflow: hidden;
   display: block;
-  background: #0d1016;
-  isolation: isolate;
+  background: #111318;
 }
 
 .testemunhos-carousel__media,
@@ -228,18 +212,11 @@
   display: block;
   overflow: hidden;
   border-radius: inherit;
-  background: #0d1016;
-  opacity: 0.92;
-  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  background: #111318;
 }
 
-.testemunhos-carousel__card.is-active .testemunhos-carousel__media {
-  opacity: 1;
-}
-
-.testemunhos-carousel__media img,
-.testemunhos-carousel__media video,
-.testemunhos-carousel__media iframe {
+.testemunhos-carousel__media-base,
+.testemunhos-carousel__media-live {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -248,52 +225,48 @@
   outline: none;
   display: block;
   pointer-events: none;
-  background: #0d1016;
+  background: #111318;
 }
 
-.testemunhos-carousel__media img,
-.testemunhos-carousel__media video {
+.testemunhos-carousel__media-base {
   object-fit: cover;
   object-position: center center;
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Só imagem estática (thumb YouTube/IG) precisa de zoom p/ cortar letterbox */
-.testemunhos-carousel__media--image img {
-  transform: scale(1.42);
+  transform: scale(1.08);
   transform-origin: center center;
+  transition:
+    transform var(--card-duration) var(--card-ease),
+    opacity 0.55s ease;
 }
 
-.testemunhos-carousel__media--video video {
+.testemunhos-carousel__card.is-active .testemunhos-carousel__media-base {
   transform: scale(1.02);
-  transform-origin: center center;
 }
 
-.testemunhos-carousel__card.is-active .testemunhos-carousel__media--video video {
-  transform: scale(1.06);
+.testemunhos-carousel__media--image .testemunhos-carousel__media-base {
+  transform: scale(1.45);
 }
 
-.testemunhos-carousel__media--embed iframe {
-  /* Cobre letterbox do player YouTube na cápsula vertical */
+.testemunhos-carousel__card.is-active
+  .testemunhos-carousel__media--image
+  .testemunhos-carousel__media-base {
+  transform: scale(1.28);
+}
+
+/* Embed YouTube por cima, com fade — a foto base nunca some de súbito */
+.testemunhos-carousel__media-live {
+  opacity: 0;
+  transition: opacity 0.7s var(--card-ease);
+  /* cover vertical */
   top: 50%;
   left: 50%;
   width: 177.78%;
   height: 100%;
-  min-width: 100%;
   min-height: 177.78%;
-  transform: translate(-50%, -50%) scale(1.2);
-  transform-origin: center center;
-  opacity: 0;
-  animation: testemunhos-embed-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
-@keyframes testemunhos-embed-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.testemunhos-carousel__media-live.is-on {
+  opacity: 1;
 }
 
 .testemunhos-carousel__card-fade {
@@ -302,16 +275,16 @@
   right: 0;
   bottom: 0;
   z-index: 1;
-  height: 32%;
+  height: 38%;
   pointer-events: none;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.25) 55%,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.28) 55%,
     rgba(0, 0, 0, 0) 100%
   );
   opacity: 0;
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.75s var(--card-ease);
 }
 
 .testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade {
@@ -322,17 +295,17 @@
   position: absolute;
   z-index: 2;
   left: 50%;
-  bottom: 28px;
-  width: calc(100% - 28px);
-  translate: -50% 12px;
+  bottom: 32px;
+  width: calc(100% - 32px);
+  translate: -50% 14px;
   text-align: center;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
   transition:
-    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s,
-    translate 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
+    opacity 0.55s var(--card-ease) 0.18s,
+    translate 0.75s var(--card-ease) 0.1s,
     visibility 0.55s;
 }
 
@@ -344,12 +317,12 @@
 
 .testemunhos-carousel__card-meta strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.2;
   border-bottom: 1.5px solid #fff;
-  padding-bottom: 6px;
-  margin-bottom: 6px;
+  padding-bottom: 7px;
+  margin-bottom: 7px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -357,17 +330,9 @@
 
 .testemunhos-carousel__card-meta span {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  opacity: 0.9;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .testemunhos-carousel__card:not(.is-active):hover {
-    max-width: 96px;
-    transform: translateY(-3px);
-    filter: brightness(0.96) saturate(1);
-  }
+  opacity: 0.92;
 }
 
 @media (max-width: 720px) {
@@ -377,26 +342,15 @@
   }
 
   .testemunhos-carousel {
-    min-height: 400px;
-    gap: 0.35rem;
+    min-height: 420px;
+    gap: 0.45rem;
   }
 
   .testemunhos-carousel__stage {
-    height: 380px;
-    gap: 8px;
-    max-width: 100%;
-    justify-content: flex-start;
-  }
-
-  .testemunhos-carousel__card {
-    min-width: 52px;
-    max-width: 60px;
-  }
-
-  .testemunhos-carousel__card.is-active {
-    min-width: 160px;
-    max-width: 200px;
-    border-radius: 40px;
+    --card-collapsed: 52px;
+    --card-expanded: 190px;
+    --card-gap: 5px;
+    height: 390px;
   }
 
   .testemunhos-carousel__arrow {
@@ -405,7 +359,7 @@
   }
 
   .testemunhos-carousel__card-meta strong {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 }
 
@@ -414,12 +368,9 @@
   .testemunhos-carousel__card,
   .testemunhos-carousel__card-meta,
   .testemunhos-carousel__card-fade,
-  .testemunhos-carousel__media,
-  .testemunhos-carousel__media img,
-  .testemunhos-carousel__media video,
-  .testemunhos-carousel__media--embed iframe {
+  .testemunhos-carousel__media-base,
+  .testemunhos-carousel__media-live {
     transition: none !important;
-    animation: none !important;
   }
 
   .testemunhos-section .testemunhos-reveal {
@@ -429,7 +380,7 @@
 
   .testemunhos-carousel__card.is-active .testemunhos-carousel__card-meta,
   .testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade,
-  .testemunhos-carousel__media--embed iframe {
+  .testemunhos-carousel__media-live.is-on {
     opacity: 1 !important;
     visibility: visible !important;
     translate: -50% 0 !important;

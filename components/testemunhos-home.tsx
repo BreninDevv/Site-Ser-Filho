@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Seção Testemunhos: cápsulas lado a lado; prévia em movimento no ativo.
+ * Seção Testemunhos: accordion de cápsulas (encostadas, expansão suave).
  */
 import {
   useCallback,
@@ -42,8 +42,16 @@ function PreviaMedia({
   const videoRef = useRef<HTMLVideoElement>(null);
   const ehArquivoVideo =
     card.video || /\.(mp4|webm)(\?|#|$)/i.test(card.previa || "");
+  const embedUrl = useMemo(
+    () => (!ehArquivoVideo ? embedPreviaAutoplay(card.destino) : null),
+    [card.destino, ehArquivoVideo]
+  );
+  const [embedCarregado, setEmbedCarregado] = useState(false);
 
-  // MP4/WebM enviado: sempre prioridade sobre embed do YouTube
+  useEffect(() => {
+    if (ativo && embedUrl) setEmbedCarregado(true);
+  }, [ativo, embedUrl]);
+
   useEffect(() => {
     const el = videoRef.current;
     if (!el || !ehArquivoVideo) return;
@@ -62,56 +70,54 @@ function PreviaMedia({
     tentarPlay();
     el.addEventListener("loadeddata", tentarPlay);
     el.addEventListener("canplay", tentarPlay);
-    el.addEventListener("loadedmetadata", tentarPlay);
-
     return () => {
       el.removeEventListener("loadeddata", tentarPlay);
       el.removeEventListener("canplay", tentarPlay);
-      el.removeEventListener("loadedmetadata", tentarPlay);
     };
-  }, [ehArquivoVideo, card.previa, ativo]);
+  }, [ehArquivoVideo, card.previa]);
 
   if (ehArquivoVideo && card.previa) {
     return (
       <span className="testemunhos-carousel__media testemunhos-carousel__media--video">
         <video
           ref={videoRef}
+          className="testemunhos-carousel__media-base"
           src={card.previa}
           muted
           loop
           playsInline
           autoPlay
           preload="auto"
-          // iOS legado
           {...{ "webkit-playsinline": "true" }}
         />
       </span>
     );
   }
 
-  // Sem arquivo de vídeo: YouTube no card ativo
-  const embed = ativo ? embedPreviaAutoplay(card.destino) : null;
-  if (embed) {
-    return (
-      <span className="testemunhos-carousel__media testemunhos-carousel__media--embed">
-        <iframe
-          key={embed}
-          src={embed}
-          title=""
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowFullScreen={false}
-          loading="eager"
-          tabIndex={-1}
-        />
-      </span>
-    );
-  }
-
-  if (card.previa) {
+  if (card.previa || embedUrl) {
     return (
       <span className="testemunhos-carousel__media testemunhos-carousel__media--image">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={card.previa} alt="" draggable={false} />
+        {card.previa ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="testemunhos-carousel__media-base"
+            src={card.previa}
+            alt=""
+            draggable={false}
+          />
+        ) : (
+          <span className="testemunhos-carousel__card-empty" />
+        )}
+        {embedCarregado && embedUrl ? (
+          <iframe
+            className={`testemunhos-carousel__media-live${ativo ? " is-on" : ""}`}
+            src={embedUrl}
+            title=""
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen={false}
+            tabIndex={-1}
+          />
+        ) : null}
       </span>
     );
   }
@@ -140,16 +146,18 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
   const irPara = useCallback(
     (indice: number) => {
       if (lista.length === 0) return;
+      if (hoverTimer.current) clearTimeout(hoverTimer.current);
       setAtivo(((indice % lista.length) + lista.length) % lista.length);
     },
     [lista.length]
   );
 
-  const destacarComSuavidade = useCallback((indice: number) => {
+  /** Hover com atraso curto evita troca nervosa; a largura anima via CSS. */
+  const destacarNoHover = useCallback((indice: number) => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
       setAtivo(indice);
-    }, 90);
+    }, 120);
   }, []);
 
   const anterior = useCallback(() => irPara(ativo - 1), [ativo, irPara]);
@@ -220,7 +228,7 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                       className={`testemunhos-carousel__card${ativoCard ? " is-active" : ""}`}
                       aria-current={ativoCard ? "true" : undefined}
                       aria-label={`Abrir testemunho: ${nomeCurto(card.nome)}`}
-                      onMouseEnter={() => destacarComSuavidade(index)}
+                      onMouseEnter={() => destacarNoHover(index)}
                       onFocus={() => irPara(index)}
                     >
                       <span className="testemunhos-carousel__card-inner">
