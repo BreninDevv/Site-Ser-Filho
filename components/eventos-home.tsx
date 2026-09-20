@@ -4,7 +4,6 @@
  * Eventos — cover flow 3D (cápsulas), entrada staggered, float e paralaxe.
  */
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -45,7 +44,6 @@ export function EventosHome({
   tituloComo?: "h1" | "h2";
   mostrarVerTodos?: boolean;
 }) {
-  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -53,11 +51,14 @@ export function EventosHome({
   const enteredRef = useRef(false);
   const parallaxRef = useRef({ rx: 0, ry: 0 });
   const rafRef = useRef<number | null>(null);
-  const [activeIdx, setActiveIdx] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(() =>
+    Math.max(0, Math.floor(itens.length / 2))
+  );
   const [expandidoId, setExpandidoId] = useState<string | null>(null);
 
   const total = itens.length;
   const expandido = itens.find((e) => e.id === expandidoId) ?? null;
+  const ativo = itens[activeIdx] ?? itens[0];
 
   const updateEventsCarousel = useCallback(() => {
     const items = itemRefs.current.filter(Boolean) as HTMLLIElement[];
@@ -112,8 +113,6 @@ export function EventosHome({
         "is-hidden-mobile",
         mobileHide && Math.abs(offset) > 1
       );
-      /* hit-test: só o centro recebe clique */
-      item.style.pointerEvents = offset === 0 ? "auto" : "none";
     });
   }, []);
 
@@ -139,16 +138,6 @@ export function EventosHome({
   const fecharReel = useCallback(() => {
     setExpandidoId(null);
   }, []);
-
-  const irParaEvento = useCallback(
-    (evento: EventoHome) => {
-      const destino = evento.exigeInscricao
-        ? `/eventos/${evento.id}#inscricao`
-        : `/eventos/${evento.id}`;
-      router.push(destino);
-    },
-    [router]
-  );
 
   useEffect(() => {
     if (total === 0) return;
@@ -405,24 +394,29 @@ export function EventosHome({
                       ) : null}
                       {evento.descricao ? (
                         <p className="desc">{evento.descricao}</p>
-                      ) : null}
-                      <button
-                        type="button"
-                        className="btn"
-                        tabIndex={index === activeIdx ? 0 : -1}
-                        onClick={() => {
-                          if (index !== activeIdxRef.current) return;
-                          abrirReel(evento);
-                        }}
-                      >
-                        {rotuloCta(evento.exigeInscricao)}
-                      </button>
+                      ) : (
+                        <p className="desc" aria-hidden>
+                          &nbsp;
+                        </p>
+                      )}
                     </div>
                   </article>
                 </div>
               </li>
             ))}
           </ul>
+
+          {ativo && !expandidoId ? (
+            <div className="events__active-ui">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => abrirReel(ativo)}
+              >
+                {rotuloCta(ativo.exigeInscricao)}
+              </button>
+            </div>
+          ) : null}
 
           <button
             type="button"
@@ -469,13 +463,16 @@ export function EventosHome({
                 {expandido.descricao ? (
                   <p className="desc">{expandido.descricao}</p>
                 ) : null}
-                <button
-                  type="button"
+                <Link
                   className="btn"
-                  onClick={() => irParaEvento(expandido)}
+                  href={
+                    expandido.exigeInscricao
+                      ? `/eventos/${expandido.id}#inscricao`
+                      : `/eventos/${expandido.id}`
+                  }
                 >
                   {rotuloCta(expandido.exigeInscricao)}
-                </button>
+                </Link>
               </div>
             </div>
             <button
