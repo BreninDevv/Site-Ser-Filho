@@ -238,9 +238,16 @@
 .testemunhos-carousel__media video {
   object-fit: cover;
   object-position: center center;
-  /* Corta faixas pretas laterais de thumbs 16:9 / Shorts */
+}
+
+/* Só imagem estática (thumb YouTube/IG) precisa de zoom p/ cortar letterbox */
+.testemunhos-carousel__media--image img {
   transform: scale(1.42);
   transform-origin: center center;
+}
+
+.testemunhos-carousel__media--video video {
+  transform: none;
 }
 
 .testemunhos-carousel__media--embed iframe {

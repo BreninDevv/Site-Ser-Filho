@@ -40,25 +40,58 @@ function PreviaMedia({
   ativo: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const embed = useMemo(
-    () => (ativo ? embedPreviaAutoplay(card.destino) : null),
-    [ativo, card.destino]
-  );
+  const ehArquivoVideo =
+    card.video || /\.(mp4|webm)(\?|#|$)/i.test(card.previa || "");
 
+  // MP4/WebM enviado: sempre prioridade sobre embed do YouTube
   useEffect(() => {
     const el = videoRef.current;
-    if (!el) return;
-    if (ativo) {
-      el.muted = true;
-      const play = el.play();
-      if (play && typeof play.catch === "function") play.catch(() => {});
-    } else {
-      el.pause();
-      el.currentTime = 0;
-    }
-  }, [ativo]);
+    if (!el || !ehArquivoVideo) return;
 
-  if (ativo && embed) {
+    el.defaultMuted = true;
+    el.muted = true;
+    el.playsInline = true;
+
+    const tentarPlay = () => {
+      const promessa = el.play();
+      if (promessa && typeof promessa.catch === "function") {
+        promessa.catch(() => {});
+      }
+    };
+
+    tentarPlay();
+    el.addEventListener("loadeddata", tentarPlay);
+    el.addEventListener("canplay", tentarPlay);
+    el.addEventListener("loadedmetadata", tentarPlay);
+
+    return () => {
+      el.removeEventListener("loadeddata", tentarPlay);
+      el.removeEventListener("canplay", tentarPlay);
+      el.removeEventListener("loadedmetadata", tentarPlay);
+    };
+  }, [ehArquivoVideo, card.previa, ativo]);
+
+  if (ehArquivoVideo && card.previa) {
+    return (
+      <span className="testemunhos-carousel__media testemunhos-carousel__media--video">
+        <video
+          ref={videoRef}
+          src={card.previa}
+          muted
+          loop
+          playsInline
+          autoPlay
+          preload="auto"
+          // iOS legado
+          {...{ "webkit-playsinline": "true" }}
+        />
+      </span>
+    );
+  }
+
+  // Sem arquivo de vídeo: YouTube no card ativo
+  const embed = ativo ? embedPreviaAutoplay(card.destino) : null;
+  if (embed) {
     return (
       <span className="testemunhos-carousel__media testemunhos-carousel__media--embed">
         <iframe
@@ -74,25 +107,9 @@ function PreviaMedia({
     );
   }
 
-  if (card.video && card.previa) {
-    return (
-      <span className="testemunhos-carousel__media">
-        <video
-          ref={videoRef}
-          src={card.previa}
-          muted
-          loop
-          playsInline
-          preload="auto"
-          autoPlay={ativo}
-        />
-      </span>
-    );
-  }
-
   if (card.previa) {
     return (
-      <span className="testemunhos-carousel__media">
+      <span className="testemunhos-carousel__media testemunhos-carousel__media--image">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={card.previa} alt="" draggable={false} />
       </span>
