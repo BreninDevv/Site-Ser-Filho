@@ -1,17 +1,9 @@
 "use client";
 
 /**
- * Seção Testemunhos: carrossel 3D em cápsula (fundo escuro).
+ * Seção Testemunhos: cápsulas lado a lado (accordion), clique abre o link.
  */
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { INSTAGRAM_SER_FILHO } from "@/lib/midia";
 import { TestemunhosMotion } from "@/components/testemunhos-motion";
@@ -26,98 +18,32 @@ export type TestemunhoHome = {
   video: boolean;
 };
 
-function estiloDoOffset(
-  offset: number,
-  arrastePx: number,
-  mobile: boolean
-): CSSProperties {
-  const passo = mobile ? 64 : 92;
-  const x = offset * passo + arrastePx * 0.35;
-  const abs = Math.abs(offset);
-  const centro = abs === 0;
-
-  const scale = centro ? 1.06 : Math.max(0.55, 0.92 - abs * 0.14);
-  const opacity = centro ? 1 : Math.max(0.35, 0.85 - abs * 0.2);
-  const rotateY = centro ? 0 : offset > 0 ? -22 - abs * 6 : 22 + abs * 6;
-  const rotateZ = centro ? 0 : offset > 0 ? 2.5 : -2.5;
-  const z = centro ? 90 : -abs * 70;
-  const y = centro ? 0 : abs * 6;
-
-  return {
-    ["--tx" as string]: `${x}px`,
-    ["--ty" as string]: `${y}px`,
-    ["--tz" as string]: `${z}px`,
-    ["--ry" as string]: `${rotateY}deg`,
-    ["--rz" as string]: `${rotateZ}deg`,
-    ["--sc" as string]: String(scale),
-    opacity,
-    zIndex: 100 - abs,
-    filter: abs > 1 ? `blur(${Math.min(2.2, (abs - 1) * 1.1)}px)` : "none",
-  };
-}
-
 function nomeCurto(nome: string) {
-  if (nome.length <= 22) return nome;
-  return `${nome.slice(0, 20).trim()}…`;
+  if (nome.length <= 28) return nome;
+  return `${nome.slice(0, 26).trim()}…`;
 }
 
 export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
-  const lista = useMemo(() => itens.slice(0, 6), [itens]);
+  const lista = useMemo(
+    () => itens.filter((item) => Boolean(item.destino)),
+    [itens]
+  );
   const [ativo, setAtivo] = useState(0);
-  const [arrastePx, setArrastePx] = useState(0);
-  const [arrastando, setArrastando] = useState(false);
-  const [mobile, setMobile] = useState(false);
-
-  const stageRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ x: number; ativo: boolean }>({ x: 0, ativo: false });
 
   useEffect(() => {
-    const mqMobile = window.matchMedia("(max-width: 720px)");
-    const sync = () => setMobile(mqMobile.matches);
-    sync();
-    mqMobile.addEventListener("change", sync);
-    return () => mqMobile.removeEventListener("change", sync);
-  }, []);
+    if (ativo >= lista.length) setAtivo(0);
+  }, [ativo, lista.length]);
 
   const irPara = useCallback(
     (indice: number) => {
       if (lista.length === 0) return;
-      const proximo = ((indice % lista.length) + lista.length) % lista.length;
-      if (proximo === ativo) return;
-      setAtivo(proximo);
+      setAtivo(((indice % lista.length) + lista.length) % lista.length);
     },
-    [ativo, lista.length]
+    [lista.length]
   );
 
   const anterior = useCallback(() => irPara(ativo - 1), [ativo, irPara]);
   const proximo = useCallback(() => irPara(ativo + 1), [ativo, irPara]);
-
-  function aoPointerDown(evento: ReactPointerEvent<HTMLDivElement>) {
-    if (lista.length < 2) return;
-    dragRef.current = { x: evento.clientX, ativo: true };
-    setArrastando(true);
-    stageRef.current?.setPointerCapture(evento.pointerId);
-  }
-
-  function aoPointerMove(evento: ReactPointerEvent<HTMLDivElement>) {
-    if (!dragRef.current.ativo) return;
-    setArrastePx(evento.clientX - dragRef.current.x);
-  }
-
-  function finalizarArraste(evento: ReactPointerEvent<HTMLDivElement>) {
-    if (!dragRef.current.ativo) return;
-    const delta = evento.clientX - dragRef.current.x;
-    dragRef.current.ativo = false;
-    setArrastando(false);
-    setArrastePx(0);
-    const limiar = mobile ? 40 : 56;
-    if (delta > limiar) anterior();
-    else if (delta < -limiar) proximo();
-  }
-
-  function abrirDestino(destino: string) {
-    window.open(destino, "_blank", "noopener,noreferrer");
-  }
 
   return (
     <div className="testemunhos-carousel-band testemunhos-carousel-band--solo">
@@ -168,48 +94,26 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
               </button>
 
               <div
-                ref={stageRef}
-                className={`testemunhos-carousel__stage${arrastando ? " is-dragging" : ""}`}
-                onPointerDown={aoPointerDown}
-                onPointerMove={aoPointerMove}
-                onPointerUp={finalizarArraste}
-                onPointerCancel={finalizarArraste}
+                className="testemunhos-carousel__stage"
+                role="list"
+                aria-label="Testemunhos"
               >
                 {lista.map((card, index) => {
-                  let offset = index - ativo;
-                  if (lista.length > 2) {
-                    if (offset > lista.length / 2) offset -= lista.length;
-                    if (offset < -lista.length / 2) offset += lista.length;
-                  }
                   const ativoCard = index === ativo;
-                  const estilo = estiloDoOffset(
-                    offset,
-                    arrastando ? arrastePx : 0,
-                    mobile
-                  );
-
                   return (
-                    <div
-                      key={card.nome + card.destino + index}
-                      role="button"
-                      tabIndex={0}
+                    <a
+                      key={`${card.destino}-${index}`}
+                      role="listitem"
+                      href={card.destino}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={`testemunhos-carousel__card${ativoCard ? " is-active" : ""}`}
-                      style={estilo}
-                      aria-pressed={ativoCard}
-                      aria-label={`Ver testemunho: ${nomeCurto(card.nome)}`}
-                      onClick={() => {
-                        if (ativoCard) abrirDestino(card.destino);
-                        else irPara(index);
-                      }}
-                      onKeyDown={(evento) => {
-                        if (evento.key === "Enter" || evento.key === " ") {
-                          evento.preventDefault();
-                          if (ativoCard) abrirDestino(card.destino);
-                          else irPara(index);
-                        }
-                      }}
+                      aria-current={ativoCard ? "true" : undefined}
+                      aria-label={`Abrir testemunho: ${nomeCurto(card.nome)}`}
+                      onMouseEnter={() => setAtivo(index)}
+                      onFocus={() => setAtivo(index)}
                     >
-                      <div className="testemunhos-carousel__card-inner">
+                      <span className="testemunhos-carousel__card-inner">
                         {card.video && card.previa ? (
                           <video
                             src={card.previa}
@@ -222,7 +126,9 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                         ) : card.previa ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={card.previa} alt="" draggable={false} />
-                        ) : null}
+                        ) : (
+                          <span className="testemunhos-carousel__card-empty" />
+                        )}
                         <span
                           className="testemunhos-carousel__card-fade"
                           aria-hidden
@@ -231,8 +137,8 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                           <strong>{nomeCurto(card.nome)}</strong>
                           <span>Testemunho</span>
                         </span>
-                      </div>
-                    </div>
+                      </span>
+                    </a>
                   );
                 })}
               </div>

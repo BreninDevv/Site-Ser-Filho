@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { obterPerfilAtual, podeGerenciarMidia } from "@/lib/auth/permissoes";
 import { createClient } from "@/lib/supabase/server";
-import { previaEhVideo, urlPublicaDaPrevia } from "@/lib/midia";
+import { previaEhVideo, urlPublicaDaPrevia, MAX_TESTEMUNHOS } from "@/lib/midia";
 import { excluirTestemunho } from "./actions";
 import { FormTestemunho } from "./form-testemunho";
 
@@ -29,9 +29,9 @@ export default async function PainelTestemunhosPage() {
       <div>
         <h1 className="mb-1 text-xl font-semibold">Testemunhos</h1>
         <p className="text-sm text-muted-foreground">
-          Só 3 Reels na home. Cole o link do Instagram ou YouTube — a prévia vem
-          sozinha. Só envie arquivo se quiser substituir. Para trocar, remova um
-          e publique o novo.
+          Até {MAX_TESTEMUNHOS} Reels na home, todos lado a lado. Cole o link do
+          Instagram ou YouTube — a prévia vem sozinha. Só envie arquivo se quiser
+          substituir. Para trocar, remova um e publique o novo.
         </p>
       </div>
 
@@ -42,17 +42,18 @@ export default async function PainelTestemunhosPage() {
         </p>
       )}
 
-      {(testemunhos?.length ?? 0) < 3 ? (
+      {(testemunhos?.length ?? 0) < MAX_TESTEMUNHOS ? (
         <FormTestemunho />
       ) : (
         <p className="rounded-2xl border border-border p-4 text-sm text-muted-foreground">
-          Os 3 Reels já estão no ar. Remova um abaixo para publicar outro.
+          Os {MAX_TESTEMUNHOS} Reels já estão no ar. Remova um abaixo para
+          publicar outro.
         </p>
       )}
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium">
-          No ar agora ({testemunhos?.length ?? 0} de 3)
+          No ar agora ({testemunhos?.length ?? 0} de {MAX_TESTEMUNHOS})
         </h2>
         {!testemunhos?.length ? (
           <p className="text-sm text-muted-foreground">Nenhum vídeo publicado.</p>

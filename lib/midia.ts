@@ -1,5 +1,5 @@
 export const INSTAGRAM_SER_FILHO = "https://www.instagram.com/ministerioserfilho";
-export const MAX_TESTEMUNHOS = 3;
+export const MAX_TESTEMUNHOS = 8;
 export const BUCKET_EVENTOS = "eventos-posts";
 export const BUCKET_TESTEMUNHOS = "testemunhos-previas";
 export const TAMANHO_MAX_POST = 5 * 1024 * 1024;

@@ -34,7 +34,7 @@ export default async function InicioPage() {
     .from("testemunhos")
     .select("nome, titulo, descricao, video_url, previa_path")
     .order("created_at", { ascending: false })
-    .limit(4);
+    .limit(8);
 
   const { data: testemunhosLegado } = testemunhosNovos
     ? { data: null }
@@ -42,7 +42,7 @@ export default async function InicioPage() {
         .from("testemunhos")
         .select("nome, titulo, video_url")
         .order("created_at", { ascending: false })
-        .limit(4);
+        .limit(8);
 
   const testemunhos = testemunhosNovos ??
     testemunhosLegado?.map((item) => ({

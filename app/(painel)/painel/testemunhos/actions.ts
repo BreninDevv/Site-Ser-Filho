@@ -100,7 +100,9 @@ export async function criarTestemunho(formData: FormData) {
     .select("id", { count: "exact", head: true });
 
   if ((count ?? 0) >= MAX_TESTEMUNHOS) {
-    return { erro: "Só cabem 3 vídeos. Remova um para colocar outro." };
+    return {
+      erro: `Só cabem ${MAX_TESTEMUNHOS} vídeos. Remova um para colocar outro.`,
+    };
   }
 
   let caminho: string | undefined;
