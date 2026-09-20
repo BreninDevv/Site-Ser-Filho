@@ -1,14 +1,13 @@
 "use client";
 
 /**
- * Seção Testemunhos: accordion de cápsulas (encostadas, expansão suave).
+ * Testemunhos — accordion de cápsulas com entrada staggered, float, zoom e paralaxe.
  */
 import {
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 
 import { INSTAGRAM_SER_FILHO } from "@/lib/midia";
@@ -29,79 +28,59 @@ function nomeCurto(nome: string) {
   return `${nome.slice(0, 26).trim()}…`;
 }
 
-function PreviaMedia({
-  card,
-  ativo,
-}: {
-  card: TestemunhoHome;
-  ativo: boolean;
-}) {
+function PreviaMedia({ card }: { card: TestemunhoHome }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const ehArquivoVideo =
     card.video || /\.(mp4|webm)(\?|#|$)/i.test(card.previa || "");
 
-  // Só MP4/WebM toca aqui. YouTube embed gera faixa vertical escura — não usamos.
   useEffect(() => {
     const el = videoRef.current;
     if (!el || !ehArquivoVideo) return;
-
     el.defaultMuted = true;
     el.muted = true;
     el.playsInline = true;
-
-    const tentarPlay = () => {
-      if (!ativo) {
-        el.pause();
-        return;
-      }
-      const promessa = el.play();
-      if (promessa && typeof promessa.catch === "function") {
-        promessa.catch(() => {});
-      }
+    const tentar = () => {
+      const p = el.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
     };
-
-    tentarPlay();
-    el.addEventListener("loadeddata", tentarPlay);
-    el.addEventListener("canplay", tentarPlay);
+    tentar();
+    el.addEventListener("loadeddata", tentar);
+    el.addEventListener("canplay", tentar);
     return () => {
-      el.removeEventListener("loadeddata", tentarPlay);
-      el.removeEventListener("canplay", tentarPlay);
+      el.removeEventListener("loadeddata", tentar);
+      el.removeEventListener("canplay", tentar);
     };
-  }, [ehArquivoVideo, card.previa, ativo]);
+  }, [ehArquivoVideo, card.previa]);
 
   if (ehArquivoVideo && card.previa) {
     return (
-      <span className="testemunhos-carousel__media testemunhos-carousel__media--video">
-        <video
-          ref={videoRef}
-          className="testemunhos-carousel__media-base"
-          src={card.previa}
-          muted
-          loop
-          playsInline
-          autoPlay={ativo}
-          preload="auto"
-          {...{ "webkit-playsinline": "true" }}
-        />
-      </span>
+      <video
+        ref={videoRef}
+        className="accordion__media"
+        src={card.previa}
+        muted
+        loop
+        playsInline
+        autoPlay
+        preload="auto"
+        {...{ "webkit-playsinline": "true" }}
+      />
     );
   }
 
   if (card.previa) {
     return (
-      <span className="testemunhos-carousel__media testemunhos-carousel__media--image">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="testemunhos-carousel__media-base"
-          src={card.previa}
-          alt=""
-          draggable={false}
-        />
-      </span>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        className="accordion__media"
+        src={card.previa}
+        alt=""
+        draggable={false}
+      />
     );
   }
 
-  return <span className="testemunhos-carousel__card-empty" />;
+  return <span className="accordion__media accordion__media--empty" />;
 }
 
 export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
@@ -109,38 +88,139 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
     () => itens.filter((item) => Boolean(item.destino)),
     [itens]
   );
-  const [ativo, setAtivo] = useState(0);
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stageRef = useRef<HTMLUListElement>(null);
+  const cardRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const rafRef = useRef<number | null>(null);
+  const pointerRef = useRef({ x: 0.5, y: 0.5, inside: false });
 
+  /** 1. Entrada staggered via IntersectionObserver + classe .revealed */
   useEffect(() => {
-    if (ativo >= lista.length) setAtivo(0);
-  }, [ativo, lista.length]);
+    const stage = stageRef.current;
+    if (!stage) return;
 
-  useEffect(() => {
+    const cards = Array.from(
+      stage.querySelectorAll<HTMLElement>(".accordion > li")
+    );
+    if (cards.length === 0) return;
+
+    const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduzir) {
+      cards.forEach((card) => {
+        card.classList.add("revealed");
+        card.classList.remove("revealing");
+      });
+      return;
+    }
+
+    const timers: number[] = [];
+
+    const observer = new IntersectionObserver(
+      ([entrada]) => {
+        if (!entrada?.isIntersecting) return;
+        cards.forEach((card, i) => {
+          const t = window.setTimeout(() => {
+            card.classList.add("revealing", "revealed");
+            const settle = window.setTimeout(() => {
+              card.classList.remove("revealing");
+            }, 800);
+            timers.push(settle);
+          }, i * 120);
+          timers.push(t);
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.22, rootMargin: "0px 0px -6% 0px" }
+    );
+
+    observer.observe(stage);
     return () => {
-      if (hoverTimer.current) clearTimeout(hoverTimer.current);
+      observer.disconnect();
+      timers.forEach((id) => window.clearTimeout(id));
     };
+  }, [lista.length]);
+
+  /** 5. Paralaxe leve (só pointer fino / desktop) */
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (coarse || reduzir) return;
+
+    const aplicar = () => {
+      rafRef.current = null;
+      const { x, y, inside } = pointerRef.current;
+      const cards = cardRefs.current.filter(Boolean) as HTMLLIElement[];
+      cards.forEach((card) => {
+        if (!card.classList.contains("revealed")) {
+          card.style.removeProperty("--rx");
+          card.style.removeProperty("--ry");
+          return;
+        }
+        if (!inside) {
+          card.style.setProperty("--rx", "0deg");
+          card.style.setProperty("--ry", "0deg");
+          return;
+        }
+        const ry = (x - 0.5) * 4; // −2deg … 2deg
+        const rx = (0.5 - y) * 2; // −1deg … 1deg
+        card.style.setProperty("--ry", `${ry.toFixed(2)}deg`);
+        card.style.setProperty("--rx", `${rx.toFixed(2)}deg`);
+      });
+    };
+
+    const pedirFrame = () => {
+      if (rafRef.current != null) return;
+      rafRef.current = requestAnimationFrame(aplicar);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const rect = stage.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      pointerRef.current = {
+        inside: true,
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
+      pedirFrame();
+    };
+
+    const onLeave = () => {
+      pointerRef.current.inside = false;
+      pedirFrame();
+    };
+
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerleave", onLeave);
+    return () => {
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerleave", onLeave);
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [lista.length]);
+
+  const focarCard = useCallback((indice: number) => {
+    const el = cardRefs.current[indice];
+    const link = el?.querySelector("a");
+    link?.focus();
   }, []);
 
-  const irPara = useCallback(
-    (indice: number) => {
-      if (lista.length === 0) return;
-      if (hoverTimer.current) clearTimeout(hoverTimer.current);
-      setAtivo(((indice % lista.length) + lista.length) % lista.length);
-    },
-    [lista.length]
-  );
+  const anterior = useCallback(() => {
+    const atual = cardRefs.current.findIndex(
+      (el) => el?.matches(":hover, :focus-within")
+    );
+    const i = atual <= 0 ? lista.length - 1 : atual - 1;
+    focarCard(i);
+  }, [focarCard, lista.length]);
 
-  /** Hover com atraso curto evita troca nervosa; a largura anima via CSS. */
-  const destacarNoHover = useCallback((indice: number) => {
-    if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    hoverTimer.current = setTimeout(() => {
-      setAtivo(indice);
-    }, 120);
-  }, []);
-
-  const anterior = useCallback(() => irPara(ativo - 1), [ativo, irPara]);
-  const proximo = useCallback(() => irPara(ativo + 1), [ativo, irPara]);
+  const proximo = useCallback(() => {
+    const atual = cardRefs.current.findIndex(
+      (el) => el?.matches(":hover, :focus-within")
+    );
+    const i = atual < 0 || atual >= lista.length - 1 ? 0 : atual + 1;
+    focarCard(i);
+  }, [focarCard, lista.length]);
 
   return (
     <div className="testemunhos-carousel-band testemunhos-carousel-band--solo">
@@ -190,41 +270,38 @@ export function TestemunhosHome({ itens }: { itens: TestemunhoHome[] }) {
                 </svg>
               </button>
 
-              <div
-                className="testemunhos-carousel__stage"
-                role="list"
+              <ul
+                ref={stageRef}
+                className="accordion"
                 aria-label="Testemunhos"
               >
-                {lista.map((card, index) => {
-                  const ativoCard = index === ativo;
-                  return (
-                    <a
-                      key={`${card.destino}-${index}`}
-                      role="listitem"
-                      href={card.destino}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`testemunhos-carousel__card${ativoCard ? " is-active" : ""}`}
-                      aria-current={ativoCard ? "true" : undefined}
-                      aria-label={`Abrir testemunho: ${nomeCurto(card.nome)}`}
-                      onMouseEnter={() => destacarNoHover(index)}
-                      onFocus={() => irPara(index)}
-                    >
-                      <span className="testemunhos-carousel__card-inner">
-                        <PreviaMedia card={card} ativo={ativoCard} />
-                        <span
-                          className="testemunhos-carousel__card-fade"
-                          aria-hidden
-                        />
-                        <span className="testemunhos-carousel__card-meta">
-                          <strong>{nomeCurto(card.nome)}</strong>
-                          <span>Testemunho</span>
-                        </span>
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
+                {lista.map((card, index) => (
+                  <li
+                    key={`${card.destino}-${index}`}
+                    ref={(el) => {
+                      cardRefs.current[index] = el;
+                    }}
+                  >
+                    <div className="accordion__float">
+                      <a
+                        href={card.destino}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="accordion__hit"
+                        aria-label={`Abrir testemunho: ${nomeCurto(card.nome)}`}
+                      >
+                        <PreviaMedia card={card} />
+                        <div className="content">
+                          <span>
+                            <h2>{nomeCurto(card.nome)}</h2>
+                            <p>Testemunho</p>
+                          </span>
+                        </div>
+                      </a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
 
               <button
                 type="button"

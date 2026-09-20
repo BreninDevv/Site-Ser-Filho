@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/typewriter";
 import { createClient } from "@/lib/supabase/server";
 import { TestemunhosHome } from "@/components/testemunhos-home";
+import { EventosHome } from "@/components/eventos-home";
 import { HandwritingText } from "@/components/ui/handwriting-text";
 import GlobeStudy from "@/components/ui/globe-study";
 import {
   destinoDoTestemunho,
+  formatarQuando,
   INSTAGRAM_SER_FILHO,
   previaEhVideo,
   urlPublicaDaPrevia,
@@ -25,10 +27,20 @@ export default async function InicioPage() {
   const agora = new Date().toISOString();
   const { data: eventos } = await supabase
     .from("eventos")
-    .select("id, nome, imagem_path")
+    .select("id, nome, descricao, imagem_path, publicar_em, exige_inscricao")
     .lte("publicar_em", agora)
     .order("publicar_em", { ascending: false })
-    .limit(3);
+    .limit(7);
+
+  const eventosHome =
+    eventos?.map((evento) => ({
+      id: evento.id,
+      nome: evento.nome,
+      descricao: evento.descricao ?? "",
+      data: formatarQuando(evento.publicar_em),
+      imagem: urlPublicaDoPost(evento.imagem_path),
+      exigeInscricao: Boolean(evento.exige_inscricao),
+    })) ?? [];
 
   const { data: testemunhosNovos } = await supabase
     .from("testemunhos")
@@ -230,48 +242,7 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      {eventos && eventos.length > 0 && (
-        <section className="px-4 py-24">
-          <div className="mx-auto max-w-4xl">
-            <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Agenda
-                </p>
-                <h2 className="font-heading text-4xl font-bold tracking-tight">
-                  Eventos
-                </h2>
-              </div>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                O que está acontecendo agora no Ser Filho.
-              </p>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-3">
-              {eventos.map((evento) => (
-                <Link
-                  key={evento.id}
-                  href={`/eventos/${evento.id}`}
-                  className="overflow-hidden rounded-2xl bg-white shadow-[0_1rem_2.5rem_rgba(20,20,18,0.08)]"
-                >
-                  <img
-                    src={urlPublicaDoPost(evento.imagem_path)}
-                    alt={evento.nome}
-                    className="aspect-[4/5] w-full object-cover"
-                  />
-                  <div className="p-5">
-                    <span className="block text-base font-bold">{evento.nome}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-10">
-              <Button size="lg" variant="outline" className="h-12 rounded-full px-8" asChild>
-                <Link href="/eventos">Ver todos os eventos</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
+      {eventosHome.length > 0 && <EventosHome itens={eventosHome} />}
 
       <section className="relative overflow-hidden bg-[#1f3d1f] px-4 py-32 text-center text-[#faf9f6]">
         <div

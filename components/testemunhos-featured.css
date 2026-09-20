@@ -1,4 +1,4 @@
-/* Testemunhos: accordion cápsula (como referência Kelly Cox) */
+/* Testemunhos — accordion + animações (entrada, hover, zoom, float, paralaxe) */
 
 .testemunhos-section {
   position: relative;
@@ -12,8 +12,8 @@
   opacity: 0;
   transform: translateY(18px);
   transition:
-    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .testemunhos-section .testemunhos-reveal[data-reveal="label"] {
@@ -91,7 +91,7 @@
   justify-content: center;
   gap: 0.85rem;
   max-width: 1100px;
-  min-height: 500px;
+  min-height: 440px;
   margin: 0 auto;
   user-select: none;
 }
@@ -114,7 +114,6 @@
 
 .testemunhos-carousel__arrow:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
 }
 
 .testemunhos-carousel__arrow:disabled {
@@ -137,187 +136,216 @@
   stroke-linejoin: round;
 }
 
-/* Bloco único: cápsulas encostadas (quase sem vão) */
-.testemunhos-carousel__stage {
-  --card-collapsed: 140px;
-  --card-expanded: 280px;
-  --card-gap: 8px;
-  --card-ease: cubic-bezier(0.33, 1, 0.32, 1);
-  --card-duration: 0.9s;
-
+/* —— Accordion (valores base do spec) —— */
+.accordion {
   display: flex;
-  flex: 0 1 auto;
-  align-items: stretch;
   justify-content: center;
-  gap: var(--card-gap);
-  height: 460px;
-  margin: 0 auto;
-  padding: 4px 0;
-  overflow: visible;
-}
-
-.testemunhos-carousel__card {
-  position: relative;
-  flex: 0 0 auto;
-  width: var(--card-collapsed);
-  height: 100%;
+  align-items: stretch;
+  list-style: none;
   margin: 0;
   padding: 0;
-  border: 0;
-  border-radius: 999px;
-  overflow: hidden;
-  background: #111318;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
-  text-decoration: none;
-  color: inherit;
+  height: 400px;
+  gap: 16px;
+  transition: gap 0.3s ease;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.accordion:hover,
+.accordion:has(> li:focus-within) {
+  gap: 0;
+}
+
+.accordion > li {
+  --rx: 0deg;
+  --ry: 0deg;
+
+  display: block;
+  flex: 0 0 80px;
+  min-width: 80px;
+  position: relative;
+  border-radius: 50px;
+  opacity: 0;
+  transform: translateY(60px) scale(0.8);
+  filter: grayscale(1);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+  list-style: none;
+  background: #0d1016;
+  transform-style: preserve-3d;
+  /* Hover defaults (após entrada) */
   transition:
-    width var(--card-duration) var(--card-ease),
-    border-radius var(--card-duration) var(--card-ease),
-    box-shadow var(--card-duration) var(--card-ease);
+    flex 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease,
+    filter 0.3s ease,
+    box-shadow 0.4s ease;
 }
 
-.testemunhos-carousel__card.is-active {
-  width: var(--card-expanded);
-  border-radius: 999px;
-  box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
-  z-index: 2;
+/* Durante a entrada staggered: 800ms */
+.accordion > li.revealing {
+  transition:
+    flex 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease;
 }
 
-.testemunhos-carousel__card:focus {
-  outline: none;
+.accordion > li.revealed {
+  opacity: 0.75;
+  transform: translateY(0) scale(1) rotateX(var(--rx)) rotateY(var(--ry));
+  filter: grayscale(0.5);
 }
 
-.testemunhos-carousel__card:focus-visible {
-  outline: 2px solid #7bb0db;
-  outline-offset: 4px;
+.accordion > li.revealed:hover,
+.accordion > li.revealed:focus-within {
+  /* 0 0 evita colapso a 0px (overflow:hidden zera o min-width automático) */
+  flex: 0 0 260px;
+  min-width: 260px;
+  transform: translateY(0) scale(1.1) rotateX(var(--rx)) rotateY(var(--ry));
+  opacity: 1;
+  filter: grayscale(0);
+  z-index: 10;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
-.testemunhos-carousel__card-inner {
+/* Wrapper de flutuação (não conflita com flex/scale do li) */
+.accordion__float {
   position: absolute;
   inset: 0;
   border-radius: inherit;
   overflow: hidden;
-  display: block;
-  background: #111318;
 }
 
-.testemunhos-carousel__media,
-.testemunhos-carousel__card-empty {
+.accordion > li.revealed:not(.revealing) .accordion__float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.accordion > li.revealed:hover .accordion__float,
+.accordion > li.revealed:focus-within .accordion__float {
+  animation-play-state: paused;
+}
+
+.accordion__hit {
   position: absolute;
   inset: 0;
   display: block;
-  overflow: hidden;
   border-radius: inherit;
-  background: #111318;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
 }
 
-.testemunhos-carousel__media-base {
+.accordion__media {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 0;
-  outline: none;
-  display: block;
-  pointer-events: none;
-  background: #111318;
-}
-
-.testemunhos-carousel__media-base {
   object-fit: cover;
   object-position: center center;
-  /* Zoom único e homogêneo — evita letterbox / faixa vertical */
-  transform: scale(1.12);
-  transform-origin: center center;
-  transition:
-    transform var(--card-duration) var(--card-ease),
-    opacity 0.55s ease;
-}
-
-.testemunhos-carousel__card.is-active .testemunhos-carousel__media-base {
-  transform: scale(1.06);
-}
-
-.testemunhos-carousel__media--image .testemunhos-carousel__media-base {
-  transform: scale(1.35);
-}
-
-.testemunhos-carousel__card.is-active
-  .testemunhos-carousel__media--image
-  .testemunhos-carousel__media-base {
-  transform: scale(1.22);
-}
-
-.testemunhos-carousel__card-fade {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  width: 100%;
-  height: 36%;
+  border: 0;
+  display: block;
   pointer-events: none;
-  /* Gradiente só de baixo pra cima, uniforme (sem faixa vertical) */
+  background: #0d1016;
+  transform: scale(1.05);
+  transform-origin: center center;
+  animation: slowZoom 10s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.accordion > li.revealed .accordion__media {
+  animation-play-state: running;
+}
+
+.accordion__media--empty {
+  background: #1a1f2a;
+  animation: none;
+}
+
+.accordion .content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
   background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.35) 45%,
-    rgba(0, 0, 0, 0.7) 100%
+    0deg,
+    rgba(0, 0, 0, 0.7) 10%,
+    rgba(255, 255, 255, 0) 100%
   );
   opacity: 0;
-  transition: opacity 0.75s var(--card-ease);
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade {
-  opacity: 1;
-}
-
-.testemunhos-carousel__card-meta {
+.accordion .content span {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   left: 50%;
-  bottom: 32px;
-  width: calc(100% - 32px);
-  translate: -50% 14px;
+  bottom: 50px;
+  width: calc(100% - 28px);
+  translate: -50% 0;
   text-align: center;
+  scale: 0.85;
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
   transition:
-    opacity 0.55s var(--card-ease) 0.18s,
-    translate 0.75s var(--card-ease) 0.1s,
-    visibility 0.55s;
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    scale 0.3s ease;
 }
 
-.testemunhos-carousel__card.is-active .testemunhos-carousel__card-meta {
+.accordion > li.revealed:hover .content,
+.accordion > li.revealed:focus-within .content {
   opacity: 1;
   visibility: visible;
-  translate: -50% 0;
 }
 
-.testemunhos-carousel__card-meta strong {
-  display: block;
-  font-size: 1.15rem;
+.accordion > li.revealed:hover .content span,
+.accordion > li.revealed:focus-within .content span {
+  scale: 1;
+  opacity: 1;
+  visibility: visible;
+}
+
+.accordion .content h2 {
+  margin: 0;
+  font-size: 1.1rem;
   font-weight: 700;
   line-height: 1.2;
+  color: #fff;
   border-bottom: 1.5px solid #fff;
-  padding-bottom: 7px;
-  margin-bottom: 7px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.testemunhos-carousel__card-meta span {
-  display: block;
+.accordion .content p {
+  margin: 0;
   font-size: 0.85rem;
   font-weight: 500;
-  opacity: 0.92;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@keyframes slowZoom {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @media (max-width: 720px) {
@@ -327,15 +355,25 @@
   }
 
   .testemunhos-carousel {
-    min-height: 420px;
-    gap: 0.45rem;
+    min-height: 380px;
+    gap: 0.4rem;
   }
 
-  .testemunhos-carousel__stage {
-    --card-collapsed: 100px;
-    --card-expanded: 200px;
-    --card-gap: 6px;
-    height: 390px;
+  .accordion {
+    height: 360px;
+    gap: 10px;
+  }
+
+  .accordion > li {
+    flex: 0 0 64px;
+    min-width: 64px;
+    border-radius: 40px;
+  }
+
+  .accordion > li.revealed:hover,
+  .accordion > li.revealed:focus-within {
+    flex: 0 0 200px;
+    min-width: 200px;
   }
 
   .testemunhos-carousel__arrow {
@@ -343,29 +381,46 @@
     height: 38px;
   }
 
-  .testemunhos-carousel__card-meta strong {
+  .accordion .content h2 {
     font-size: 0.95rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .testemunhos-section .testemunhos-reveal,
-  .testemunhos-carousel__card,
-  .testemunhos-carousel__card-meta,
-  .testemunhos-carousel__card-fade,
-  .testemunhos-carousel__media-base {
-    transition: none !important;
-  }
-
   .testemunhos-section .testemunhos-reveal {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
   }
 
-  .testemunhos-carousel__card.is-active .testemunhos-carousel__card-meta,
-  .testemunhos-carousel__card.is-active .testemunhos-carousel__card-fade {
+  .accordion > li {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .accordion > li.revealed {
+    opacity: 0.75;
+    transform: none;
+    filter: grayscale(0.5);
+  }
+
+  .accordion__float,
+  .accordion__media {
+    animation: none !important;
+  }
+
+  .accordion > li.revealed:hover,
+  .accordion > li.revealed:focus-within {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  .accordion > li.revealed:hover .content,
+  .accordion > li.revealed:focus-within .content,
+  .accordion > li.revealed:hover .content span,
+  .accordion > li.revealed:focus-within .content span {
     opacity: 1 !important;
     visibility: visible !important;
-    translate: -50% 0 !important;
+    scale: 1 !important;
   }
 }
