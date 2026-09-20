@@ -1,0 +1,28 @@
+---
+description: Sync Obsidian vault, push official when asked, run commands without asking
+alwaysApply: true
+---
+
+# Operação Ser Filho (dono do projeto)
+
+## Rodar comandos
+
+- Não pedir permissão ou “RUN” para terminal, git, npm, testes ou deploy local.
+- Executar automaticamente e, no final, dizer o que foi feito.
+
+## Push no oficial
+
+- Repo oficial: `https://github.com/BreninDevv/Site-Ser-Filho` (`origin` / branch `main`).
+- Quando o usuário pedir subir/publicar/oficial/Vercel: commit (se houver mudanças) + `git push origin main` sem perguntar de novo.
+- Nunca commitir `.env.local`, secrets ou `supabase/.temp`.
+
+## Segundo cérebro (Obsidian) — sempre
+
+Vault: `C:\Users\aldos\Documents\mente site igrejas`
+
+- Hub: `Documentacao Ministerio Ser Filho.md`
+- Notas temáticas: pasta `Ser Filho/`
+- **Sem pedir**: após feature, bugfix, migration, UI ou remoção relevante, atualizar o Obsidian na mesma sessão.
+- Se o usuário **retirar** algo do site/código, **apagar ou marcar como removido** na nota correspondente (não deixar doc fantasma).
+- Atualizar hub (data + índice + novidades), `08 - Histórico`, nota do tema, e `CONTEXTO.md` do repo quando a regra de negócio mudar.
+- Scripts locais de teste pontual (ex.: `scripts/teste-*.mjs`) não precisam ir pro GitHub a menos que o usuário peça.

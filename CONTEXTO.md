@@ -68,8 +68,15 @@ app/
   - Touch: 1º toque expande, 2º navega.
 - Painel: `AdminSidebar` + `GradientMenu` vertical (`PainelNav`), mesmas cores de `CORES_PAINEL_NAV`.
 - Componentes base: `components/ui/gradient-menu.tsx`, `components/site-header.tsx`, `components/admin/sidebar.tsx`.
+- **Login:** visual Login10 (`components/auth/login10.tsx` + CSS) dentro de `AuthBrandShell`; no celular o formulário empilha.
+- **Testemunhos (home `#testemunhos`):** só o carrossel 3D em cápsula (`testemunhos-home.tsx` + `testemunhos-featured.css` + `testemunhos-motion.tsx`). O card azul de detalhe foi **removido**.
 - Homem/masculino → azul; mulher/feminino → rosa (`texto-com-sexo`).
 - Apresentações em `presentation/`: evolução Git (`site-evolution.html` / `.pdf`) e guia de usuários (`guia-usuarios.html`).
+
+## Segundo cérebro
+
+- Obsidian: `Documents/mente site igrejas` — hub `Documentacao Ministerio Ser Filho.md`.
+- Atualizar o cofre sempre que criar/remover feature (regra em `.cursor/rules/operacao-obsidian-oficial.mdc`).
 
 ## Lições caras (não repetir)
 
