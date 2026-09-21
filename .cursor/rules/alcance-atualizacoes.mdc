@@ -1,0 +1,13 @@
+---
+description: Sempre perguntar se a atualização é para todos os usuários ou só para alguns
+alwaysApply: true
+---
+
+# Alcance das atualizações
+
+Antes de implementar ou subir mudanças que alterem o que as pessoas veem no site (páginas públicas, listagens, RLS, filtros, features novas):
+
+1. **Pergunte** se a atualização é para **todos os usuários** (público / qualquer visitante ou conta) ou **somente para alguns** (ex.: mídia, painel, role específica).
+2. Só prossiga depois da resposta, salvo se o usuário já tiver dito claramente no mesmo pedido (ex.: “torne pública”, “só para a equipe”).
+3. Se for público, garanta código **e** policies/RLS alinhados — listar no app sem liberar no Supabase deixa a feature invisível para a maioria.
+4. Ao subir no oficial, diga se ainda falta rodar migration no Supabase.
