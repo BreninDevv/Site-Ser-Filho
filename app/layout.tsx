@@ -43,6 +43,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       className={`${openSans.variable} ${montserrat.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Fontes Únicas (WindSong + Cormorant) — também via next/font em /unicas */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=WindSong&family=Cormorant+Garamond:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="flex min-h-full min-w-0 flex-col overflow-x-clip">
         {children}
       </body>

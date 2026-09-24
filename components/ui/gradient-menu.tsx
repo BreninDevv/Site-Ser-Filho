@@ -36,6 +36,8 @@ export type GradientMenuItem = {
   gradientTo: string;
   to: string;
   end?: boolean;
+  /** Tooltip nativo (atributo title). */
+  hint?: string;
 };
 
 export type GradientMenuProps = {
@@ -270,10 +272,11 @@ function GradientMenuItemView({
 
   if (sheetRow) {
     return (
-      <li style={style} className="w-full list-none" title={item.title}>
+      <li style={style} className="w-full list-none" title={item.hint ?? item.title}>
         <Link
           href={item.to}
-          aria-label={item.title}
+          title={item.hint}
+          aria-label={item.hint ? `${item.title}. ${item.hint}` : item.title}
           aria-current={active ? "page" : undefined}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
@@ -328,12 +331,13 @@ function GradientMenuItemView({
           "shadow-[0_12px_30px_rgba(20,20,18,0.22)]",
         orientation === "vertical" && "lg:mx-0"
       )}
-      title={item.title}
+      title={item.hint ?? item.title}
     >
       <Link
         href={item.to}
         tabIndex={0}
-        aria-label={item.title}
+        title={item.hint}
+        aria-label={item.hint ? `${item.title}. ${item.hint}` : item.title}
         aria-current={active ? "page" : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}

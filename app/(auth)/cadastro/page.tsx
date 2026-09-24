@@ -15,7 +15,7 @@ export default async function CadastroPage({
     senha_fraca: TEXTO_SENHA,
     cadastro_falhou:
       "Não foi possível criar sua conta. Verifique os dados e tente de novo.",
-    dados_incompletos: "Preencha quem você é e o tempo de igreja.",
+    dados_incompletos: "Preencha quem você é, o tempo de igreja e o sexo.",
     equipe_pastor: "Pastor, informe o nome da sua equipe pastoral.",
     equipe_obrigatoria: "Escolha a equipe pastoral do seu pastor.",
   };

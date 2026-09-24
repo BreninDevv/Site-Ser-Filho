@@ -1,0 +1,780 @@
+/* =============================================
+   VARIÁVEIS — PALETA COMPLETA "ÚNICAS"
+   Escopo .pagina-unicas (não :root global)
+   ============================================= */
+.pagina-unicas {
+  --color-unicas-accent-primary: #c11c53;
+  --color-unicas-accent-secondary: #f26569;
+  --color-unicas-bg-primary: #f4d7ce;
+  --color-unicas-bg-contrast: #9db6c1;
+  --color-unicas-deep: #3a232d;
+
+  --color-unicas-text: var(--color-unicas-deep);
+  --color-unicas-text-muted: rgba(58, 35, 45, 0.6);
+  --color-unicas-border: rgba(58, 35, 45, 0.15);
+  --color-unicas-glass-bg: rgba(255, 255, 255, 0.7);
+  --color-unicas-glass-border: rgba(255, 255, 255, 0.3);
+  --color-unicas-shadow: rgba(58, 35, 45, 0.12);
+
+  --font-unicas-title: var(--font-unicas-title-face),
+    var(--font-unicas-title-fallback), "WindSong", cursive;
+  --font-unicas-body: var(--font-unicas-body-face), "Cormorant Garamond", serif;
+  --font-unicas-weight-title: 400;
+  --font-unicas-weight-body: 500;
+
+  --transition-speed: 0.3s;
+  --border-radius: 24px;
+  --border-radius-sm: 20px;
+  --border-radius-pill: 50px;
+  --shadow-sm: 0 4px 12px var(--color-unicas-shadow);
+  --shadow-md: 0 8px 24px var(--color-unicas-shadow);
+  --glass-blur: blur(20px);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.25);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background-color: var(--color-unicas-bg-primary);
+  color: var(--color-unicas-text);
+  font-family: var(--font-unicas-body);
+  font-weight: var(--font-unicas-weight-body);
+}
+
+/* =============================================
+   TEXTURA DE FUNDO ETÉREO (GRADIENTE + RUÍDO)
+   ============================================= */
+.unicas-bg-texture {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 30% 25%,
+      rgba(244, 215, 206, 0.4) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 70% 75%,
+      rgba(157, 182, 193, 0.3) 0%,
+      transparent 40%
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(58, 35, 45, 0.008) 2px,
+      rgba(58, 35, 45, 0.008) 4px
+    );
+}
+
+.unicas-bg-texture::before {
+  content: attr(data-repeat-text);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-unicas-body);
+  font-size: 18vw;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  opacity: 0.025;
+  color: var(--color-unicas-deep);
+  transform: rotate(-3deg);
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+}
+
+/* Textura espalhada removida — textura via .unicas-bg-texture::before */
+
+/* =============================================
+   ANIMAÇÃO DE PÉTALAS (10 UNIDADES) — z-index 1
+   (acima do fundo, abaixo do card z-index 2)
+   ============================================= */
+.unicas-petals-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  --mouse-influence-x: 0;
+  --mouse-influence-y: 0;
+}
+
+.unicas-petals-container .petal {
+  position: absolute;
+  top: -10vh;
+  display: block;
+  opacity: 0;
+  animation: unicas-petal-fall var(--petal-duration, 14s) linear
+    var(--petal-delay, 0s) infinite;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.unicas-petals-container .petal-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@keyframes unicas-petal-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(var(--petal-spin, 0deg));
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(
+        calc(var(--petal-sway, 12px) + var(--mouse-influence-x, 0) * 100px),
+        112vh,
+        0
+      )
+      rotate(calc(var(--petal-spin, 0deg) + 540deg));
+    opacity: 0;
+  }
+}
+
+.unicas-petals-container[data-reduced-motion="true"] .petal {
+  animation: none !important;
+  display: none !important;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unicas-petals-container .petal {
+    animation: none !important;
+    display: none !important;
+    will-change: auto;
+  }
+}
+
+/* =============================================
+   PÁGINA PRINCIPAL
+   ============================================= */
+.event-page.unicas {
+  position: relative;
+  z-index: 0;
+  min-height: 100vh;
+  width: 100%;
+  background-color: transparent;
+  background-image:
+    radial-gradient(
+      ellipse 60% 50% at 25% 15%,
+      rgba(244, 215, 206, 0.45) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 75% 85%,
+      rgba(157, 182, 193, 0.35) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 40% at 50% 50%,
+      rgba(244, 215, 206, 0.35) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 100% 30% at 50% 100%,
+      rgba(157, 182, 193, 0.15) 0%,
+      transparent 50%
+    );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 7rem 24px 56px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.unicas-shell,
+.event-page.unicas .container {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 520px);
+  margin-inline: auto;
+  pointer-events: auto;
+}
+
+.unicas-galeria-shell {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 920px);
+  margin: 0 auto 28px;
+  pointer-events: auto;
+}
+
+/* GLASSMORPHISM CARD */
+.unicas-card,
+.event-page.unicas .card {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  width: 100%;
+  background: var(--color-unicas-glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  padding: 36px 32px;
+  overflow: visible;
+}
+
+.unicas-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-unicas-accent-primary),
+    transparent
+  );
+  border-radius: 3px;
+}
+
+/* CONTRASTE — corpo legível; título mantém framboesa */
+.event-page.unicas .form-label,
+.event-page.unicas label,
+.event-page.unicas h2,
+.event-page.unicas p.unicas-body,
+.event-page.unicas p.description,
+.event-page.unicas .unicas-description {
+  color: var(--color-unicas-deep) !important;
+}
+
+.event-page.unicas .subtitle,
+.event-page.unicas .unicas-subtitle {
+  color: var(--color-unicas-deep) !important;
+  opacity: 0.7;
+}
+
+/* TÍTULO PRINCIPAL */
+.unicas-title,
+.event-page.unicas h1.unicas-title {
+  font-family: var(--font-unicas-title);
+  font-size: clamp(2.5rem, 8vw, 3.5rem);
+  font-weight: var(--font-unicas-weight-title);
+  color: var(--color-unicas-accent-primary) !important;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+  line-height: 1.1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 2px 8px rgba(193, 28, 83, 0.1);
+}
+
+/* GLIFO DE ROSA */
+.rosa-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 1.2rem;
+  color: var(--color-unicas-accent-primary);
+  opacity: 0.8;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.unicas-glyph-top,
+.unicas-glyph-bottom {
+  text-align: center;
+  margin: 0;
+  line-height: 1;
+}
+
+.unicas-glyph-bottom {
+  margin-top: 28px;
+}
+
+.unicas-subtitle,
+.event-page.unicas .subtitle {
+  font-family: var(--font-unicas-body);
+  font-size: 1rem;
+  font-weight: var(--font-unicas-weight-body);
+  margin-bottom: 18px;
+  text-align: center;
+  line-height: 1.55;
+}
+
+/* DIVISOR */
+.unicas-divider,
+.event-page.unicas .divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px auto;
+  gap: 14px;
+  width: 55%;
+}
+
+.unicas-divider::before,
+.unicas-divider::after,
+.event-page.unicas .divider::before,
+.event-page.unicas .divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-unicas-accent-primary),
+    transparent
+  );
+}
+
+.unicas-divider .diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--color-unicas-accent-primary);
+  transform: rotate(45deg);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.unicas-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 28px 0 20px;
+  font-family: var(--font-unicas-body);
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.unicas-section-title .rose-icon {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+.unicas-description,
+.event-page.unicas .description {
+  font-family: var(--font-unicas-body);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--color-unicas-text-muted) !important;
+  margin-bottom: 20px;
+  text-align: center;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.unicas-body {
+  font-family: var(--font-unicas-body);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* FORMULÁRIO */
+.unicas-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.unicas-field {
+  margin-bottom: 8px;
+}
+
+.unicas-label,
+.event-page.unicas .form-label {
+  font-family: var(--font-unicas-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 5px;
+  margin-top: 14px;
+  display: block;
+}
+
+.unicas-field:first-of-type .unicas-label {
+  margin-top: 0;
+}
+
+.unicas-input,
+.event-page.unicas .form-control {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 16px;
+  font-family: var(--font-unicas-body);
+  font-size: 0.98rem;
+  color: var(--color-unicas-deep);
+  background-color: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--color-unicas-border);
+  border-radius: var(--border-radius-pill);
+  transition: all var(--transition-speed) ease;
+  box-shadow: none;
+  outline: none;
+}
+
+.unicas-input--date {
+  border-radius: 16px;
+}
+
+.unicas-input::placeholder,
+.event-page.unicas .form-control::placeholder {
+  color: var(--color-unicas-text-muted);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.unicas-input:focus,
+.event-page.unicas .form-control:focus {
+  background-color: white !important;
+  border-color: var(--color-unicas-accent-primary);
+  box-shadow: 0 0 0 3px rgba(193, 28, 83, 0.12);
+}
+
+/* BOTÃO PRIMÁRIO */
+.unicas-submit-btn,
+.event-page.unicas .btn-unicas-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 0;
+  margin-top: 22px;
+  font-family: var(--font-unicas-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-unicas-bg-primary) !important;
+  background-color: var(--color-unicas-accent-primary);
+  border: none;
+  border-radius: var(--border-radius-pill);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.unicas-submit-btn:hover:not(:disabled),
+.event-page.unicas .btn-unicas-primary:hover:not(:disabled) {
+  background-color: var(--color-unicas-accent-secondary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.unicas-submit-btn:active:not(:disabled),
+.event-page.unicas .btn-unicas-primary:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.unicas-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.unicas-submit-btn .rosa-glyph {
+  margin-right: 0;
+  width: auto;
+  height: auto;
+  font-size: 1.1rem;
+  color: var(--color-unicas-bg-primary);
+  opacity: 1;
+}
+
+.unicas-submit-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.unicas-privacy {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-unicas-body);
+  font-size: 0.85rem;
+  color: var(--color-unicas-text-muted);
+  line-height: 1.5;
+}
+
+.unicas-error {
+  margin: 6px 0 0;
+  text-align: center;
+  color: var(--color-unicas-accent-primary);
+  font-size: 0.9rem;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .event-page.unicas {
+    padding: 6rem 16px 40px;
+  }
+
+  .unicas-card,
+  .event-page.unicas .card {
+    padding: 28px 20px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .unicas-galeria-shell {
+    margin-bottom: 22px;
+  }
+
+  .unicas-title,
+  .event-page.unicas h1.unicas-title {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+
+  .unicas-divider,
+  .event-page.unicas .divider {
+    width: 70%;
+  }
+
+  .unicas-description,
+  .event-page.unicas .description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .unicas-card,
+  .event-page.unicas .card {
+    padding: 32px 20px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .unicas-shell,
+  .event-page.unicas .container {
+    max-width: 540px;
+  }
+
+  .unicas-galeria-shell {
+    max-width: 980px;
+  }
+}
+
+/* ——— Galeria acordeão Únicas ——— */
+.unicas-galeria {
+  padding: 8px 4px 4px;
+}
+
+.unicas-galeria-heading {
+  text-align: center;
+  margin: 0 0 18px;
+}
+
+.unicas-galeria-heading h2 {
+  font-family: var(--font-unicas-title);
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 400;
+  color: var(--color-unicas-accent-primary) !important;
+  margin: 0 0 6px;
+  line-height: 1.15;
+}
+
+.unicas-galeria-heading p {
+  font-family: var(--font-unicas-body);
+  font-size: 0.95rem;
+  color: var(--color-unicas-deep) !important;
+  opacity: 0.72;
+  margin: 0;
+}
+
+.unicas-accordion {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 380px;
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: gap 0.3s ease;
+}
+
+.unicas-accordion:hover,
+.unicas-accordion.has-active {
+  gap: 0;
+}
+
+.unicas-accordion li {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 68px;
+  border-radius: 44px;
+  opacity: 0.78;
+  cursor: pointer;
+  border: 2px solid rgba(193, 28, 83, 0.28);
+  background: rgba(255, 248, 246, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.unicas-accordion li img,
+.unicas-accordion li video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.25) saturate(0.9);
+}
+
+.unicas-accordion li,
+.unicas-accordion li img,
+.unicas-accordion li video,
+.unicas-accordion li .content,
+.unicas-accordion li .content span {
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    flex 0.3s ease,
+    scale 0.3s ease,
+    filter 0.3s ease,
+    background 0.3s ease,
+    translate 0.3s ease;
+}
+
+.unicas-accordion h2 {
+  font-family: var(--font-unicas-body);
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
+  margin: 0 0 8px;
+  white-space: nowrap;
+  color: #fff !important;
+}
+
+.unicas-accordion li .content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  color: #fff;
+  padding: 16px;
+  background: linear-gradient(
+    0deg,
+    rgb(80 10 35 / 78%) 8%,
+    rgb(255 255 255 / 0%) 72%
+  );
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: left;
+}
+
+.unicas-accordion li .content span {
+  position: static;
+  translate: none;
+  scale: 0.92;
+  visibility: hidden;
+  opacity: 0;
+  font-family: var(--font-unicas-body);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.unicas-accordion li:hover,
+.unicas-accordion li.is-active {
+  flex: 0 1 240px;
+  scale: 1.06;
+  z-index: 10;
+  opacity: 1;
+  border-color: rgba(193, 28, 83, 0.55);
+}
+
+.unicas-accordion li:hover img,
+.unicas-accordion li:hover video,
+.unicas-accordion li.is-active img,
+.unicas-accordion li.is-active video {
+  filter: grayscale(0) saturate(1.05);
+}
+
+.unicas-accordion li:hover .content,
+.unicas-accordion li.is-active .content {
+  opacity: 1;
+  visibility: visible;
+}
+
+.unicas-accordion li:hover span,
+.unicas-accordion li.is-active span {
+  scale: 1;
+  opacity: 1;
+  visibility: visible;
+}
+
+.unicas-accordion.count-1 li,
+.unicas-accordion.count-1 li.is-active,
+.unicas-accordion.count-1 li:hover {
+  flex: 0 1 min(320px, 80vw);
+}
+
+.unicas-accordion.count-2 li:hover,
+.unicas-accordion.count-2 li.is-active {
+  flex: 0 1 280px;
+}
+
+.unicas-accordion li.empty {
+  cursor: default;
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.4);
+  border-style: dashed;
+}
+
+@media (max-width: 720px) {
+  .unicas-accordion {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .unicas-accordion:hover,
+  .unicas-accordion.has-active {
+    gap: 10px;
+  }
+
+  .unicas-accordion li,
+  .unicas-accordion.count-1 li,
+  .unicas-accordion.count-2 li {
+    flex: 0 0 82px;
+    width: 100%;
+    border-radius: 24px;
+    scale: 1 !important;
+  }
+
+  .unicas-accordion li:hover,
+  .unicas-accordion li.is-active,
+  .unicas-accordion.count-1 li.is-active,
+  .unicas-accordion.count-1 li:hover,
+  .unicas-accordion.count-2 li:hover,
+  .unicas-accordion.count-2 li.is-active {
+    flex: 0 0 280px;
+    scale: 1 !important;
+  }
+
+  .unicas-accordion h2 {
+    font-size: 1.05rem;
+    white-space: normal;
+  }
+}

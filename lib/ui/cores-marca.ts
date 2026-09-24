@@ -13,6 +13,7 @@ export const CORES_FLUIDO_MENU: Record<
   "/inicio#testemunhos": { cursorColor: "#ffb347", cursorText: "dark" },
   "/encontro-com-deus": { cursorColor: "#4b6f36", cursorText: "light" },
   "/legado-de-cristo": { cursorColor: "#c6ff00", cursorText: "dark" },
+  "/unicas": { cursorColor: "#C11C53", cursorText: "light" },
   "/painel": { cursorColor: "#0b3d91", cursorText: "light" },
 };
 
@@ -28,6 +29,8 @@ export const CORES_PAINEL_NAV: Record<
   "/painel/inscricoes-eventos": { accent: "#8b5cf6", textOnAccent: "light" }, // Inscrições
   "/painel/eventos": { accent: "#e25555", textOnAccent: "light" }, // Eventos
   "/painel/testemunhos": { accent: "#ffb347", textOnAccent: "dark" }, // Testemunhos
+  "/painel/unicas-midia": { accent: "#C11C53", textOnAccent: "light" }, // Únicas
+  "/painel/solicitacoes-perfil": { accent: "#0ea5e9", textOnAccent: "light" }, // Pedidos
   "/painel/admin/usuarios": { accent: "#0b3d91", textOnAccent: "light" }, // Admin
 };
 

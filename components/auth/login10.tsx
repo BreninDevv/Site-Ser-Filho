@@ -73,7 +73,7 @@ function Hero({
   );
 }
 
-function RegisterPanel() {
+function RegisterPanel({ destinoVisitante }: { destinoVisitante: string }) {
   return (
     <div className="form register">
       <h2>Criar conta</h2>
@@ -85,7 +85,7 @@ function RegisterPanel() {
         Ir para o cadastro
       </Link>
       <span className="or">ou</span>
-      <a href="/api/visitante" className="ghost-link">
+      <a href={destinoVisitante} className="ghost-link">
         Continuar como visitante
       </a>
     </div>
@@ -95,9 +95,11 @@ function RegisterPanel() {
 function LoginPanel({
   erroInicial,
   destinoAposLogin,
+  destinoVisitante,
 }: {
   erroInicial?: string;
   destinoAposLogin: string;
+  destinoVisitante: string;
 }) {
   const [erro, setErro] = useState(
     erroInicial && MENSAGENS[erroInicial] ? MENSAGENS[erroInicial] : ""
@@ -166,7 +168,7 @@ function LoginPanel({
           {enviando ? "Entrando..." : "Entrar"}
         </button>
         <span className="or">ou</span>
-        <a href="/api/visitante" className="ghost-link">
+        <a href={destinoVisitante} className="ghost-link">
           Continuar como visitante
         </a>
       </form>
@@ -186,6 +188,10 @@ export function Login10View({
   destinoAposLogin?: string;
 }) {
   const [isRegister, setIsRegister] = useState(false);
+  const destinoVisitante =
+    destinoAposLogin && destinoAposLogin !== "/inicio"
+      ? `/api/visitante?next=${encodeURIComponent(destinoAposLogin)}`
+      : "/api/visitante";
 
   return (
     <section className="page login-10">
@@ -213,7 +219,7 @@ export function Login10View({
           buttonLabel="Entrar"
           onSwitch={() => setIsRegister(false)}
         />
-        <RegisterPanel />
+        <RegisterPanel destinoVisitante={destinoVisitante} />
 
         <Hero
           variant="login"
@@ -225,6 +231,7 @@ export function Login10View({
         <LoginPanel
           erroInicial={erroInicial}
           destinoAposLogin={destinoAposLogin}
+          destinoVisitante={destinoVisitante}
         />
       </div>
     </section>

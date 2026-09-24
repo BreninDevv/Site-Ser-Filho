@@ -16,6 +16,8 @@ import {
   IoPeopleOutline,
   IoClipboardOutline,
   IoHomeOutline,
+  IoRoseOutline,
+  IoPersonOutline,
 } from "react-icons/io5";
 
 import {
@@ -43,6 +45,8 @@ const ICONES: Record<string, IconType> = {
   "/painel/inscricoes-eventos": IoGridOutline,
   "/painel/eventos": IoCalendarOutline,
   "/painel/testemunhos": IoChatbubbleEllipsesOutline,
+  "/painel/unicas-midia": IoRoseOutline,
+  "/painel/solicitacoes-perfil": IoPersonOutline,
   "/painel/admin/usuarios": IoPeopleOutline,
   "/painel/celulas": MapPinLineMenuIcon,
 };

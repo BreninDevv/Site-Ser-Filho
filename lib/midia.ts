@@ -1,9 +1,12 @@
 export const INSTAGRAM_SER_FILHO = "https://www.instagram.com/ministerioserfilho";
 export const MAX_TESTEMUNHOS = 8;
+export const MAX_MIDIA_UNICAS = 12;
 export const BUCKET_EVENTOS = "eventos-posts";
 export const BUCKET_TESTEMUNHOS = "testemunhos-previas";
+export const BUCKET_UNICAS_MIDIA = "unicas-midia";
 export const TAMANHO_MAX_POST = 5 * 1024 * 1024;
 export const TAMANHO_MAX_PREVIA = 12 * 1024 * 1024;
+export const TAMANHO_MAX_UNICAS_MIDIA = 50 * 1024 * 1024;
 export const TIPOS_POST = ["image/png", "image/jpeg", "image/webp"] as const;
 export const TIPOS_PREVIA = [
   "image/png",
@@ -12,6 +15,7 @@ export const TIPOS_PREVIA = [
   "video/mp4",
   "video/webm",
 ] as const;
+export const TIPOS_UNICAS_MIDIA = TIPOS_PREVIA;
 export const MAX_DESCRICAO_EVENTO = 800;
 export const MAX_DESCRICAO_TESTEMUNHO = 280;
 
@@ -41,6 +45,20 @@ export function urlPublicaDaPrevia(path: string) {
     return "";
   }
   return `${base}/storage/v1/object/public/${BUCKET_TESTEMUNHOS}/${limpo}`;
+}
+
+export function urlPublicaUnicasMidia(path: string) {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return "";
+  const limpo = path.split("/").pop() ?? "";
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(png|jpe?g|webp|mp4|webm)$/i.test(
+      limpo
+    )
+  ) {
+    return "";
+  }
+  return `${base}/storage/v1/object/public/${BUCKET_UNICAS_MIDIA}/${limpo}`;
 }
 
 export function previaEhVideo(path: string) {

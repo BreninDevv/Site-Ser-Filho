@@ -1,0 +1,11 @@
+---
+description: Role Dev deve ver e testar todas as features novas
+alwaysApply: true
+---
+
+# Dev vê tudo para testar
+
+- Qualquer feature com gate (role, sexo, painel, nav, página, API, RLS) deve **também liberar `role = dev`**, para o dono conseguir testar no localhost e no oficial sem precisar de outra conta.
+- Público real continua restrito; Dev é exceção de teste, não o público-alvo.
+- Ao criar `podeX` / policies: incluir `eDev(role)` ou `p.role = 'dev'` junto do critério real.
+- Não assumir que o Dev tem o mesmo `sexo`/perfil do público — o bypass é pela role.

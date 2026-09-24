@@ -6,6 +6,7 @@ import {
   podeEditarQualquerCelula as rolePodeEditarQualquerCelula,
   podeGerenciarCelulas as rolePodeGerenciarCelulas,
   podeGerenciarMidia as rolePodeGerenciarMidia,
+  podeGerenciarUnicasMidia as rolePodeGerenciarUnicasMidia,
 } from "@/lib/auth/roles";
 
 export {
@@ -37,6 +38,8 @@ export {
   podeExcluirUsuarios,
   podeGerenciarCelulas,
   podeGerenciarMidia,
+  podeGerenciarUnicasMidia,
+  podeAprovarSolicitacaoPerfil,
   podeVerInscricoes,
   type RoleAtribuivel,
 } from "@/lib/auth/roles";
@@ -106,6 +109,10 @@ export async function exigeAdminUsuarios() {
 
 export async function exigeEquipeMidia() {
   return rolePodeGerenciarMidia(await obterPerfilAtual());
+}
+
+export async function exigeUnicasMidia() {
+  return rolePodeGerenciarUnicasMidia(await obterPerfilAtual());
 }
 
 export async function exigeGerenciarCelulas() {

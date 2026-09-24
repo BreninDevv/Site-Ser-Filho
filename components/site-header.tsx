@@ -13,6 +13,7 @@ import {
   IoChatbubbleEllipsesOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
+import type { IconType } from "react-icons";
 
 import {
   GradientMenu,
@@ -22,6 +23,13 @@ import { FingerprintMenuIcon } from "@/components/ui/fingerprint-icon";
 import { MapPinLineMenuIcon } from "@/components/ui/map-pin-line-icon";
 import { CORES_FLUIDO_MENU } from "@/lib/ui/cores-marca";
 import { cn } from "@/lib/utils";
+
+/** Glifo ❀ no menu Únicas (sem dependência de ícone externo). */
+const UnicasFlorIcon = (({ className }: { className?: string }) => (
+  <span className={cn("leading-none", className)} aria-hidden>
+    ❀
+  </span>
+)) as IconType;
 
 /** Mantém a cor oficial nos dois extremos do gradiente 45°. */
 function gradienteMarca(href: string): Pick<
@@ -71,6 +79,15 @@ export const siteGradientNavItems: GradientMenuItem[] = [
     ...gradienteMarca("/legado-de-cristo"),
   },
 ];
+
+/** Item Únicas — só incluir na nav se `ehGeneroUnicas(perfil.sexo)`. */
+export const itemUnicasGradient: GradientMenuItem = {
+  title: "Únicas",
+  icon: UnicasFlorIcon,
+  to: "/unicas",
+  hint: "Evento exclusivo para mulheres",
+  ...gradienteMarca("/unicas"),
+};
 
 export type SiteHeaderProps = {
   className?: string;

@@ -27,6 +27,8 @@ export function PainelNav({
   mostrarDashboard,
   mostrarEncontro,
   mostrarMidia,
+  mostrarUnicasMidia,
+  mostrarSolicitacoesPerfil,
   mostrarAdmin,
   mostrarInscricoesEventos,
   mostrarPlanilha,
@@ -37,6 +39,8 @@ export function PainelNav({
   mostrarDashboard: boolean;
   mostrarEncontro: boolean;
   mostrarMidia: boolean;
+  mostrarUnicasMidia: boolean;
+  mostrarSolicitacoesPerfil: boolean;
   mostrarAdmin: boolean;
   mostrarInscricoesEventos: boolean;
   mostrarPlanilha: boolean;
@@ -78,6 +82,14 @@ export function PainelNav({
       mostrarMidia && {
         href: "/painel/testemunhos",
         label: "Testemunhos",
+      },
+      mostrarUnicasMidia && {
+        href: "/painel/unicas-midia",
+        label: "Únicas",
+      },
+      mostrarSolicitacoesPerfil && {
+        href: "/painel/solicitacoes-perfil",
+        label: "Pedidos",
       },
       mostrarAdmin && {
         href: "/painel/admin/usuarios",

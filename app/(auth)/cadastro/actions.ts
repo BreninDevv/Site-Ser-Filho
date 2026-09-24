@@ -12,6 +12,7 @@ import {
 } from "@/lib/seguranca";
 import {
   ehRoleCadastro,
+  ehSexoCadastro,
   ehTempoIgreja,
   precisaEscolherEquipe,
 } from "@/lib/validations/cadastro";
@@ -23,6 +24,7 @@ export async function cadastrar(formData: FormData) {
   const nome = String(formData.get("nome") ?? "").trim().slice(0, 80);
   const funcao = String(formData.get("funcao") ?? "").trim();
   const tempoIgreja = String(formData.get("tempo_igreja") ?? "").trim();
+  const sexo = String(formData.get("sexo") ?? "").trim().toLowerCase();
   const equipeNome = String(formData.get("equipe_nome") ?? "").trim().slice(0, 80);
   const equipeId = String(formData.get("equipe_id") ?? "").trim();
 
@@ -30,7 +32,11 @@ export async function cadastrar(formData: FormData) {
     redirect("/cadastro?erro=cadastro_falhou");
   }
 
-  if (!ehRoleCadastro(funcao) || !ehTempoIgreja(tempoIgreja)) {
+  if (
+    !ehRoleCadastro(funcao) ||
+    !ehTempoIgreja(tempoIgreja) ||
+    !ehSexoCadastro(sexo)
+  ) {
     redirect("/cadastro?erro=dados_incompletos");
   }
 
@@ -72,6 +78,7 @@ export async function cadastrar(formData: FormData) {
         nome,
         role: funcao,
         tempo_igreja: tempoIgreja,
+        sexo,
         equipe_nome: funcao === "pastor" ? equipeNome : "",
         equipe_id: funcao === "pastor" ? "" : equipeId,
       },

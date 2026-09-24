@@ -3,13 +3,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { destinoDoPainel, ROTULOS_ROLE } from "@/lib/auth/roles";
+import { podeAcessarUnicas } from "@/lib/auth/unicas";
 import { logout } from "@/app/(auth)/login/actions";
 import { PublicMobileMenu } from "@/components/public-mobile-menu";
 import { PublicGradientNav } from "@/components/public-gradient-nav";
 
 export async function PublicHeader() {
   let user: { id: string; email?: string } | null = null;
-  let perfil: { nome: string; role: string } | null = null;
+  let perfil: { nome: string; role: string; sexo: string | null } | null =
+    null;
   try {
     const supabase = await createClient();
     const {
@@ -17,17 +19,32 @@ export async function PublicHeader() {
     } = await supabase.auth.getUser();
     user = sessao;
     if (sessao) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("perfis")
-        .select("nome, role")
+        .select("nome, role, sexo")
         .eq("id", sessao.id)
         .maybeSingle();
-      perfil = data;
+
+      if (error && /sexo/i.test(error.message ?? "")) {
+        // Migration 027 ainda não rodou — não quebrar Painel/nav por causa de sexo.
+        const { data: semSexo } = await supabase
+          .from("perfis")
+          .select("nome, role")
+          .eq("id", sessao.id)
+          .maybeSingle();
+        perfil = semSexo ? { ...semSexo, sexo: null } : null;
+      } else {
+        perfil = data;
+      }
     }
   } catch {
     user = null;
     perfil = null;
   }
+
+  const mostrarUnicas =
+    Boolean(user) &&
+    podeAcessarUnicas({ role: perfil?.role, sexo: perfil?.sexo });
 
   const hrefPainel = destinoDoPainel(perfil?.role);
 
@@ -54,13 +71,20 @@ export async function PublicHeader() {
         </Link>
 
         <nav className="relative z-10 mx-auto hidden min-w-0 flex-1 items-center justify-center overflow-visible md:flex">
-          <PublicGradientNav hrefPainel={hrefPainel} />
+          <PublicGradientNav
+            hrefPainel={hrefPainel}
+            mostrarUnicas={mostrarUnicas}
+          />
         </nav>
 
         <div className="relative z-10 ml-auto hidden shrink-0 items-center gap-2 md:flex">
           {user ? (
             <div className="flex items-center gap-3 text-sm">
-              <span className="max-w-36 truncate text-muted-foreground">
+              <Link
+                href="/perfil"
+                className="max-w-36 truncate text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                title="Editar perfil"
+              >
                 Olá,{" "}
                 <strong className="text-foreground">
                   {perfil?.nome ?? user.email}
@@ -68,7 +92,7 @@ export async function PublicHeader() {
                 {perfil?.role &&
                   perfil.role !== "pendente" &&
                   ` (${ROTULOS_ROLE[perfil.role] ?? perfil.role})`}
-              </span>
+              </Link>
               <form action={logout}>
                 <Button
                   size="sm"
@@ -101,6 +125,7 @@ export async function PublicHeader() {
           hrefPainel={hrefPainel}
           logado={Boolean(user)}
           userLabel={userLabel}
+          mostrarUnicas={mostrarUnicas}
         />
       </div>
     </header>

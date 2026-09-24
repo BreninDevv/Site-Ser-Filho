@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   ROLES_CADASTRO,
   ROTULOS_ROLE_CADASTRO,
+  ROTULOS_SEXO_CADASTRO,
+  SEXOS_CADASTRO,
   TEMPOS_IGREJA,
   precisaEscolherEquipe,
   type RoleCadastro,
@@ -114,6 +116,20 @@ export function FormCadastro({
           {TEMPOS_IGREJA.map((tempo) => (
             <option key={tempo} value={tempo}>
               {tempo}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="sexo" className="mb-1 block text-sm">
+          4. Sexo
+        </label>
+        <select id="sexo" name="sexo" required className={campo}>
+          <option value="">Selecione</option>
+          {SEXOS_CADASTRO.map((opcao) => (
+            <option key={opcao} value={opcao}>
+              {ROTULOS_SEXO_CADASTRO[opcao]}
             </option>
           ))}
         </select>

@@ -165,6 +165,15 @@ export function podeAdminUsuarios(
   return role === "tesouraria" || role === "apostolo" || role === ROLE_PASTOR;
 }
 
+/** Pastor, apóstolo ou Dev: aprovam pedidos de equipe/função no perfil. */
+export function podeAprovarSolicitacaoPerfil(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  if (eDev(perfilOuRole)) return true;
+  const role = roleDe(perfilOuRole);
+  return role === "apostolo" || role === ROLE_PASTOR;
+}
+
 /** Quem pode usar o botão Excluir: mesmos papéis do Admin (Dev sempre). */
 export function podeExcluirUsuarios(
   perfilOuRole: { role: string } | string | null | undefined
@@ -220,6 +229,21 @@ export function podeGerenciarMidia(
   return ROLES_EQUIPE_MIDIA.includes(role as RoleEquipeMidia);
 }
 
+/** Fotos/vídeos da página Únicas: mídia + líder (+ pastor/dev/apóstolo). */
+export function podeGerenciarUnicasMidia(
+  perfilOuRole: { role: string } | string | null | undefined
+) {
+  if (eDev(perfilOuRole)) return true;
+  const role = roleDe(perfilOuRole);
+  return (
+    role === ROLE_MIDIA ||
+    role === "apostolo" ||
+    role === ROLE_LIDER ||
+    role === ROLE_LIDER_TESOURARIA ||
+    role === ROLE_PASTOR
+  );
+}
+
 function rotaDeInscricoesEvento(pathname: string) {
   return (
     pathname === "/painel/inscricoes-eventos" ||
@@ -239,7 +263,23 @@ function rotaDeMidia(pathname: string) {
     pathname === "/painel/eventos" ||
     pathname.startsWith("/painel/eventos/") ||
     pathname === "/painel/testemunhos" ||
-    pathname.startsWith("/painel/testemunhos/")
+    pathname.startsWith("/painel/testemunhos/") ||
+    pathname === "/painel/unicas-midia" ||
+    pathname.startsWith("/painel/unicas-midia/")
+  );
+}
+
+function rotaDeUnicasMidia(pathname: string) {
+  return (
+    pathname === "/painel/unicas-midia" ||
+    pathname.startsWith("/painel/unicas-midia/")
+  );
+}
+
+function rotaDeSolicitacoesPerfil(pathname: string) {
+  return (
+    pathname === "/painel/solicitacoes-perfil" ||
+    pathname.startsWith("/painel/solicitacoes-perfil/")
   );
 }
 
@@ -282,7 +322,8 @@ export function podeAcessarRotaPainel(
       pathname === "/painel/legado" ||
       pathname.startsWith("/painel/legado/") ||
       rotaDePlanilha(pathname) ||
-      rotaDeInscricoesEvento(pathname)
+      rotaDeInscricoesEvento(pathname) ||
+      rotaDeUnicasMidia(pathname)
     );
   }
 
@@ -292,7 +333,9 @@ export function podeAcessarRotaPainel(
       pathname.startsWith("/painel/encontro/") ||
       pathname === "/painel/legado" ||
       pathname.startsWith("/painel/legado/") ||
-      pathname.startsWith("/painel/admin")
+      pathname.startsWith("/painel/admin") ||
+      rotaDeUnicasMidia(pathname) ||
+      rotaDeSolicitacoesPerfil(pathname)
     );
   }
 
@@ -301,7 +344,8 @@ export function podeAcessarRotaPainel(
       pathname === "/painel/encontro" ||
       pathname.startsWith("/painel/encontro/") ||
       pathname === "/painel/legado" ||
-      pathname.startsWith("/painel/legado/")
+      pathname.startsWith("/painel/legado/") ||
+      rotaDeUnicasMidia(pathname)
     );
   }
   if (role === ROLE_MIDIA) {

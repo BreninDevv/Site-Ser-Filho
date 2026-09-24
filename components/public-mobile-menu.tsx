@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/gradient-menu";
 import {
   itemPainelGradient,
+  itemUnicasGradient,
   siteGradientNavItems,
 } from "@/components/site-header";
 import { logout } from "@/app/(auth)/login/actions";
@@ -26,10 +27,12 @@ export function PublicMobileMenu({
   hrefPainel,
   userLabel,
   logado,
+  mostrarUnicas = false,
 }: {
   hrefPainel?: string | null;
   userLabel?: string | null;
   logado: boolean;
+  mostrarUnicas?: boolean;
 }) {
   const pathname = usePathname();
   const [aberto, setAberto] = useState(false);
@@ -40,6 +43,7 @@ export function PublicMobileMenu({
 
   const items: GradientMenuItem[] = [
     ...siteGradientNavItems,
+    ...(mostrarUnicas ? [itemUnicasGradient] : []),
     ...(hrefPainel ? [itemPainelGradient(hrefPainel)] : []),
   ];
 
@@ -72,8 +76,24 @@ export function PublicMobileMenu({
               {logado ? (
                 <>
                   {userLabel ? (
-                    <p className="text-sm text-muted-foreground">{userLabel}</p>
+                    <Link
+                      href="/perfil"
+                      onClick={() => setAberto(false)}
+                      className="text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                    >
+                      {userLabel}
+                    </Link>
                   ) : null}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full rounded-full"
+                    asChild
+                  >
+                    <Link href="/perfil" onClick={() => setAberto(false)}>
+                      Meu perfil
+                    </Link>
+                  </Button>
                   <form action={logout}>
                     <Button
                       size="sm"

@@ -46,3 +46,16 @@ export function ehRoleCadastro(valor: string): valor is RoleCadastro {
 export function ehTempoIgreja(valor: string): valor is TempoIgreja {
   return TEMPOS_IGREJA.includes(valor as TempoIgreja);
 }
+
+export const SEXOS_CADASTRO = ["feminino", "masculino"] as const;
+
+export type SexoCadastro = (typeof SEXOS_CADASTRO)[number];
+
+export const ROTULOS_SEXO_CADASTRO: Record<SexoCadastro, string> = {
+  feminino: "Mulher",
+  masculino: "Homem",
+};
+
+export function ehSexoCadastro(valor: string): valor is SexoCadastro {
+  return SEXOS_CADASTRO.includes(valor as SexoCadastro);
+}

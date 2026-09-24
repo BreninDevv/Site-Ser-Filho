@@ -11,3 +11,4 @@ alwaysApply: true
 - Antes de inventar RPC/coluna/role: confira `supabase/migrations/` e `lib/auth/roles.ts`.
 - Depois de mudança grande: `npx tsc --noEmit` e/ou `npm run build`.
 - Commit/push só se o usuário pedir. `main` = produção Vercel.
+- **Dev testa tudo:** gates novos (nav/rota/API/RLS) devem incluir bypass para `role = dev` (ver regra `dev-ve-tudo`).

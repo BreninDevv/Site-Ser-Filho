@@ -8,6 +8,8 @@ import {
   podeAprovarPagamento,
   podeConferirPlanilha,
   podeGerenciarMidia,
+  podeGerenciarUnicasMidia,
+  podeAprovarSolicitacaoPerfil,
   podeVerInscricoes,
   ROTULOS_ROLE,
 } from "@/lib/auth/permissoes";
@@ -38,6 +40,8 @@ export default async function PainelLayout({
       mostrarDashboard={master}
       mostrarEncontro={podeVerInscricoes(perfil)}
       mostrarMidia={podeGerenciarMidia(perfil)}
+      mostrarUnicasMidia={podeGerenciarUnicasMidia(perfil)}
+      mostrarSolicitacoesPerfil={podeAprovarSolicitacaoPerfil(perfil)}
       mostrarInscricoesEventos={podeAprovarPagamento(perfil)}
       mostrarPlanilha={podeConferirPlanilha(perfil)}
       mostrarAdmin={podeAdminUsuarios(perfil)}
