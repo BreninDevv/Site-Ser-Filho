@@ -56,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           rel="stylesheet"
         />
       </head>
-      <body className="flex min-h-full min-w-0 flex-col overflow-x-clip">
+      <body className="flex min-h-full min-w-0 w-full max-w-full flex-col overflow-x-hidden">
         {children}
       </body>
     </html>
