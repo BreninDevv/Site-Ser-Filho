@@ -17,33 +17,58 @@ export function HomeParallax() {
     const sections = [
       ...root.querySelectorAll<HTMLElement>(".home-parallax-section"),
     ];
-    let frame = 0;
-
-    const clamp = (value: number) => Math.min(1, Math.max(0, value));
-
-    const layoutTop = (el: HTMLElement) => {
-      const top = el.getBoundingClientRect().top;
-      const transform = getComputedStyle(el).transform;
-      if (!transform || transform === "none") return top;
-      return top - new DOMMatrix(transform).m42;
-    };
-
-    const blocksOf = (section: HTMLElement) =>
+    const blocks = sections.map((section) =>
       [...section.children].filter(
         (el): el is HTMLElement =>
           el instanceof HTMLElement &&
           !el.classList.contains("home-parallax-bg")
-      );
+      )
+    );
+    const backgrounds = sections.map((section) =>
+      section.querySelector<HTMLElement>(".home-parallax-bg")
+    );
+    const appliedY = new WeakMap<HTMLElement, number>();
+    let frame = 0;
+    let lastWidth = window.innerWidth;
+
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const phone = () =>
+      window.innerWidth < 1024 ||
+      window.matchMedia("(pointer: coarse)").matches;
+
+    const layoutTop = (el: HTMLElement) =>
+      el.getBoundingClientRect().top - (appliedY.get(el) ?? 0);
+
+    const clearMotion = () => {
+      sections.forEach((section, index) => {
+        section.style.transform = "";
+        section.style.zIndex = "";
+        appliedY.delete(section);
+        const bg = backgrounds[index];
+        if (bg) bg.style.backgroundPosition = "";
+        blocks[index]?.forEach((block) => {
+          block.style.transform = "";
+          block.style.opacity = "";
+        });
+      });
+    };
 
     const update = () => {
       frame = 0;
+      if (phone()) {
+        clearMotion();
+        return;
+      }
+
       const vh = window.innerHeight;
 
       sections.forEach((section, index) => {
-        const bg = section.querySelector<HTMLElement>(".home-parallax-bg");
-        const height = section.offsetHeight || 1;
         const top = layoutTop(section);
-        const blocks = blocksOf(section);
+        const height = section.offsetHeight || 1;
+        const bg = backgrounds[index];
+        const content = blocks[index] ?? [];
+        if (top > vh * 1.25 || top + height < -vh * 0.4) return;
+
         section.style.zIndex = String(index + 1);
 
         if (bg) {
@@ -54,13 +79,14 @@ export function HomeParallax() {
           const span = startTop + height || 1;
           const progress = clamp((startTop - top) / span);
           const y = from + (to - from) * progress;
-          bg.style.backgroundPosition = `50% ${y}px`;
+          bg.style.transform = `translate3d(0, ${y * 0.15}px, 0)`;
         }
 
         if (index === 0) {
           section.style.transform = "";
+          appliedY.set(section, 0);
           const leave = clamp(-top / (height * 0.7));
-          blocks.forEach((block) => {
+          content.forEach((block) => {
             block.style.transform = `translate3d(0, ${leave * -80}px, 0)`;
             block.style.opacity = String(1 - leave * 0.45);
           });
@@ -70,8 +96,9 @@ export function HomeParallax() {
         const enter = clamp((vh - top) / (vh * 0.62));
         const rise = (1 - enter) * Math.min(150, vh * 0.22);
         section.style.transform = `translate3d(0, ${rise}px, 0)`;
+        appliedY.set(section, rise);
 
-        blocks.forEach((block, blockIndex) => {
+        content.forEach((block, blockIndex) => {
           const local = clamp((enter - blockIndex * 0.14) / 0.72);
           block.style.transform = `translate3d(0, ${(1 - local) * 64}px, 0)`;
           block.style.opacity = String(0.15 + local * 0.85);
@@ -80,18 +107,27 @@ export function HomeParallax() {
     };
 
     const onScroll = () => {
-      if (frame) cancelAnimationFrame(frame);
+      if (phone()) return;
+      if (frame) return;
       frame = window.requestAnimationFrame(update);
     };
 
-    update();
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      if (phone()) clearMotion();
+      else update();
+    };
+
+    if (!phone()) update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       if (frame) window.cancelAnimationFrame(frame);
+      clearMotion();
     };
   }, []);
 

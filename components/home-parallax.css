@@ -7,15 +7,16 @@
 
 .home-parallax-bg {
   position: absolute;
-  top: 0;
+  top: -12%;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 124%;
   z-index: 0;
   pointer-events: none;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
+  will-change: transform;
 }
 
 .home-parallax-bg--wash {
@@ -32,6 +33,21 @@
   border-top-left-radius: 2.75rem;
   border-top-right-radius: 2.75rem;
   box-shadow: 0 -32px 70px rgba(16, 36, 80, 0.14);
+}
+
+@media (max-width: 1023px) {
+  .home-parallax-section + .home-parallax-section {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: none;
+  }
+
+  .home-parallax-bg {
+    top: 0;
+    height: 100%;
+    will-change: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

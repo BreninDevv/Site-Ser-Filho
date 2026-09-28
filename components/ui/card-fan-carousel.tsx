@@ -378,7 +378,10 @@ export default function SocialCards({ cards, tone = "light" }: SocialCardsProps)
     };
     container.addEventListener("mouseleave", onMouseLeave);
 
+    let lastWidth = window.innerWidth;
     const onResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
       if (!isAnimating.current) updateHoverLayout(activeSlot);
     };
     window.addEventListener("resize", onResize);
