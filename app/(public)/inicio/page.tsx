@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/typewriter";
 import { createClient } from "@/lib/supabase/server";
+import { HomeParallax } from "@/components/home-parallax";
 import { TestemunhosHome } from "@/components/testemunhos-home";
 import { HandwritingText } from "@/components/ui/handwriting-text";
 import GlobeStudy from "@/components/ui/globe-study";
@@ -69,8 +70,17 @@ export default async function InicioPage() {
     );
 
   return (
-    <div>
-      <section className="relative flex min-h-[calc(100svh-7.5rem)] items-center justify-center overflow-hidden px-4 py-16 text-center">
+    <div id="inicio-home">
+      <HomeParallax />
+      <section className="home-parallax-section relative flex min-h-[calc(100svh-7.5rem)] items-center justify-center overflow-hidden px-4 py-16 text-center">
+        <div
+          aria-hidden
+          className="home-parallax-bg home-parallax-bg--wash"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, #ffffff 0%, #e8eefb 55%, #ffffff 100%)",
+          }}
+        />
         <div className="relative mx-auto w-full max-w-2xl min-w-0">
           <div className="relative z-10 mx-auto aspect-square w-full max-w-[280px] sm:max-w-[380px]">
             <GlobeStudy mode="light" />
@@ -105,7 +115,15 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section className="px-4 py-24">
+      <section className="home-parallax-section px-4 py-24">
+        <div
+          aria-hidden
+          className="home-parallax-bg home-parallax-bg--wash"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, #ffffff 0%, #e8eefb 50%, #ffffff 100%)",
+          }}
+        />
         <div className="mx-auto grid max-w-4xl items-center gap-12 lg:grid-cols-[1fr_1.3fr]">
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -149,11 +167,30 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section id="testemunhos" className="testemunhos-section relative w-full text-white">
+      <section
+        id="testemunhos"
+        className="home-parallax-section testemunhos-section relative w-full text-white"
+      >
+        <div
+          aria-hidden
+          className="home-parallax-bg home-parallax-bg--wash"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, #1e4aad 0%, #285ccc 45%, #3d74e0 100%)",
+          }}
+        />
         <TestemunhosHome itens={testemunhosHome} />
       </section>
 
-      <section className="px-4 py-24">
+      <section className="home-parallax-section px-4 py-24">
+        <div
+          aria-hidden
+          className="home-parallax-bg home-parallax-bg--wash"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, #ffffff 0%, #e8eefb 60%, #ffffff 100%)",
+          }}
+        />
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -221,10 +258,10 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-[#1f3d1f] px-4 py-32 text-center text-[#faf9f6]">
+      <section className="home-parallax-section relative overflow-hidden bg-[#1f3d1f] px-4 py-32 text-center text-[#faf9f6]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
+          className="home-parallax-bg pointer-events-none opacity-35"
           style={{ backgroundImage: "url('/encontro/fundo.jpg')" }}
         />
         <div className="relative">
@@ -250,10 +287,10 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-black px-4 py-32 text-center text-white">
+      <section className="home-parallax-section relative overflow-hidden bg-black px-4 py-32 text-center text-white">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-80"
+          className="home-parallax-bg pointer-events-none opacity-80"
           style={{ backgroundImage: "url('/legado/fundo.jpg')" }}
         />
         <div className="relative">
@@ -278,43 +315,50 @@ export default async function InicioPage() {
         </div>
       </section>
 
-      <section className="px-4 py-24">
+      <section className="home-parallax-section bg-[#285CCC] px-4 py-24 text-white">
+        <div
+          aria-hidden
+          className="home-parallax-bg home-parallax-bg--wash"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, #1e4aad 0%, #285ccc 50%, #4b82ea 100%)",
+          }}
+        />
         <div className="mx-auto max-w-4xl">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
             Contato
           </p>
-          <h2 className="font-heading mb-2 text-4xl font-bold tracking-tight">
+          <h2 className="font-heading mb-2 text-4xl font-bold tracking-tight text-white">
             Fale conosco
           </h2>
-          <p className="mb-10 text-sm text-muted-foreground">
+          <p className="mb-10 text-sm text-white/75">
             Ficou com alguma dúvida? Esses são os canais para chegar até a gente.
           </p>
-          <div className="overflow-hidden rounded-2xl bg-secondary">
+          <div className="overflow-hidden rounded-2xl bg-[#1e4aad]">
             <div className="flex items-center justify-between px-6 py-5">
               <span className="font-semibold">WhatsApp</span>
-              <span className="text-sm italic text-muted-foreground">
+              <span className="text-sm italic text-white/70">
                 [a preencher]
               </span>
             </div>
             <div className="flex items-center justify-between px-6 py-5">
               <span className="font-semibold">E-mail</span>
-              <span className="text-sm italic text-muted-foreground">
+              <span className="text-sm italic text-white/70">
                 [a preencher]
               </span>
             </div>
             <div className="flex items-center justify-between px-6 py-5">
               <span className="font-semibold">Endereço</span>
-              <span className="text-sm italic text-muted-foreground">
+              <span className="text-sm italic text-white/70">
                 [a preencher]
               </span>
             </div>
           </div>
         </div>
+        <p className="px-4 pb-14 pt-10 text-center font-heading text-lg font-medium tracking-wide text-white/80 sm:text-xl">
+          O Ministério Ser Filho ama cada um de vocês!
+        </p>
       </section>
-
-      <p className="px-4 pb-14 pt-2 text-center font-heading text-lg font-medium tracking-wide text-foreground/70 sm:text-xl">
-        O Ministério Ser Filho ama cada um de vocês!
-      </p>
     </div>
   );
 }

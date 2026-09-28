@@ -5,7 +5,7 @@
   overflow: hidden;
   isolation: isolate;
   padding: 0 !important;
-  background: #0c0e12;
+  background: #285ccc;
 }
 
 .testemunhos-section .testemunhos-reveal {
@@ -52,7 +52,7 @@
 .testemunhos-carousel-band {
   position: relative;
   z-index: 2;
-  background: #0c0e12;
+  background: #285ccc;
   padding: 3.5rem 1rem 4.5rem;
   color: #fff;
   overflow: visible;
