@@ -37,15 +37,13 @@
 
 @media (max-width: 1023px) {
   .home-parallax-section + .home-parallax-section {
-    margin-top: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    box-shadow: none;
+    margin-top: -2rem;
+    border-top-left-radius: 1.75rem;
+    border-top-right-radius: 1.75rem;
+    box-shadow: 0 -16px 36px rgba(16, 36, 80, 0.1);
   }
 
   .home-parallax-bg {
-    top: 0;
-    height: 100%;
     will-change: auto;
   }
 }
@@ -57,6 +55,7 @@
 
   .home-parallax-section,
   .home-parallax-section > * {
+    animation: none !important;
     transform: none !important;
     opacity: 1 !important;
   }

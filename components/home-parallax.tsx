@@ -45,7 +45,10 @@ export function HomeParallax() {
         section.style.zIndex = "";
         appliedY.delete(section);
         const bg = backgrounds[index];
-        if (bg) bg.style.backgroundPosition = "";
+        if (bg) {
+          bg.style.backgroundPosition = "";
+          bg.style.transform = "";
+        }
         blocks[index]?.forEach((block) => {
           block.style.transform = "";
           block.style.opacity = "";
@@ -55,12 +58,9 @@ export function HomeParallax() {
 
     const update = () => {
       frame = 0;
-      if (phone()) {
-        clearMotion();
-        return;
-      }
 
       const vh = window.innerHeight;
+      const light = phone();
 
       sections.forEach((section, index) => {
         const top = layoutTop(section);
@@ -79,35 +79,38 @@ export function HomeParallax() {
           const span = startTop + height || 1;
           const progress = clamp((startTop - top) / span);
           const y = from + (to - from) * progress;
-          bg.style.transform = `translate3d(0, ${y * 0.15}px, 0)`;
+          bg.style.transform = `translate3d(0, ${y * (light ? 0.08 : 0.15)}px, 0)`;
         }
 
         if (index === 0) {
           section.style.transform = "";
           appliedY.set(section, 0);
           const leave = clamp(-top / (height * 0.7));
+          const drift = light ? -36 : -80;
           content.forEach((block) => {
-            block.style.transform = `translate3d(0, ${leave * -80}px, 0)`;
-            block.style.opacity = String(1 - leave * 0.45);
+            block.style.transform = `translate3d(0, ${leave * drift}px, 0)`;
+            block.style.opacity = String(1 - leave * (light ? 0.2 : 0.45));
           });
           return;
         }
 
         const enter = clamp((vh - top) / (vh * 0.62));
-        const rise = (1 - enter) * Math.min(150, vh * 0.22);
+        const rise =
+          (1 - enter) *
+          (light ? Math.min(110, vh * 0.16) : Math.min(150, vh * 0.22));
         section.style.transform = `translate3d(0, ${rise}px, 0)`;
         appliedY.set(section, rise);
 
+        const shift = light ? 36 : 64;
         content.forEach((block, blockIndex) => {
           const local = clamp((enter - blockIndex * 0.14) / 0.72);
-          block.style.transform = `translate3d(0, ${(1 - local) * 64}px, 0)`;
-          block.style.opacity = String(0.15 + local * 0.85);
+          block.style.transform = `translate3d(0, ${(1 - local) * shift}px, 0)`;
+          block.style.opacity = String((light ? 0.45 : 0.15) + local * (light ? 0.55 : 0.85));
         });
       });
     };
 
     const onScroll = () => {
-      if (phone()) return;
       if (frame) return;
       frame = window.requestAnimationFrame(update);
     };
@@ -115,11 +118,10 @@ export function HomeParallax() {
     const onResize = () => {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-      if (phone()) clearMotion();
-      else update();
+      update();
     };
 
-    if (!phone()) update();
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
 
